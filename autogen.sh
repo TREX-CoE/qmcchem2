@@ -1,4 +1,4 @@
 #!/bin/bash
 
 export srcdir="."
-autoreconf -i -Wall --no-recursive
+autoreconf -f -i -Wall --no-recursive

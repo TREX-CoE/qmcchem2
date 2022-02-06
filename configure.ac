@@ -19,6 +19,16 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AX_PROG_IRPF90
 
+AC_CHECK_PROGS([QMCCHEM_MPIRUN], [srun mpiexec mpirun])
+AC_SUBST([QMCCHEM_MPIRUN])
+
+# Check for IB network interface
+AX_CHECK_NIC()
+QMCCHEM_NIC=$NIC
+echo "NIC=$NIC"
+echo "QMCCHEM_NIC=$QMCCHEM_NIC"
+AC_SUBST([QMCCHEM_NIC])
+
 # Fortran compiler checks
 AC_PROG_FC([ifort gfortran])
 AC_FC_LINE_LENGTH([132])
@@ -54,5 +64,5 @@ AC_TYPE_UINT8_T
 
 AC_LANG([Fortran])
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile qmcchemrc])
 AC_OUTPUT
