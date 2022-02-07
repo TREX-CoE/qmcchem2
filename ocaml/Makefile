@@ -1,14 +1,5 @@
 .NOPARALLEL:
 
-# Check if QMCCHEM_PATH is defined
-ifndef QMCCHEM_PATH
-$(info  -------------------- Error --------------------)
-$(info  QMCCHEM_PATH undefined. Source the qmcchem.rc script)
-$(info  -----------------------------------------------)
-$(error )
-endif
-
-
 LIBS=
 PKGS=
 OCAMLCFLAGS="-g"
@@ -42,17 +33,11 @@ tests: $(ALL_TESTS)
 	$(OCAMLBUILD) $*.native -use-ocamlfind $(PKGS)
 	ln -s $*.native $*
 
-ezfio.ml: ${QMCCHEM_PATH}/EZFIO/Ocaml/ezfio.ml
-	cp ${QMCCHEM_PATH}/EZFIO/Ocaml/ezfio.ml .
-
 qptypes_generator.byte: qptypes_generator.ml
 	$(OCAMLBUILD) qptypes_generator.byte  -use-ocamlfind 
 
 Qptypes.ml: qptypes_generator.byte
 	./qptypes_generator.byte > Qptypes.ml
-
-${QMCCHEM_PATH}/EZFIO/Ocaml/ezfio.ml: 
-	${MAKE) -C ${QMCCHEM_PATH}/EZFIO/
 
 clean: 
 	rm -rf _build Qptypes.ml $(ALL_EXE) $(ALL_TESTS)

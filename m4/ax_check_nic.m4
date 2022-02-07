@@ -58,7 +58,6 @@ AC_DEFUN([AX_CHECK_NIC], [
     fi
 
     INTERFACES=[`ip link show | grep -e '^[0-9]' | cut -d ':' -f 2`]
-    echo $INTERFACES
 
     NIC=""
     for interface in $INTERFACES

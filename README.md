@@ -33,31 +33,15 @@ Warnings:
 Requirements
 ------------
 
-* [OCaml compiler with Opam and Core library](http://github.com/ocaml)
+* [OCaml compiler with Opam](http://github.com/ocaml)
 * [ZeroMQ high performance communication library](http://www.zeromq.org)
-* [F77_ZMQ ZeroMQ Fortran interface](http://github.com/scemama/f77_zmq/)
-* [IRPF90 Fortran code generator](http://irpf90.ups-tlse.fr)
-* [EZFIO Easy Fortran I/O library generator](http://github.com/scemama/EZFIO)
+* [F77_ZMQ ZeroMQ Fortran interface](http://github.com/zeromq/f77_zmq/)
 * GNU C++ Compiler (g++) for ZeroMQ 
-* Python >= 2.6 for install scripts
+* Python3 for install scripts
 * Bash for install scripts
 * Fortran compiler, Intel Fortran recommended
 * Lapack library, Intel MKL recommended
 
-
-Most of the dependencies are open-source can be downloaded automatically by
-going into the `install` directory and running `make`. It will first download
-into the `install/Downloads` directory everything that needs to be installed.
-The building of the dependencies takes place in the `install/_build`
-directory, and the packages that are being installed can be followed by looking
-at the log files in this directory. When a package was successfully installed,
-a `*.ok` file is created and the log file is deleted.
-
-If you don't have an internet connection available, you can execute the
-downloading step on another computer and transfer all the downloaded files
-into the `Downloads` directory.
-The Fortran and C++ compilers, Python and Bash interpreters and the Lapack
-library need to be installed manually by the user.
 
 Installation
 ------------
