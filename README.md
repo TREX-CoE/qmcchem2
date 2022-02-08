@@ -11,13 +11,28 @@ preparing a trial wave function with the
 Requirements
 ------------
 
-* [OCaml compiler with Opam](http://github.com/ocaml)
-* [ZeroMQ high performance communication library](http://www.zeromq.org)
-* [F77_ZMQ ZeroMQ Fortran interface](http://github.com/zeromq/f77_zmq/)
-* Python3
 * Bash
+* Python3
 * Fortran compiler, Intel Fortran recommended
 * Lapack library, Intel MKL recommended
+* [ZeroMQ high performance communication library](http://www.zeromq.org)
+* [F77_ZMQ ZeroMQ Fortran interface](http://github.com/zeromq/f77_zmq/)
+* [OCaml compiler with Opam](http://github.com/ocaml)
+
+To install the required OCaml packages, run
+```bash
+opam install cryptokit zmq sexplib ppx_sexp_conv ppx_deriving getopt
+```
+
+If you have trouble installing OCaml, on x86 systems you can download
+the [this file](https://github.com/QuantumPackage/qp2-dependencies/blob/master/ocaml-bundle_x86.tar.gz)
+and run
+```bash
+tar -zxf ocaml-bundle_x86.tar.gz
+./ocaml-bundle/bootstrap.sh
+./ocaml-bundle/configure.sh
+./ocaml-bundle/compile.sh 
+```
 
 
 Installation
