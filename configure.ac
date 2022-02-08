@@ -42,6 +42,7 @@ AC_SUBST([QMCCHEM_NIC])
 AX_ZMQ([4.0], [], [ AC_MSG_ERROR([Please install ZeroMQ >= 4.0]) ])
 AC_CHECK_LIB([z], [compress])
 AC_CHECK_LIB([zmq], [zmq_send])
+AC_CHECK_LIB([qmckl], [qmckl_context_create])
 AC_CHECK_LIB([f77zmq], [f77_zmq_send__], [],
   AC_CHECK_LIB([f77zmq], [f77_zmq_send_], [],
     AC_CHECK_LIB([f77zmq], [f77_zmq_send], [], [], [-lzmq]),

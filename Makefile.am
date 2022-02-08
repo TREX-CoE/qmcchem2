@@ -27,11 +27,6 @@ bin_SCRIPTS = ocaml/qmcchem \
               src/MAIN/qmcchem_info
 
 
-#qmc_SOURCES=$(IRPSOURCES)
-#qmcchem_info_SOURCES=$(IRPSOURCES)
-#qmc_create_walkers_SOURCES=$(IRPSOURCES)
-#qmcchem_SOURCES=$(OCAMLSOURCES)
-
 clean_irpf90:
 	$(MAKE) -C src veryclean
 
