@@ -25,7 +25,7 @@ opam install cryptokit zmq sexplib ppx_sexp_conv ppx_deriving getopt
 ```
 
 If you have trouble installing OCaml, on x86 systems you can download
-the [this file](https://github.com/QuantumPackage/qp2-dependencies/blob/master/ocaml-bundle_x86.tar.gz)
+the [this file](https://github.com/QuantumPackage/qp2-dependencies/raw/master/ocaml-bundle_x86.tar.gz)
 and run
 ```bash
 tar -zxf ocaml-bundle_x86.tar.gz
