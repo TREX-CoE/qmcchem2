@@ -121,3 +121,29 @@ END_PROVIDER
 
 END_PROVIDER 
 
+BEGIN_PROVIDER [ double precision, Energy_mu ]
+
+  BEGIN_DOC
+  ! E mu = < H_mu \Phi / \Phi >_{\Phi^2}
+  END_DOC
+
+  implicit none
+  integer :: i
+
+  double precision :: lapl
+  lapl = 0.d0
+  do i=1,elec_num
+    lapl += psidet_grad_lapl(4,i)*psidet_inv + jast_elec_mu_lapl(i) + &
+    2.d0*psidet_inv * (&
+        psidet_grad_lapl(1,i)*jast_elec_mu_grad_x(i) +                   &
+        psidet_grad_lapl(2,i)*jast_elec_mu_grad_y(i) +                   &
+        psidet_grad_lapl(3,i)*jast_elec_mu_grad_z(i)  ) + ( &
+        jast_elec_mu_grad_x(i)*jast_elec_mu_grad_x(i) + &
+        jast_elec_mu_grad_y(i)*jast_elec_mu_grad_y(i) + &
+        jast_elec_mu_grad_z(i)*jast_elec_mu_grad_z(i) )
+
+  enddo
+  Energy_mu = -0.5d0 * lapl + E_nucl + E_pot
+
+END_PROVIDER
+

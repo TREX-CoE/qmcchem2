@@ -10,6 +10,50 @@ BEGIN_PROVIDER [ double precision, psi_norm ]
   SOFT_TOUCH psi_norm_min psi_norm_max
 END_PROVIDER
 
+BEGIN_PROVIDER [ double precision, ci_dress, (size_ci_dress) ]
+  implicit none
+  BEGIN_DOC
+  ! < det(i)/Psi e^{-J} (E_L - E_0) >
+  !
+  ! Dimensions : det_num
+  END_DOC
+
+  integer          :: i, j, k, l
+  double precision :: T, h_psidet, dij, f, E_noJ, dE
+
+  h_psidet = -0.5d0*psidet_lapl*psidet_inv + E_pot + E_nucl
+  E_noJ = h_psidet
+  dE = (E_loc - E_noJ) * psi_value_inv * jast_value_inv
+  do k=1,det_num
+     i = det_coef_matrix_rows(k)
+     j = det_coef_matrix_columns(k)
+     f = det_alpha_value(i)*det_beta_value(j)
+     ci_dress(k) = dE * f
+  enddo
+
+END_PROVIDER
+
+BEGIN_PROVIDER [ double precision, ci_dress_mu, (size_ci_dress_mu) ]
+  BEGIN_DOC
+  ! Dimensions : det_num
+  END_DOC
+  implicit none
+  integer          :: i, j, k, l
+  double precision :: T, dij, f, E_noJ, dE
+  ! energy_mu = H_mu \Phi / \Phi
+  dE = (E_loc - energy_mu) * psi_value_inv * jast_value_inv
+  do k = 1, det_num
+     i = det_coef_matrix_rows(   k)
+     j = det_coef_matrix_columns(k)
+     f = det_alpha_value(i) * det_beta_value(j)
+     ci_dress_mu(k) = dE * f
+  enddo
+  ci_dress_mu_min = min(ci_dress_mu_min, minval(ci_dress_mu))
+  ci_dress_mu_max = max(ci_dress_mu_max, maxval(ci_dress_mu))
+  SOFT_TOUCH ci_dress_mu_min ci_dress_mu_max
+END_PROVIDER
+
+
 BEGIN_PROVIDER [ double precision, ci_overlap_psidet, (size_ci_overlap_psidet) ]
   implicit none
   BEGIN_DOC
@@ -105,7 +149,7 @@ BEGIN_PROVIDER [ double precision, ci_h_matrix, (size_ci_h_matrix) ]
   do l=1,det_num
       m = det_coef_matrix_rows(l)
       n = det_coef_matrix_columns(l)
-      ! Lapl D 
+      ! Lapl D
       T = det_alpha_lapl_sum(m) * det_beta_value (n) &
           + det_alpha_value(m) * det_beta_lapl_sum(n)
       if (j_lapl_inv /= 0.d0) then
@@ -140,7 +184,7 @@ BEGIN_PROVIDER [ double precision, ci_h_matrix, (size_ci_h_matrix) ]
           V -= pseudo_non_local(e)* g
           V += det_alpha_value(m) * det_beta_pseudo(e,n)
         enddo
-      endif 
+      endif
       f = -0.5d0*T + V
       f *= psidet_inv * psidet_inv
       do k=1,det_num
@@ -170,7 +214,7 @@ BEGIN_PROVIDER [ double precision, ci_h_matrix_diag, (size_ci_h_matrix_diag) ]
   do l=1,det_num
       m = det_coef_matrix_rows(l)
       n = det_coef_matrix_columns(l)
-      ! Lapl D 
+      ! Lapl D
       g = 0.d0
       do e=1,elec_alpha_num
         g += det_alpha_grad_lapl(4,e,m) * det_beta_value (n)
@@ -224,174 +268,16 @@ BEGIN_PROVIDER [ double precision, ci_h_matrix_diag, (size_ci_h_matrix_diag) ]
   SOFT_TOUCH ci_h_matrix_diag_min ci_h_matrix_diag_max
 END_PROVIDER
 
-
-BEGIN_PROVIDER [ double precision, ci_h_transcor_psi, (size_ci_h_transcor_psi) ]
-  implicit none
+BEGIN_PROVIDER [ double precision, ci_dress_mu_opt ]
   BEGIN_DOC
-  ! < det(i) e^{-J} |H| Psi >
-  !
-  ! Dimensions : det_num
-  END_DOC
-
-  integer                        :: i, j, k
-
-  do k=1,det_num
-    i = det_coef_matrix_rows(k)
-    j = det_coef_matrix_columns(k)
-    ci_h_transcor_psi(k) = E_loc * jast_value_inv * &
-       det_alpha_value(i)*det_beta_value(j) * psi_value_inv
-  enddo
-
-  ci_h_transcor_psi_min = min(ci_h_transcor_psi_min,minval(ci_h_transcor_psi))
-  ci_h_transcor_psi_max = max(ci_h_transcor_psi_max,maxval(ci_h_transcor_psi))
-  SOFT_TOUCH ci_h_transcor_psi_min ci_h_transcor_psi_max
-END_PROVIDER
-
-
-BEGIN_PROVIDER [ double precision, ci_dress, (size_ci_dress) ]
-  implicit none
-  BEGIN_DOC
-  ! < det(i) e^{-J} |H| Psi >
-  !
-  ! Dimensions : det_num
-  END_DOC
-
-  integer          :: i, j, k, l
-  double precision :: T, h_psidet, dij, f, E_noJ, dE
-
-  h_psidet = -0.5d0*psidet_lapl*psidet_inv + E_pot + E_nucl 
-  E_noJ = h_psidet 
-  dE = E_loc - E_noJ
-  do k=1,det_num
-     i = det_coef_matrix_rows(k)
-     j = det_coef_matrix_columns(k)
-     f = det_alpha_value(i)*det_beta_value(j) * psi_value_inv * jast_value_inv
-     ci_dress(k) = dE * f
-  enddo
-
-return
-  integer                        :: m, n, e
-  double precision :: g, h, V, j_lapl_inv, det_ab
-
-  ! (Lapl J)/J
-  j_lapl_inv = 0.d0
-  do e=1,elec_num
-    j_lapl_inv += jast_lapl_jast_inv(e)
-  enddo
-
-  do l=1,det_num
-      m = det_coef_matrix_rows(l)
-      n = det_coef_matrix_columns(l)
-      ! Lapl D 
-!      T = det_alpha_lapl_sum(m) * det_beta_value (n) &
-!          + det_alpha_value(m) * det_beta_lapl_sum(n)
-!      det_ab = det_alpha_value(m)*det_beta_value(n)
-!      ci_dress(l) = -0.5d0*T + (E_pot + E_nucl) * det_ab
-      T = 0.d0
-      ci_dress(l) = 0.d0
-
-      ! D (Lapl J)/J
-      T += det_alpha_value(m) * det_beta_value(n) * j_lapl_inv
-
-      ! 2 (grad D).(Grad J)/J
-      g = 0.d0
-      do e=1,elec_alpha_num
-        g += &
-          det_alpha_grad_lapl(1,e,m) * jast_grad_jast_inv_x(e) + &
-          det_alpha_grad_lapl(2,e,m) * jast_grad_jast_inv_y(e) + &
-          det_alpha_grad_lapl(3,e,m) * jast_grad_jast_inv_z(e)
-      enddo
-      h = 0.d0
-      do e=1,elec_beta_num
-        h += &
-          det_beta_grad_lapl(1,e,n) * jast_grad_jast_inv_x(elec_alpha_num+e) + &
-          det_beta_grad_lapl(2,e,n) * jast_grad_jast_inv_y(elec_alpha_num+e) + &
-          det_beta_grad_lapl(3,e,n) * jast_grad_jast_inv_z(elec_alpha_num+e)
-      enddo
-      T += 2.d0*( g * det_beta_value(n) + h * det_alpha_value(m) )
-
-      V = 0.d0 ! (E_pot + E_nucl)* det_ab
-      if (do_pseudo) then
-        do e=1,elec_alpha_num
-          V -= pseudo_non_local(e)* det_ab
-          V += det_alpha_pseudo(e,m) * det_beta_value(n)
-        enddo
-        do e=1,elec_beta_num
-          V -= pseudo_non_local(e)* det_ab
-          V += det_alpha_value(m) * det_beta_pseudo(e,n)
-        enddo
-      endif 
-      f = -0.5d0*T + V !- ci_dress(l)
-      ci_dress(l) = f *  psi_value_inv * jast_value_inv * jast_value_inv
-
-  enddo
-
-
-  ci_dress_min = min(ci_dress_min,minval(ci_dress))
-  ci_dress_max = max(ci_dress_max,maxval(ci_dress))
-  SOFT_TOUCH ci_dress_min ci_dress_max
-END_PROVIDER
-
-BEGIN_PROVIDER [ double precision, ci_dress_opt ]
-  BEGIN_DOC
-  ! Use for optimizing mu
+  ! Used for optimizing mu
   END_DOC
   implicit none
   integer          :: i, j, k, l
   double precision :: T, dij, f, E_noJ, dE
-  ! energy = H \Phi / \Phi
-  E_noJ = -0.5d0*psidet_lapl*psidet_inv + E_pot + E_nucl 
-  dE = (E_loc - E_noJ) * psi_value_inv * jast_value_inv ! PsiJ.J
-  k = 1
-  i = det_coef_matrix_rows(   k)
-  j = det_coef_matrix_columns(k)
-  f = det_alpha_value(i) * det_beta_value(j)
-  ci_dress_opt = dE * f
-  ci_dress_opt_min = min(ci_dress_opt_min, ci_dress_opt)
-  ci_dress_opt_max = max(ci_dress_opt_max, ci_dress_opt)
-  SOFT_TOUCH ci_dress_opt_min ci_dress_opt_max
-END_PROVIDER
-
-BEGIN_PROVIDER [ double precision, ci_dress_Htilde, (size_ci_dress) ]
-  implicit none
-  BEGIN_DOC
-  ! < det(i) e^{-J} |H| Psi >
-  !
-  ! Dimensions : det_num
-  END_DOC
-
-  integer          :: i, j, k, l
-  double precision :: T, h_psidet, dij, f, E_noJ, dE
-
-  E_noJ = -0.5d0*psidet_lapl*psidet_inv + E_pot + E_nucl 
-  dE = E_loc - E_noJ
-  do k=1,det_num
-     i = det_coef_matrix_rows(k)
-     j = det_coef_matrix_columns(k)
-     f = det_alpha_value(i)*det_beta_value(j) * psi_value_inv * jast_value_inv
-     ci_dress(k) = dE * f
-  enddo
-
-END_PROVIDER
-
-BEGIN_PROVIDER [ double precision, ci_dress_H, (size_ci_dress) ]
-  implicit none
-  BEGIN_DOC
-  ! < det(i) e^{-J} |H| Psi >
-  !
-  ! Dimensions : det_num
-  END_DOC
-
-  integer          :: i, j, k, l
-  double precision :: T, h_psidet, dij, f, E_noJ, dE
-
-  E_noJ= -0.5d0*psidet_lapl*psidet_inv + E_pot + E_nucl 
-  do k=1,det_num
-     i = det_coef_matrix_rows(k)
-     j = det_coef_matrix_columns(k)
-     f = det_alpha_value(i)*det_beta_value(j) * psi_value_inv * jast_value_inv
-     ci_dress(k) = E_noJ * f
-  enddo
-
+  ci_dress_mu_opt = E_loc - energy_mu
+  ci_dress_mu_opt_min = min(ci_dress_mu_opt_min, ci_dress_mu_opt)
+  ci_dress_mu_opt_max = max(ci_dress_mu_opt_max, ci_dress_mu_opt)
+  SOFT_TOUCH ci_dress_mu_opt_min ci_dress_mu_opt_max
 END_PROVIDER
 

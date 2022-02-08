@@ -1,8 +1,10 @@
 QMC=Chem 2
 ==========
 
+This repository contains version 2 of QMC=Chem.
+Version 1 is available on [GitLab](https://gitlab.com/scemama/qmcchem).
 QMC=Chem is a quantum Monte Carlo program meant to be used after
-preparing a trial wave function with the 
+preparing a trial wave function with the
 [Quantum Package](https://github.com/quantumpackage/qp2) code.
 
 
