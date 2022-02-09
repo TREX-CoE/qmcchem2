@@ -23,11 +23,12 @@ AM_PROG_AR
 
 
 # Fortran compiler checks
-AC_PROG_F77([ifort gfortran])
 AC_PROG_FC([ifort gfortran])
 AC_FC_FREEFORM()
 AC_FC_LINE_LENGTH(unlimited)
 AC_FC_SRCEXT(f90)
+export F77=$FC
+export FFLAGS=$FCFLAGS
 
 
 AC_CHECK_PROGS([QMCCHEM_MPIRUN], [srun mpiexec mpirun])

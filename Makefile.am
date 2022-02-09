@@ -16,7 +16,7 @@ QMCCHEM_PATH=$(abs_srcdir)
 ARCHIVE=$(AR) crs
 
 AM_LIBS=$(EZFIO_DIR)/lib/libezfio_irp.a
-LIB=$(LIBS) $(AM_LIBS)
+LIB=$(AM_LIBS) $(LIBS) 
 
 
 export FC FCFLAGS QMCCHEM_PATH IRPF90_FLAGS ARCHIVE LDFLAGS LIB
@@ -33,8 +33,11 @@ clean_irpf90:
 src/irpf90.make: $(IRPSOURCES)
 	$(MAKE) -C src  irpf90.make
 
-src/MAIN/qmc src/MAIN/qmc_create_walkers src/MAIN/qmcchem_info: \
-    $(EZFIO_DIR)/lib/libezfio_irp.a src/irpf90.make
+
+src/MAIN/qmc_create_walkers:src/MAIN/qmc
+src/MAIN/qmcchem_info:src/MAIN/qmc
+
+src/MAIN/qmc: $(EZFIO_DIR)/lib/libezfio_irp.a src/irpf90.make
 	$(MAKE) -C src
 
 clean_ezfio:
@@ -96,11 +99,12 @@ IRPSOURCES= \
   src/MAIN/qmcchem_info.irp.f \
   src/MAIN/vmc_test.irp.f \
   src/Makefile \
+  src/qmckl_f.f90 \
+  src/qmckl.irp.f \
   src/PROPERTIES/properties.irp.f \
   src/PROPERTIES/properties_ci.irp.f \
   src/PROPERTIES/properties_energy.irp.f \
   src/PROPERTIES/properties_general.irp.f \
-  src/PROPERTIES/properties_mu.irp.f \
   src/SAMPLING/block.irp.f \
   src/SAMPLING/brownian_step.irp.f \
   src/SAMPLING/dmc_step.irp.f \
@@ -161,7 +165,6 @@ OCAMLSOURCES= \
   ocaml/Qmcchem_result.ml \
   ocaml/Qmcchem_run.ml \
   ocaml/Qmcchem_stop.ml \
-  ocaml/Qptypes.ml \
   ocaml/Qputils.ml \
   ocaml/Random_variable.ml \
   ocaml/Sample.ml \
