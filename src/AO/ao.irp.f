@@ -5,7 +5,7 @@
 ! Number of atomic orbitals
   END_DOC
   integer, external              :: mod_align
-  
+
   ao_num = -1
   call get_ao_basis_ao_num(ao_num)
   if (ao_num <= 0) then
@@ -34,7 +34,7 @@ BEGIN_PROVIDER [ integer, ao_prim_num, (ao_num_8) ]
   enddo
   call iset_order(ao_prim_num,ao_nucl_sort_idx,ao_num)
   call iinfo(irp_here,'sum_ao_prim_num',sum(ao_prim_num))
-  
+
 END_PROVIDER
 
 
@@ -48,21 +48,20 @@ END_PROVIDER
 
   ao_nucl = -1
   call get_ao_basis_ao_nucl(ao_nucl)
-  
+
   character*(80)                 :: message
   character*(30)                 :: range
   integer                        :: i,k
 
-  write(range,'(A,I5,A)') '(1,',nucl_num,')'
-
   do i=1,ao_num
     if ( (ao_nucl(i) <= 0) .or. (ao_nucl(i) > nucl_num) ) then
+      write(range,'(A,I5,A)') '(1,',nucl_num,')'
       write(message,'(A,I6,A)') 'Contraction ',i,' should be centered on a nucleus in the range'//trim(range)
       call abrt(irp_here,message)
     endif
     ao_nucl_sort_idx(i) = i
   enddo
-  call isort(ao_nucl,ao_nucl_sort_idx,ao_num)
+  call insertion_isort(ao_nucl,ao_nucl_sort_idx,ao_num)
   ao_nucl_idx(1,ao_nucl(1)) = 1
   ao_nucl_idx(2,ao_nucl(1)) = 1
   do i=2,ao_num
@@ -83,14 +82,14 @@ END_PROVIDER
   implicit none
   BEGIN_DOC
 ! x,y,z powers of the atomic orbital
-! 
+!
 ! 4 contains the sum of powers
-! 
+!
 ! ao_power_is_zero is true where ao_power(:,4) == 0
   END_DOC
   ao_power = 0
   call get_ao_basis_ao_power(ao_power)
-  
+
   character*(80)                 :: message
   integer                        :: i,j
   do i=1,3
@@ -112,7 +111,7 @@ END_PROVIDER
 
 BEGIN_PROVIDER [ integer, ao_power_transp, (4,ao_num) ]
   implicit none
-  BEGIN_DOC  
+  BEGIN_DOC
 ! Transposed ao_power
   END_DOC
   integer                        :: i,j
@@ -141,7 +140,7 @@ BEGIN_PROVIDER [ integer , ao_power_max_nucl, (nucl_num_8,4) ]
   END_DOC
   integer                        :: i, j
   ao_power_max_nucl = 0
-  
+
   integer                        :: inucl
   do j=1,3
     do i=1,ao_num
@@ -203,7 +202,7 @@ END_PROVIDER
     enddo
     call set_order(ao_expo(1,j),ao_nucl_sort_idx,ao_num)
   enddo
-  
+
   integer                        :: i,j
   do i=1,ao_num
     do j=1,ao_prim_num(i)
@@ -214,7 +213,7 @@ END_PROVIDER
       endif
     enddo
   enddo
-  
+
   ao_coef = 0.
   buf = 0.
   call get_ao_basis_ao_coef(buf)
@@ -275,7 +274,7 @@ END_PROVIDER
   integer                        :: k, kk, kkstart, kk2, i, j
   integer, allocatable           :: order(:)
   allocate ( order(2*sum(ao_prim_num)) )
-  
+
   ao_expo_unique_idx = 1
   kk=1
   do k=1,nucl_num
@@ -305,7 +304,7 @@ END_PROVIDER
     kk += 1
   enddo
   deallocate(order)
-  
+
   ao_expo_unique_idx = 0
   do i=1,ao_num
     do j=1,ao_prim_num(i)

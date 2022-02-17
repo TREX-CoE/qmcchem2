@@ -15,48 +15,55 @@ program qmcchem_info
   call cpu_time (cpu0)
   call step2(imax)
   call cpu_time (cpu1)
-  print *,  'Time for the calculation of 1 step (ms)   : ', 1000.*(cpu1-cpu0)/float(imax)
+  print *,  'QMC=Chem : ', 1000.*(cpu1-cpu0)/float(imax)
+  call cpu_time (cpu0)
+  call step3(imax)
+  call cpu_time (cpu1)
+  print *,  'QMCkl    : ', 1000.*(cpu1-cpu0)/float(imax)
 end
 
 subroutine step1
   implicit none
   integer                        :: i, j
  10 format (3I4,2E20.10)
-!    print *, elec_coord(1:elec_num,1:3)
-    print *, ao_nucl_sort_idx(:)
     do i=1,elec_num
       ao_elec = i
       TOUCH ao_elec
       do j=1, ao_value_non_zero_idx(0)
-        print 10, ao_value_non_zero_idx(j), i, 0, ao_value_block(j), elec_coord(i,1)
+        print 10, ao_value_non_zero_idx(j), i, 1, ao_value_block(j), &
+          qmckl_ao_vgl(ao_value_non_zero_idx(j), 1, i)
       enddo
     end do
     do i=1,elec_num
       ao_elec = i
       TOUCH ao_elec
-      do j=1,ao_num
-        print 10, ao_value_non_zero_idx(j), i, 1, ao_grad_block_x(j)
+      do j=1, ao_value_non_zero_idx(0)
+        print 10, ao_value_non_zero_idx(j), i, 2, ao_grad_block_x(j), &
+          qmckl_ao_vgl(ao_value_non_zero_idx(j), 2, i)
       enddo
     end do
     do i=1,elec_num
       ao_elec = i
       TOUCH ao_elec
-      do j=1,ao_num
-        print 10, ao_value_non_zero_idx(j), i, 2, ao_grad_block_y(j)
+      do j=1, ao_value_non_zero_idx(0)
+        print 10, ao_value_non_zero_idx(j), i, 3, ao_grad_block_y(j), &
+          qmckl_ao_vgl(ao_value_non_zero_idx(j), 3, i)
       enddo
     end do
     do i=1,elec_num
       ao_elec = i
       TOUCH ao_elec
-      do j=1,ao_num
-        print 10, ao_value_non_zero_idx(j), i, 3, ao_grad_block_z(j)
+      do j=1, ao_value_non_zero_idx(0)
+        print 10, ao_value_non_zero_idx(j), i, 4, ao_grad_block_z(j), &
+          qmckl_ao_vgl(ao_value_non_zero_idx(j), 4, i)
       enddo
     end do
     do i=1,elec_num
       ao_elec = i
       TOUCH ao_elec
-      do j=1,ao_num
-        print 10, ao_value_non_zero_idx(j), i, 4, ao_lapl_block(j)
+      do j=1, ao_value_non_zero_idx(0)
+        print 10, ao_value_non_zero_idx(j), i, 5, ao_lapl_block(j), &
+          qmckl_ao_vgl(ao_value_non_zero_idx(j), 5, i)
       enddo
     end do
 end
@@ -73,6 +80,16 @@ subroutine step2(imax)
       endif
       PROVIDE ao_value_block
     end do
+    TOUCH elec_coord
+  enddo
+end
+
+subroutine step3(imax)
+  implicit none
+  integer, intent(in)            :: imax
+  integer                        :: i, j
+  do j=1,imax
+    PROVIDE qmckl_ao_vgl
     TOUCH elec_coord
   enddo
 end

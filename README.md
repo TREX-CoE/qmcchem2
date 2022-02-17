@@ -1,6 +1,3 @@
-QMC=Chem 2
-==========
-
 ![QMC=Chem logo](https://github.com/trex-coe/qmcchem2/raw/master/doc/QmcChemLogo.png)
 
 This repository contains version 2 of QMC=Chem.

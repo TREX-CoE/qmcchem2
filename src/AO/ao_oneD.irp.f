@@ -31,6 +31,8 @@ END_PROVIDER
   END_DOC
   integer                        :: i,k, inucl
   real                           :: to_sort(ao_num)
+  real                           :: rdm
+  rdm = -dlog(1.d-12)
   !DIR$ VECTOR ALIGNED
   nucl_radius = 0.
   !DIR$ VECTOR ALIGNED
@@ -40,7 +42,7 @@ END_PROVIDER
   do i=1,ao_num
     ao_radius(i) = 0.
     do k=1,ao_prim_num(i)
-      ao_radius(i) = max(20./ao_expo_transp(k,i), ao_radius(i))
+      ao_radius(i) = max(rdm/ao_expo_transp(k,i), ao_radius(i))
     enddo
     to_sort(i) = 1./ao_radius(i)
     inucl = ao_nucl(i)
@@ -52,7 +54,7 @@ END_PROVIDER
   do inucl=1,nucl_num
     istart = ao_nucl_idx(1,inucl)
     iend   = ao_nucl_idx(2,inucl)
-    call isort(to_sort(istart),ao_radius_order(istart),(iend-istart+1))
+    call insertion_sort(to_sort(istart),ao_radius_order(istart),(iend-istart+1))
   enddo
   ao_radius_sorted = ao_radius
   call set_order(ao_radius_sorted,ao_radius_order,ao_num)
@@ -108,7 +110,7 @@ END_PROVIDER
   j = ao_elec
   
   real                           :: d
-  real, parameter                :: rdm = 20.
+  real, parameter                :: rdm = -dlog(1.d-12)
   idx = 1
   !DIR$ VECTOR ALIGNED
   buffer = 0.

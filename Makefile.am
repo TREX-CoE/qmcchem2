@@ -99,7 +99,7 @@ IRPSOURCES= \
   src/MAIN/qmcchem_info.irp.f \
   src/MAIN/vmc_test.irp.f \
   src/Makefile \
-  src/qmckl_f.f90 \
+  src/qmckl_f.F90 \
   src/qmckl.irp.f \
   src/PROPERTIES/properties.irp.f \
   src/PROPERTIES/properties_ci.irp.f \

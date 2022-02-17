@@ -15,7 +15,7 @@ H -0.239987 0.926627 0.
 EOF
 ```
 
-Choose a suitable basis set and pseudopotential and create the [EZFIO database](https://github.com/LCPQ/ezfio)
+Choose a suitable basis set and pseudopotential and create the [EZFIO database](https://gitlab.com/scemama/ezfio)
 
 ```bash
 $ qp_create_ezfio -b cc-pvdz_ecp_bfd -p bfd h2o.xyz -o h2o

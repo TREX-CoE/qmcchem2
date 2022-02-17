@@ -509,7 +509,34 @@ end interface
 
 
 
-! #+CALL: generate_f_interface(table=qmckl_ao_polynomial_vgl_args,rettyp=get_value("FRetType"),fname=get_value("Name"))
+! #+CALL: generate_f_interface(table=qmckl_ao_polynomial_vgl_args,rettyp=get_value("FRetType"),fname="qmckl_ao_polynomial_vgl_doc" )
+
+! #+RESULTS:
+
+interface
+  integer(c_int32_t) function qmckl_ao_polynomial_vgl_doc &
+      (context, X, R, lmax, n, L, ldl, VGL, ldv) &
+      bind(C)
+    use, intrinsic :: iso_c_binding
+    import
+    implicit none
+
+    integer (c_int64_t) , intent(in)  , value :: context
+    real    (c_double ) , intent(in)          :: X(3)
+    real    (c_double ) , intent(in)          :: R(3)
+    integer (c_int32_t) , intent(in)  , value :: lmax
+    integer (c_int64_t) , intent(inout)        :: n
+    integer (c_int32_t) , intent(out)         :: L(ldl,n)
+    integer (c_int64_t) , intent(in)  , value :: ldl
+    real    (c_double ) , intent(out)         :: VGL(ldv,n)
+    integer (c_int64_t) , intent(in)  , value :: ldv
+
+  end function qmckl_ao_polynomial_vgl_doc
+end interface
+
+
+
+! #+CALL: generate_f_interface(table=qmckl_ao_polynomial_vgl_args,rettyp=get_value("FRetType"),fname="qmckl_ao_polynomial_vgl" )
 
 ! #+RESULTS:
 
@@ -532,6 +559,60 @@ interface
     integer (c_int64_t) , intent(in)  , value :: ldv
 
   end function qmckl_ao_polynomial_vgl
+end interface
+
+
+
+! #+CALL: generate_f_interface(table=qmckl_ao_polynomial_vgl_args,rettyp=get_value("FRetType"),fname="qmckl_ao_polynomial_transp_vgl_doc")
+
+! #+RESULTS:
+
+interface
+  integer(c_int32_t) function qmckl_ao_polynomial_transp_vgl_doc &
+      (context, X, R, lmax, n, L, ldl, VGL, ldv) &
+      bind(C)
+    use, intrinsic :: iso_c_binding
+    import
+    implicit none
+
+    integer (c_int64_t) , intent(in)  , value :: context
+    real    (c_double ) , intent(in)          :: X(3)
+    real    (c_double ) , intent(in)          :: R(3)
+    integer (c_int32_t) , intent(in)  , value :: lmax
+    integer (c_int64_t) , intent(inout)        :: n
+    integer (c_int32_t) , intent(out)         :: L(ldl,n)
+    integer (c_int64_t) , intent(in)  , value :: ldl
+    real    (c_double ) , intent(out)         :: VGL(ldv,n)
+    integer (c_int64_t) , intent(in)  , value :: ldv
+
+  end function qmckl_ao_polynomial_transp_vgl_doc
+end interface
+
+
+
+! #+CALL: generate_f_interface(table=qmckl_ao_polynomial_vgl_args,rettyp=get_value("FRetType"),fname="qmckl_ao_polynomial_transp_vgl")
+
+! #+RESULTS:
+
+interface
+  integer(c_int32_t) function qmckl_ao_polynomial_transp_vgl &
+      (context, X, R, lmax, n, L, ldl, VGL, ldv) &
+      bind(C)
+    use, intrinsic :: iso_c_binding
+    import
+    implicit none
+
+    integer (c_int64_t) , intent(in)  , value :: context
+    real    (c_double ) , intent(in)          :: X(3)
+    real    (c_double ) , intent(in)          :: R(3)
+    integer (c_int32_t) , intent(in)  , value :: lmax
+    integer (c_int64_t) , intent(inout)        :: n
+    integer (c_int32_t) , intent(out)         :: L(ldl,n)
+    integer (c_int64_t) , intent(in)  , value :: ldl
+    real    (c_double ) , intent(out)         :: VGL(ldv,n)
+    integer (c_int64_t) , intent(in)  , value :: ldv
+
+  end function qmckl_ao_polynomial_transp_vgl
 end interface
 
 
@@ -735,18 +816,19 @@ interface
     import
     implicit none
 
-    integer (c_int64_t) , intent(in)  , value :: context                                  
+    integer (c_int64_t) , intent(in)  , value :: context
     integer (c_int64_t) , intent(in)  , value :: alpha
-    integer (c_int64_t) , intent(in)  , value :: beta 
+    integer (c_int64_t) , intent(in)  , value :: beta
   end function
 end interface
+
 interface
   integer(c_int32_t) function qmckl_set_electron_walk_num(context, walk_num) bind(C)
     use, intrinsic :: iso_c_binding
     import
     implicit none
 
-    integer (c_int64_t) , intent(in)  , value :: context                                  
+    integer (c_int64_t) , intent(in)  , value :: context
     integer (c_int64_t) , intent(in)  , value :: walk_num
   end function
 end interface
@@ -757,8 +839,8 @@ interface
     import
     implicit none
 
-    integer (c_int64_t) , intent(in)  , value :: context                                  
-    character           , intent(in)  , value :: transp 
+    integer (c_int64_t) , intent(in)  , value :: context
+    character           , intent(in)  , value :: transp
     double precision    , intent(in)          :: coord(*)
     integer (c_int64_t) , intent(in)  , value :: size_max
   end function
@@ -814,18 +896,21 @@ interface
     integer (c_int64_t) , intent(in)  , value :: num
   end function
 end interface
+
 interface
-  integer(c_int32_t) function qmckl_set_nucleus_charge(context, charge) &
+  integer(c_int32_t) function qmckl_set_nucleus_charge(context, charge, size_max) &
     bind(C)
     use, intrinsic :: iso_c_binding
     import
     implicit none
     integer (c_int64_t) , intent(in)  , value :: context
     real    (c_double)  , intent(in)          :: charge(*)
+    integer (c_int64_t) , intent(in)  , value :: size_max
   end function
 end interface
+
 interface
-  integer(c_int32_t) function qmckl_set_nucleus_coord(context, transp, coord) &
+  integer(c_int32_t) function qmckl_set_nucleus_coord(context, transp, coord, size_max) &
     bind(C)
     use, intrinsic :: iso_c_binding
     import
@@ -833,17 +918,42 @@ interface
     integer (c_int64_t) , intent(in)  , value :: context
     character(c_char)   , intent(in)  , value :: transp
     real    (c_double)  , intent(in)          :: coord(*)
+    integer (c_int64_t) , intent(in)  , value :: size_max
   end function
 end interface
 
 interface
-  integer(c_int32_t) function qmckl_get_nucleus_nn_distance(context, distance) &
+  integer(c_int32_t) function qmckl_set_rescale_factor(context, kappa) &
+    bind(C)
+    use, intrinsic :: iso_c_binding
+    import
+    implicit none
+    integer (c_int64_t) , intent(in)  , value :: context
+    real    (c_double)  , intent(in)  , value :: kappa
+  end function
+end interface
+
+interface
+  integer(c_int32_t) function qmckl_get_nucleus_nn_distance(context, distance, size_max) &
     bind(C)
     use, intrinsic :: iso_c_binding
     import
     implicit none
     integer (c_int64_t) , intent(in)  , value :: context
     real    (c_double ) , intent(out)         :: distance(*)
+    integer (c_int64_t) , intent(in)  , value :: size_max
+  end function
+end interface
+
+interface
+  integer(c_int32_t) function qmckl_get_nucleus_nn_distance_rescaled(context, distance_rescaled, size_max) &
+    bind(C)
+    use, intrinsic :: iso_c_binding
+    import
+    implicit none
+    integer (c_int64_t) , intent(in)  , value :: context
+    real    (c_double ) , intent(out)         :: distance_rescaled(*)
+    integer (c_int64_t) , intent(in)  , value :: size_max
   end function
 end interface
 
@@ -900,6 +1010,43 @@ interface
      import
      integer (qmckl_context), intent(in), value :: context
    end function qmckl_get_numprec_epsilon
+end interface
+interface
+  integer(c_int32_t) function qmckl_get_point_num(context, num) bind(C)
+    use, intrinsic :: iso_c_binding
+    import
+    implicit none
+
+    integer (c_int64_t) , intent(in)  , value :: context
+    integer (c_int64_t) , intent(out)         :: num
+  end function
+end interface
+
+interface
+  integer(c_int32_t) function qmckl_get_point(context, transp, coord, size_max) bind(C)
+    use, intrinsic :: iso_c_binding
+    import
+    implicit none
+
+    integer (c_int64_t) , intent(in)  , value :: context
+    character(c_char)   , intent(in)  , value :: transp
+    real    (c_double ) , intent(out)         :: coord(*)
+    integer (c_int64_t) , intent(in)          :: size_max
+  end function
+end interface
+
+interface
+  integer(c_int32_t) function qmckl_set_point(context, &
+       transp, coord, size_max) bind(C)
+    use, intrinsic :: iso_c_binding
+    import
+    implicit none
+
+    integer (c_int64_t) , intent(in)  , value :: context
+    character(c_char)   , intent(in)  , value :: transp
+    real    (c_double ) , intent(in)          :: coord(*)
+    integer (c_int64_t) , intent(in)  , value :: size_max
+  end function
 end interface
 ! Fortran interface                                               :noexport:
 !    :PROPERTIES:
@@ -1059,28 +1206,17 @@ interface
 
   end function qmckl_sherman_morrison_smw32s
 end interface
-
-
-! #+CALL: generate_f_interface(table=qmckl_transpose_args,rettyp="qmckl_exit_code",fname="qmckl_transpose")
-
-! #+RESULTS:
-
 interface
-  integer(c_int32_t) function qmckl_transpose &
-      (context, m, n, A, lda, B, ldb) &
+  integer(c_int32_t) function qmckl_trexio_read &
+      (context, file_name) &
       bind(C)
     use, intrinsic :: iso_c_binding
     import
     implicit none
 
-    integer (c_int64_t) , intent(in)  , value :: context
-    integer (c_int64_t) , intent(in)  , value :: m
-    integer (c_int64_t) , intent(in)  , value :: n
-    real    (c_double ) , intent(in)          :: A(lda,*)
-    integer (c_int64_t) , intent(in)  , value :: lda
-    real    (c_double ) , intent(out)         :: B(ldb,*)
-    integer (c_int64_t) , intent(in)  , value :: ldb
+    integer  (c_int64_t) , intent(in)  , value :: context
+    character(c_char   ) , intent(in)          :: file_name(*)
 
-  end function qmckl_transpose
+  end function qmckl_trexio_read
 end interface
 end module qmckl

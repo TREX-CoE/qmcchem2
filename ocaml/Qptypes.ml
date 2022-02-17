@@ -1072,33 +1072,26 @@ match msg with
              |> Ezfio.flattened_ezfio
              |> Array.to_list
              |> String.concat " "
- | "get_properties_ci_dress" -> Ezfio.read_string "properties" "ci_dress"
- | "get_properties_ci_dress_mu" -> Ezfio.read_string "properties" "ci_dress_mu"
- | "get_properties_ci_h_matrix" -> Ezfio.read_string "properties" "ci_h_matrix"
- | "get_properties_ci_h_matrix_diag" -> Ezfio.read_string "properties" "ci_h_matrix_diag"
- | "get_properties_ci_h_psidet" -> Ezfio.read_string "properties" "ci_h_psidet"
  | "get_properties_ci_h_transcor_psi" -> Ezfio.read_string "properties" "ci_h_transcor_psi"
- | "get_properties_ci_overlap_matrix" -> Ezfio.read_string "properties" "ci_overlap_matrix"
- | "get_properties_ci_overlap_psidet" -> Ezfio.read_string "properties" "ci_overlap_psidet"
- | "get_properties_dipole" -> Ezfio.read_string "properties" "dipole"
- | "get_properties_drift_mod" -> Ezfio.read_string "properties" "drift_mod"
+ | "get_properties_emudiff" -> Ezfio.read_string "properties" "emudiff"
+ | "get_properties_e_nucl" -> Ezfio.read_string "properties" "e_nucl"
+ | "get_properties_e_pot" -> Ezfio.read_string "properties" "e_pot"
  | "get_properties_e_kin" -> Ezfio.read_string "properties" "e_kin"
  | "get_properties_e_loc" -> Ezfio.read_string "properties" "e_loc"
  | "get_properties_e_loc_zv" -> Ezfio.read_string "properties" "e_loc_zv"
- | "get_properties_e_nucl" -> Ezfio.read_string "properties" "e_nucl"
- | "get_properties_e_nucl_elec" -> Ezfio.read_string "properties" "e_nucl_elec"
- | "get_properties_e_pot" -> Ezfio.read_string "properties" "e_pot"
- | "get_properties_eff_pot_deriv_mu" -> Ezfio.read_string "properties" "eff_pot_deriv_mu"
- | "get_properties_eff_pot_deriv_mu_elec" -> Ezfio.read_string "properties" "eff_pot_deriv_mu_elec"
- | "get_properties_eff_pot_mu" -> Ezfio.read_string "properties" "eff_pot_mu"
- | "get_properties_eff_pot_mu_elec" -> Ezfio.read_string "properties" "eff_pot_mu_elec"
- | "get_properties_eff_pot_mu_simple" -> Ezfio.read_string "properties" "eff_pot_mu_simple"
- | "get_properties_emudiff" -> Ezfio.read_string "properties" "emudiff"
- | "get_properties_energy_mu" -> Ezfio.read_string "properties" "energy_mu"
- | "get_properties_pop_weight" -> Ezfio.read_string "properties" "pop_weight"
- | "get_properties_psi_norm" -> Ezfio.read_string "properties" "psi_norm"
- | "get_properties_three_body_mu" -> Ezfio.read_string "properties" "three_body_mu"
+ | "get_properties_dipole" -> Ezfio.read_string "properties" "dipole"
  | "get_properties_wf_extension" -> Ezfio.read_string "properties" "wf_extension"
+ | "get_properties_pop_weight" -> Ezfio.read_string "properties" "pop_weight"
+ | "get_properties_drift_mod" -> Ezfio.read_string "properties" "drift_mod"
+ | "get_properties_psi_norm" -> Ezfio.read_string "properties" "psi_norm"
+ | "get_properties_ci_dress" -> Ezfio.read_string "properties" "ci_dress"
+ | "get_properties_ci_dress_mu" -> Ezfio.read_string "properties" "ci_dress_mu"
+ | "get_properties_ci_overlap_psidet" -> Ezfio.read_string "properties" "ci_overlap_psidet"
+ | "get_properties_ci_h_psidet" -> Ezfio.read_string "properties" "ci_h_psidet"
+ | "get_properties_ci_overlap_matrix" -> Ezfio.read_string "properties" "ci_overlap_matrix"
+ | "get_properties_ci_h_matrix" -> Ezfio.read_string "properties" "ci_h_matrix"
+ | "get_properties_ci_h_matrix_diag" -> Ezfio.read_string "properties" "ci_h_matrix_diag"
+ | "get_properties_ci_dress_mu_opt" -> Ezfio.read_string "properties" "ci_dress_mu_opt"
  | "get_ezfio_creation" -> Ezfio.read_string "ezfio" "creation"
  | "get_ezfio_user" -> Ezfio.read_string "ezfio" "user"
  | "get_ezfio_library" -> Ezfio.read_string "ezfio" "library"
@@ -1201,33 +1194,26 @@ match msg with
  | "has_pseudo_pseudo_n_kl" -> if (Ezfio.has_pseudo_pseudo_n_kl ()) then "T" else "F"
  | "has_pseudo_pseudo_v_k" -> if (Ezfio.has_pseudo_pseudo_v_k ()) then "T" else "F"
  | "has_pseudo_pseudo_v_kl" -> if (Ezfio.has_pseudo_pseudo_v_kl ()) then "T" else "F"
- | "has_properties_ci_dress" -> if (Ezfio.has_properties_ci_dress ()) then "T" else "F"
- | "has_properties_ci_dress_mu" -> if (Ezfio.has_properties_ci_dress_mu ()) then "T" else "F"
- | "has_properties_ci_h_matrix" -> if (Ezfio.has_properties_ci_h_matrix ()) then "T" else "F"
- | "has_properties_ci_h_matrix_diag" -> if (Ezfio.has_properties_ci_h_matrix_diag ()) then "T" else "F"
- | "has_properties_ci_h_psidet" -> if (Ezfio.has_properties_ci_h_psidet ()) then "T" else "F"
  | "has_properties_ci_h_transcor_psi" -> if (Ezfio.has_properties_ci_h_transcor_psi ()) then "T" else "F"
- | "has_properties_ci_overlap_matrix" -> if (Ezfio.has_properties_ci_overlap_matrix ()) then "T" else "F"
- | "has_properties_ci_overlap_psidet" -> if (Ezfio.has_properties_ci_overlap_psidet ()) then "T" else "F"
- | "has_properties_dipole" -> if (Ezfio.has_properties_dipole ()) then "T" else "F"
- | "has_properties_drift_mod" -> if (Ezfio.has_properties_drift_mod ()) then "T" else "F"
+ | "has_properties_emudiff" -> if (Ezfio.has_properties_emudiff ()) then "T" else "F"
+ | "has_properties_e_nucl" -> if (Ezfio.has_properties_e_nucl ()) then "T" else "F"
+ | "has_properties_e_pot" -> if (Ezfio.has_properties_e_pot ()) then "T" else "F"
  | "has_properties_e_kin" -> if (Ezfio.has_properties_e_kin ()) then "T" else "F"
  | "has_properties_e_loc" -> if (Ezfio.has_properties_e_loc ()) then "T" else "F"
  | "has_properties_e_loc_zv" -> if (Ezfio.has_properties_e_loc_zv ()) then "T" else "F"
- | "has_properties_e_nucl" -> if (Ezfio.has_properties_e_nucl ()) then "T" else "F"
- | "has_properties_e_nucl_elec" -> if (Ezfio.has_properties_e_nucl_elec ()) then "T" else "F"
- | "has_properties_e_pot" -> if (Ezfio.has_properties_e_pot ()) then "T" else "F"
- | "has_properties_eff_pot_deriv_mu" -> if (Ezfio.has_properties_eff_pot_deriv_mu ()) then "T" else "F"
- | "has_properties_eff_pot_deriv_mu_elec" -> if (Ezfio.has_properties_eff_pot_deriv_mu_elec ()) then "T" else "F"
- | "has_properties_eff_pot_mu" -> if (Ezfio.has_properties_eff_pot_mu ()) then "T" else "F"
- | "has_properties_eff_pot_mu_elec" -> if (Ezfio.has_properties_eff_pot_mu_elec ()) then "T" else "F"
- | "has_properties_eff_pot_mu_simple" -> if (Ezfio.has_properties_eff_pot_mu_simple ()) then "T" else "F"
- | "has_properties_emudiff" -> if (Ezfio.has_properties_emudiff ()) then "T" else "F"
- | "has_properties_energy_mu" -> if (Ezfio.has_properties_energy_mu ()) then "T" else "F"
- | "has_properties_pop_weight" -> if (Ezfio.has_properties_pop_weight ()) then "T" else "F"
- | "has_properties_psi_norm" -> if (Ezfio.has_properties_psi_norm ()) then "T" else "F"
- | "has_properties_three_body_mu" -> if (Ezfio.has_properties_three_body_mu ()) then "T" else "F"
+ | "has_properties_dipole" -> if (Ezfio.has_properties_dipole ()) then "T" else "F"
  | "has_properties_wf_extension" -> if (Ezfio.has_properties_wf_extension ()) then "T" else "F"
+ | "has_properties_pop_weight" -> if (Ezfio.has_properties_pop_weight ()) then "T" else "F"
+ | "has_properties_drift_mod" -> if (Ezfio.has_properties_drift_mod ()) then "T" else "F"
+ | "has_properties_psi_norm" -> if (Ezfio.has_properties_psi_norm ()) then "T" else "F"
+ | "has_properties_ci_dress" -> if (Ezfio.has_properties_ci_dress ()) then "T" else "F"
+ | "has_properties_ci_dress_mu" -> if (Ezfio.has_properties_ci_dress_mu ()) then "T" else "F"
+ | "has_properties_ci_overlap_psidet" -> if (Ezfio.has_properties_ci_overlap_psidet ()) then "T" else "F"
+ | "has_properties_ci_h_psidet" -> if (Ezfio.has_properties_ci_h_psidet ()) then "T" else "F"
+ | "has_properties_ci_overlap_matrix" -> if (Ezfio.has_properties_ci_overlap_matrix ()) then "T" else "F"
+ | "has_properties_ci_h_matrix" -> if (Ezfio.has_properties_ci_h_matrix ()) then "T" else "F"
+ | "has_properties_ci_h_matrix_diag" -> if (Ezfio.has_properties_ci_h_matrix_diag ()) then "T" else "F"
+ | "has_properties_ci_dress_mu_opt" -> if (Ezfio.has_properties_ci_dress_mu_opt ()) then "T" else "F"
  | "has_ezfio_creation" -> if (Ezfio.has_ezfio_creation ()) then "T" else "F"
  | "has_ezfio_user" -> if (Ezfio.has_ezfio_user ()) then "T" else "F"
  | "has_ezfio_library" -> if (Ezfio.has_ezfio_library ()) then "T" else "F"
@@ -1240,33 +1226,26 @@ let all_ezfio_messages = [
    "ezfio_library" ; 
    "ezfio_user" ; 
    "ezfio_creation" ; 
-   "properties_wf_extension" ; 
-   "properties_three_body_mu" ; 
+   "properties_ci_dress_mu_opt" ; 
+   "properties_ci_h_matrix_diag" ; 
+   "properties_ci_h_matrix" ; 
+   "properties_ci_overlap_matrix" ; 
+   "properties_ci_h_psidet" ; 
+   "properties_ci_overlap_psidet" ; 
+   "properties_ci_dress_mu" ; 
+   "properties_ci_dress" ; 
    "properties_psi_norm" ; 
+   "properties_drift_mod" ; 
    "properties_pop_weight" ; 
-   "properties_energy_mu" ; 
-   "properties_emudiff" ; 
-   "properties_eff_pot_mu_simple" ; 
-   "properties_eff_pot_mu_elec" ; 
-   "properties_eff_pot_mu" ; 
-   "properties_eff_pot_deriv_mu_elec" ; 
-   "properties_eff_pot_deriv_mu" ; 
-   "properties_e_pot" ; 
-   "properties_e_nucl_elec" ; 
-   "properties_e_nucl" ; 
+   "properties_wf_extension" ; 
+   "properties_dipole" ; 
    "properties_e_loc_zv" ; 
    "properties_e_loc" ; 
    "properties_e_kin" ; 
-   "properties_drift_mod" ; 
-   "properties_dipole" ; 
-   "properties_ci_overlap_psidet" ; 
-   "properties_ci_overlap_matrix" ; 
+   "properties_e_pot" ; 
+   "properties_e_nucl" ; 
+   "properties_emudiff" ; 
    "properties_ci_h_transcor_psi" ; 
-   "properties_ci_h_psidet" ; 
-   "properties_ci_h_matrix_diag" ; 
-   "properties_ci_h_matrix" ; 
-   "properties_ci_dress_mu" ; 
-   "properties_ci_dress" ; 
    "pseudo_pseudo_v_kl" ; 
    "pseudo_pseudo_v_k" ; 
    "pseudo_pseudo_n_kl" ; 

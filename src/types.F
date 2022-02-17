@@ -13,36 +13,38 @@
       integer, parameter :: t_None     = 22
       integer, parameter :: t_Mu       = 23
       integer, parameter :: t_Core     = 24
+      integer, parameter :: t_Qmckl    = 25
 
       integer, parameter :: t_Stopped  = 0
       integer, parameter :: t_Queued   = 1
       integer, parameter :: t_Running  = 2
       integer, parameter :: t_Stopping = 3
 
-      character*(32)     :: types(25) = &
-      (/  '               ',   &  
-          '               ',   &  
-          'Brownian       ',   &  
-          'Langevin       ',   &  
-          '               ',   &  
-          '               ',   &  
-          'VMC            ',   &  
-          'DMC            ',   &  
-          'SRMC           ',   &  
-          'FKMC           ',   &  
-          'PDMC           ',   &  
-          '               ',   &  
-          '               ',   &  
-          '               ',   &  
-          '               ',   &  
-          '               ',   &  
-          '               ',   &  
-          '               ',   &  
-          '               ',   &  
-          '               ',   &  
-          'Simple         ',   &  
-          'None           ',   &  
-          'Mu             ',   &  
-          'Core           ',   &  
-          '               '/)     
+      character*(32)     :: types(26) = &
+      (/  '               ',   &
+          '               ',   &
+          'Brownian       ',   &
+          'Langevin       ',   &
+          '               ',   &
+          '               ',   &
+          'VMC            ',   &
+          'DMC            ',   &
+          'SRMC           ',   &
+          'FKMC           ',   &
+          'PDMC           ',   &
+          '               ',   &
+          '               ',   &
+          '               ',   &
+          '               ',   &
+          '               ',   &
+          '               ',   &
+          '               ',   &
+          '               ',   &
+          '               ',   &
+          'Simple         ',   &
+          'None           ',   &
+          'Mu             ',   &
+          'Core           ',   &
+          'Qmckl          ',   &
+          '               '/)
 

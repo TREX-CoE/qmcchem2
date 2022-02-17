@@ -775,7 +775,7 @@ end
 
 module Jastrow_type : sig
 
-  type t = None | Core | Simple | Mu
+  type t = None | Core | Simple | Mu | Qmckl
   val doc : string
   val read  : unit -> t
   val write : t -> unit
@@ -784,8 +784,8 @@ module Jastrow_type : sig
 
 end = struct
 
-  type t = None | Core | Simple | Mu
-  let doc = "Type of Jastrow factor [ None | Core | Simple | Mu ]"
+  type t = None | Core | Simple | Mu | Qmckl
+  let doc = "Type of Jastrow factor [ None | Core | Simple | Mu | Qmckl ]"
 
   let of_string s = 
     match String.capitalize_ascii (String.trim  s) with
@@ -793,13 +793,15 @@ end = struct
     | "Simple" -> Simple
     | "None" -> None
     | "Mu" -> Mu
-    | _ -> failwith "Jastrow type should be [ None | Core | Simple | Mu ]"
+    | "Qmckl" -> Qmckl
+    | _ -> failwith "Jastrow type should be [ None | Core | Simple | Mu | Qmckl ]"
 
 
   let to_string = function
   | Core -> "Core"
   | Simple -> "Simple"
   | Mu -> "Mu"
+  | Qmckl -> "Qmckl"
   | None -> "None"
 
 

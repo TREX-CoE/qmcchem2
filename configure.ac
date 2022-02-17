@@ -83,7 +83,7 @@ AC_TYPE_UINT64_T
 AC_LANG([Fortran])
 
 # Check CPU featurese
-AC_ARG_WITH(arch, [AS_HELP_STRING([--with-arch],[enable axv, avx2 or avx512])], with_arch=$withval, with_arch=avx2)
+AC_ARG_WITH(arch, [AS_HELP_STRING([--with-arch],[enable avx, avx2 or avx512])], with_arch=$withval, with_arch=avx2)
 
 AS_CASE([$FC],
   [*ifort*], [
@@ -93,9 +93,9 @@ AS_CASE([$FC],
       [avx512], [ALIGN=64 ; FCFLAGS="${FCFLAGS} -xCORE-AVX512"])
 ], [*gfortran*], [
 AS_CASE([$with_arch],
-  [avx], [ALIGN=32 ; FCFLAGS="${FCFLAGS} -march=sandybridge"],
-  [avx2], [ALIGN=32 ; FCFLAGS="${FCFLAGS} -march=haswell"],
-  [avx512], [ALIGN=64 ; FCFLAGS="${FCFLAGS} -march=skylake-avx512"])
+  [avx], [ALIGN=32 ; FCFLAGS="${FCFLAGS} -march=sandybridge -ftree-vectorize"],
+  [avx2], [ALIGN=32 ; FCFLAGS="${FCFLAGS} -march=haswell -ftree-vectorize"],
+  [avx512], [ALIGN=64 ; FCFLAGS="${FCFLAGS} -march=skylake-avx512 -ftree-vectorize"])
 ])
 
 AS_IF([test "x.$ALIGN" != "x."],

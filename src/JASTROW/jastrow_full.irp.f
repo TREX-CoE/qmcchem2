@@ -27,6 +27,7 @@ SUBST [X]
 Simple ;;
 Core   ;;
 Mu     ;;
+Qmckl  ;;
 END_TEMPLATE
    if (ifirst == 0) then
      dshift = argexpo
@@ -85,6 +86,7 @@ SUBST [ X ]
 Simple ;;
 Core   ;;
 Mu     ;;
+Qmckl  ;;
 END_TEMPLATE
    !DIR$ VECTOR ALIGNED
    !DIR$ LOOP COUNT (200)
@@ -132,6 +134,7 @@ SUBST [X]
 Simple ;;
 Core ;;
 Mu   ;;
+Qmckl  ;;
 END_TEMPLATE
 
    !DIR$ VECTOR ALIGNED
