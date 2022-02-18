@@ -49,6 +49,15 @@ BEGIN_PROVIDER [ integer, qmckl_precision ]
  qmckl_precision = qmckl_get_numprec_precision(qmckl_ctx)
 END_PROVIDER
 
+BEGIN_PROVIDER [ logical, use_qmckl ]
+ implicit none
+ BEGIN_DOC
+ ! Is true, use TREXIO file
+ END_DOC
+ use_qmckl = .False.
+ call get_simulation_use_qmckl(use_qmckl)
+END_PROVIDER
+
 BEGIN_PROVIDER [ double precision, qmckl_ao_vgl, (ao_num, 5, elec_num) ]
  use qmckl
  implicit none

@@ -1,12 +1,8 @@
-BEGIN_SHELL [ /usr/bin/env python2 ]
+BEGIN_SHELL [ /usr/bin/env python3 ]
 
 data = [ \
 ("electrons_elec_coord_pool_size"  , "integer"       , "" ),
 ("electrons_elec_coord_pool"       , "real"          , "(elec_num+1,3,elec_coord_pool_size)" ),
-("nuclei_nucl_num"                 , "integer"       , ""                      ),
-("nuclei_nucl_charge"              , "real"          , "(nucl_num)"            ),
-("nuclei_nucl_coord"               , "real"          , "(nucl_num,3)"          ),
-("mo_basis_mo_coef"                , "real"          , "(ao_num,mo_tot_num)" ),
 ("electrons_elec_fitcusp_radius"   , "real"          , ""                      ),
 ("electrons_elec_alpha_num"        , "integer"       , ""                      ),
 ("electrons_elec_beta_num"         , "integer"       , ""                      ),
@@ -48,6 +44,9 @@ data = [ \
 ("simulation_e_ref"                , "double precision" , ""                   ),
 ("simulation_e_trial"              , "double precision" , ""                   ),
 ("simulation_do_run"               , "logical       " , ""                   ),
+("simulation_use_trexio"           , "logical"           ,  ""),
+("simulation_use_qmckl"            , "logical"           ,  ""),
+("simulation_trexio_filename"      , "character*(128)" ,  ""),
 ("pseudo_do_pseudo"         , "logical       " , ""                   ),
 ("spindeterminants_n_svd_coefs"       , "integer", ""),
 ("spindeterminants_n_svd_selected"    , "integer", ""),
@@ -58,7 +57,7 @@ data = [ \
 ]
 
 data_no_set = [\
-("mo_basis_mo_num"     ,  "integer"           ,  ""),
+("nuclei_nucl_coord" , "real"    , "(nucl_num,3)" ),
 ("pseudo_ao_pseudo_grid"   , "double precision" , "(ao_num,pseudo_lmax+pseudo_lmax+1,pseudo_lmax-0+1,nucl_num,pseudo_grid_size)"),
 ("pseudo_mo_pseudo_grid"   , "double precision" , "(ao_num,pseudo_lmax+pseudo_lmax+1,pseudo_lmax-0+1,nucl_num,pseudo_grid_size)"),
 ("pseudo_pseudo_dz_k"      , "double precision" , "(nucl_num,pseudo_klocmax)"),
@@ -87,14 +86,27 @@ data_no_set = [\
 ("jastrow_jast_1btanh_pen"         , "real"          , "(nucl_num)"          ),
 ("jastrow_jast_1berf_pen"          , "real"          , "(nucl_num)"          ),
 ("jastrow_jast_1bgauss_pen"        , "real"          , "(nucl_num)"          ),
-
 ]
+
+data_trexio = [\
+("mo_basis_mo_num"   , "integer" , ""                   , "mo_num_32"        ),
+("mo_basis_mo_coef"  , "real"    , "(ao_num,mo_tot_num)", "mo_coefficient_32"),
+("nuclei_nucl_num"   , "integer" , ""                   , "nucleus_num_32"   ),
+("nuclei_nucl_charge", "real"    , "(nucl_num)"         , "nucleus_charge_32"),
+]
+
+data_trexio_no_fail = [\
+("nucl_coord_trexio", "real"    , "(3,nucl_num)"         , "nucleus_coord_32"),
+]
+
 
 def do_subst(t0,d):
   t = t0
   t = t.replace("$X",d[0])
   t = t.replace("$T",d[1])
   t = t.replace("$D",d[2])
+  if len(d) == 4:
+    t = t.replace("$Y",d[3])
   if d[1].startswith("character"):
     size = d[1].split("*")[1][1:-1]
     u = "character"
@@ -127,8 +139,8 @@ def do_subst(t0,d):
     except NameError:
      provide += "  PROVIDE "+i+"\n"
   t = t.replace("$P",provide)
-  print  t
-  
+  print(t)
+
 t0 = """
 subroutine get_$X(res)
   implicit none
@@ -154,7 +166,7 @@ subroutine get_$X(res)
       call zmq_ezfio_get_$U('$X',res,$S)
     endif
   endif
-  
+
 end
 """
 
@@ -175,7 +187,7 @@ subroutine get_$X(res)
   else
     call zmq_ezfio_get_$U('$X',res,$S)
   endif
-  
+
 end
 """
 
@@ -185,6 +197,74 @@ for i,d in enumerate(data):
 for i,d in enumerate(data_no_set):
   i += len(data)
   do_subst(t1,d)
+
+t2 = """
+subroutine get_$X(res)
+  use trexio
+  implicit none
+  BEGIN_DOC
+! Calls EZFIO or TREXIO subroutine to get $X
+  END_DOC
+  $T                             :: res$D
+  integer                        :: ierr
+  PROVIDE ezfio_filename
+  $P
+  if (.not.is_worker) then
+    if (use_trexio) then
+      ierr = trexio_read_$Y(trexio_file, res)
+      if (ierr /= TREXIO_SUCCESS) then
+        print *, 'Error in TREXIO. Using EZFIO instead'
+        call ezfio_get_$X(res)
+        call ezfio_free_$X
+      end if
+    else
+      call ezfio_get_$X(res)
+      call ezfio_free_$X
+    endif
+  else
+    call zmq_ezfio_get_$U('$X',res,$S)
+  endif
+
+end
+"""
+
+for i,d in enumerate(data_trexio):
+  do_subst(t2,d)
+
+t3 = """
+subroutine get_$X(res)
+  use trexio
+  implicit none
+  BEGIN_DOC
+! Calls EZFIO or TREXIO subroutine to get $X
+  END_DOC
+  $T                             :: res$D
+  integer                        :: ierr
+  PROVIDE ezfio_filename
+  $P
+  if (.not.is_worker) then
+    if (use_trexio) then
+      ierr = trexio_read_$Y(trexio_file, res)
+      if (ierr /= TREXIO_SUCCESS) then
+        print *, irp_here
+        character*(128) :: msg
+        call trexio_string_of_error(ierr, msg)
+        print *, trim(msg)
+        stop ierr
+      end if
+    else
+      print *, 'Error: use_trexio should be true'
+      stop -1
+    endif
+  else
+    call zmq_ezfio_get_$U('$X',res,$S)
+  endif
+
+end
+"""
+
+for i,d in enumerate(data_trexio_no_fail):
+  do_subst(t3,d)
 
 END_SHELL
 

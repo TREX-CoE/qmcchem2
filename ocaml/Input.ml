@@ -3,6 +3,130 @@ open Qputils
 
 
 
+module TREXIO: sig
+
+  type t = bool
+  val doc   : string
+  val read  : unit -> t
+  val to_bool : t -> bool
+  val of_bool : bool -> t
+  val to_int  : t -> int
+  val of_int  : int -> t
+  val to_string : t -> string
+  val of_string : string -> t
+
+end = struct
+
+  type t = bool
+
+  let doc = "Use TREXIO"
+
+  let of_bool x = x
+
+  let to_bool x = x
+
+  let read () =
+    let _ =
+      Lazy.force Qputils.ezfio_filename
+    in
+    if (not (Ezfio.has_simulation_use_trexio ())) then
+      Ezfio.set_simulation_use_trexio false;
+    Ezfio.get_simulation_use_trexio ()
+    |> of_bool
+
+
+  let to_string t =
+    to_bool t
+    |> string_of_bool
+
+
+  let of_string t =
+    try
+      String.lowercase_ascii t
+      |> bool_of_string
+      |> of_bool
+    with
+    | Invalid_argument msg -> failwith msg
+
+
+  let to_int t =
+    let t =
+      to_bool t
+    in
+    if t then 1
+    else 0
+
+
+  let of_int = function
+    | 0 -> false
+    | 1 -> true
+    | _ -> failwith "Expected 0 or 1"
+
+
+end
+
+module QMCkl: sig
+
+  type t = bool
+  val doc   : string
+  val read  : unit -> t
+  val to_bool : t -> bool
+  val of_bool : bool -> t
+  val to_int  : t -> int
+  val of_int  : int -> t
+  val to_string : t -> string
+  val of_string : string -> t
+
+end = struct
+
+  type t = bool
+
+  let doc = "Use QMCkl"
+
+  let of_bool x = x
+
+  let to_bool x = x
+
+  let read () =
+    let _ =
+      Lazy.force Qputils.ezfio_filename
+    in
+    if (not (Ezfio.has_simulation_use_qmckl ())) then
+      Ezfio.set_simulation_use_qmckl false;
+    Ezfio.get_simulation_use_qmckl ()
+    |> of_bool
+
+
+  let to_string t =
+    to_bool t
+    |> string_of_bool
+
+
+  let of_string t =
+    try
+      String.lowercase_ascii t
+      |> bool_of_string
+      |> of_bool
+    with
+    | Invalid_argument msg -> failwith msg
+
+
+  let to_int t =
+    let t =
+      to_bool t
+    in
+    if t then 1
+    else 0
+
+
+  let of_int = function
+    | 0 -> false
+    | 1 -> true
+    | _ -> failwith "Expected 0 or 1"
+
+
+end
+
 module Pseudo: sig
 
   type t = bool
@@ -21,11 +145,11 @@ end = struct
 
   let doc = "Compute pseudo-potentials"
 
-  let of_bool x = x 
+  let of_bool x = x
 
-  let to_bool x = x 
+  let to_bool x = x
 
-  let read () = 
+  let read () =
     let _ =
       Lazy.force Qputils.ezfio_filename
     in
@@ -43,14 +167,14 @@ end = struct
   let of_string t =
     try
       String.lowercase_ascii t
-      |> bool_of_string 
+      |> bool_of_string
       |> of_bool
     with
     | Invalid_argument msg -> failwith msg
 
 
   let to_int t =
-    let t = 
+    let t =
       to_bool t
     in
     if t then 1
@@ -82,19 +206,19 @@ end = struct
 
   type t = float
 
-  let doc = "Correct wave function to verify electron-nucleus cusp condition. 
+  let doc = "Correct wave function to verify electron-nucleus cusp condition.
 Fit is done for r < r_c(f) where r_c(f) = (1s orbital radius) x f. Value of f"
 
-  let of_float x = 
+  let of_float x =
     if (x < 0.) then
        failwith "Fitcusp_factor should be >= 0.";
     if (x > 10.) then
        failwith "Fitcusp_factor is too large.";
-    x 
+    x
 
-  let to_float x = x 
+  let to_float x = x
 
-  let read () = 
+  let read () =
     ignore @@
       Lazy.force Qputils.ezfio_filename ;
     if (not (Ezfio.has_simulation_nucl_fitcusp_factor ())) then
@@ -104,8 +228,8 @@ Fit is done for r < r_c(f) where r_c(f) = (1s orbital radius) x f. Value of f"
         in
         Ezfio.set_simulation_nucl_fitcusp_factor factor
       end ;
-    Ezfio.get_simulation_nucl_fitcusp_factor () 
-    |> of_float 
+    Ezfio.get_simulation_nucl_fitcusp_factor ()
+    |> of_float
 
 
   let write t =
@@ -113,12 +237,12 @@ Fit is done for r < r_c(f) where r_c(f) = (1s orbital radius) x f. Value of f"
       Lazy.force Qputils.ezfio_filename
     in
     to_float t
-    |> Ezfio.set_simulation_nucl_fitcusp_factor 
+    |> Ezfio.set_simulation_nucl_fitcusp_factor
 
 
   let to_string t =
     to_float t
-    |> string_of_float 
+    |> string_of_float
 
 
   let of_string t =
@@ -154,12 +278,12 @@ end = struct
       failwith "Block time should be >=1";
     if (x > 36000) then
       failwith "Block time is too large (<= 36000)";
-    x 
+    x
 
 
   let to_int x = x
 
-  let read () = 
+  let read () =
     let _ =
       Lazy.force Qputils.ezfio_filename
     in
@@ -175,7 +299,7 @@ end = struct
       Lazy.force Qputils.ezfio_filename
     in
     to_int t
-    |> Ezfio.set_simulation_block_time 
+    |> Ezfio.set_simulation_block_time
 
 
   let to_string t =
@@ -221,12 +345,12 @@ end = struct
       failwith "Number of walkers should be >=1";
     if (x > 100_000) then
       failwith "Number of walkers is too large (<= 100_000)";
-    x 
+    x
 
 
   let to_int x = x
 
-  let read () = 
+  let read () =
     let _ =
       Lazy.force Qputils.ezfio_filename
     in
@@ -278,12 +402,12 @@ end = struct
       failwith "Total number of stored walkers should be > 1";
     if (x > 100_000_000) then
       failwith "Number of walkers to store too large (<= 100.10^6)";
-    x 
+    x
 
 
   let to_int x = x
 
-  let read () = 
+  let read () =
     let _ =
       Lazy.force Qputils.ezfio_filename
     in
@@ -323,7 +447,7 @@ module Stop_time : sig
   val write : t -> unit
   val to_int : t -> int
   val of_int : int -> t
-  val to_float : t -> float 
+  val to_float : t -> float
   val of_float : float -> t
   val to_string : t -> string
   val of_string : string -> t
@@ -337,12 +461,12 @@ end = struct
   let of_int x =
     if (x < 1) then
       failwith "Simulation time too short (>=1 s)";
-    x 
+    x
 
 
-  let to_int x = x 
+  let to_int x = x
 
-  let read () = 
+  let read () =
     let _ =
       Lazy.force Qputils.ezfio_filename
     in
@@ -358,7 +482,7 @@ end = struct
       Lazy.force Qputils.ezfio_filename
     in
     to_int t
-    |> Ezfio.set_simulation_stop_time 
+    |> Ezfio.set_simulation_stop_time
 
 
   let to_string t =
@@ -416,7 +540,7 @@ end = struct
   | FKMC -> "FKMC"
 
 
-  let read () = 
+  let read () =
     let _ =
       Lazy.force Qputils.ezfio_filename
     in
@@ -454,7 +578,7 @@ end = struct
 
   let doc = "Sampling algorithm : [ Langevin | Brownian ]"
 
-  let of_string s = 
+  let of_string s =
     match String.capitalize_ascii (String.trim s) with
     | "Langevin" -> Langevin
     | "Brownian" -> Brownian
@@ -466,7 +590,7 @@ end = struct
   | Brownian -> "Brownian"
 
 
-  let read () = 
+  let read () =
     let _ =
       Lazy.force Qputils.ezfio_filename
     in
@@ -495,7 +619,7 @@ module Trial_wf_energy : sig
   val doc : string
   val read  : unit -> t
   val write : t -> unit
-  val to_float  : t -> float 
+  val to_float  : t -> float
   val of_float  : float -> t
   val to_string : t -> string
   val of_string : string -> t
@@ -505,7 +629,7 @@ end = struct
   type t = float
   let doc = "Energy of the trial wave function (au)"
 
-  let of_float x = 
+  let of_float x =
     if (x > 0.) then
       failwith "Reference energy should not be positive.";
     if (x <= -1_000_000.) then
@@ -515,7 +639,7 @@ end = struct
 
   let to_float x = x
 
-  let read () = 
+  let read () =
     let _ =
       Lazy.force Qputils.ezfio_filename
     in
@@ -540,7 +664,7 @@ end = struct
 
 
   let to_string x =
-    to_float x 
+    to_float x
     |> string_of_float
 
 
@@ -552,7 +676,7 @@ module Ref_energy : sig
   val doc : string
   val read  : unit -> t
   val write : t -> unit
-  val to_float  : t -> float 
+  val to_float  : t -> float
   val of_float  : float -> t
   val to_string : t -> string
   val of_string : string -> t
@@ -562,7 +686,7 @@ end = struct
   type t = float
   let doc = "Fixed reference energy to normalize DMC weights (au)"
 
-  let of_float x = 
+  let of_float x =
     if (x > 0.) then
       failwith "Reference energy should not be positive.";
     if (x <= -1_000_000.) then
@@ -572,7 +696,7 @@ end = struct
 
   let to_float x = x
 
-  let read () = 
+  let read () =
     let _ =
       Lazy.force Qputils.ezfio_filename
     in
@@ -597,7 +721,7 @@ end = struct
 
 
   let to_string x =
-    to_float x 
+    to_float x
     |> string_of_float
 
 
@@ -610,7 +734,7 @@ module CI_threshold : sig
   val doc : string
   val read  : unit -> t
   val write : t -> unit
-  val to_float  : t -> float 
+  val to_float  : t -> float
   val of_float  : float -> t
   val to_string : t -> string
   val of_string : string -> t
@@ -621,7 +745,7 @@ end = struct
   let doc = "Truncation t of the wave function : Remove determinants with a
 contribution to the norm less than t (au)"
 
-  let of_float x = 
+  let of_float x =
     if (x >= 1.) then
       failwith "Truncation of the wave function should be < 1.";
     if (x < 0.) then
@@ -631,12 +755,12 @@ contribution to the norm less than t (au)"
 
   let to_float x = x
 
-  let read () = 
+  let read () =
     let _ =
       Lazy.force Qputils.ezfio_filename
     in
     if (not (Ezfio.has_simulation_ci_threshold ())) then
-      Lazy.force Default.simulation_ci_threshold 
+      Lazy.force Default.simulation_ci_threshold
       |> Ezfio.set_simulation_ci_threshold ;
     Ezfio.get_simulation_ci_threshold ()
     |> of_float
@@ -657,8 +781,8 @@ contribution to the norm less than t (au)"
 
   let to_string x =
     to_float x
-    |> string_of_float 
-  
+    |> string_of_float
+
 end
 
 module SRMC_projection_time : sig
@@ -667,7 +791,7 @@ module SRMC_projection_time : sig
   val doc : string
   val read  : unit -> t
   val write : t -> unit
-  val to_float  : t -> float 
+  val to_float  : t -> float
   val of_float  : float -> t
   val to_string : t -> string
   val of_string : string -> t
@@ -677,7 +801,7 @@ end = struct
   type t = float
   let doc = "SRMC projection time (au)"
 
-  let of_float x = 
+  let of_float x =
     if (x >= 100.) then
       failwith "SRMC Projection time should be < 100.";
     if (x <= 0.) then
@@ -687,7 +811,7 @@ end = struct
 
   let to_float x = x
 
-  let read () = 
+  let read () =
     let _ =
       Lazy.force Qputils.ezfio_filename
     in
@@ -713,7 +837,7 @@ end = struct
 
   let to_string x =
     to_float x
-    |> string_of_float 
+    |> string_of_float
 
 end
 
@@ -723,7 +847,7 @@ module Time_step : sig
   val doc : string
   val read  : unit -> t
   val write : t -> unit
-  val to_float  : t -> float 
+  val to_float  : t -> float
   val of_float  : float -> t
   val to_string : t -> string
   val of_string : string -> t
@@ -733,7 +857,7 @@ end = struct
   type t = float
   let doc = "Simulation time step (au)"
 
-  let of_float x = 
+  let of_float x =
     if (x >= 10.) then
       failwith "Time step should be < 10.";
     if (x <= 0.) then
@@ -743,7 +867,7 @@ end = struct
 
   let to_float x = x
 
-  let read () = 
+  let read () =
     let _ =
       Lazy.force Qputils.ezfio_filename
     in
@@ -769,7 +893,7 @@ end = struct
 
   let to_string x =
     to_float x
-    |> string_of_float 
+    |> string_of_float
 
 end
 
@@ -787,7 +911,7 @@ end = struct
   type t = None | Core | Simple | Mu | Qmckl
   let doc = "Type of Jastrow factor [ None | Core | Simple | Mu | Qmckl ]"
 
-  let of_string s = 
+  let of_string s =
     match String.capitalize_ascii (String.trim  s) with
     | "Core" -> Core
     | "Simple" -> Simple
@@ -805,7 +929,7 @@ end = struct
   | None -> "None"
 
 
-  let read () = 
+  let read () =
     let _ =
       Lazy.force Qputils.ezfio_filename
     in
@@ -839,12 +963,12 @@ end = struct
 
   type t = (Property.t * bool) list
 
-  let doc = 
+  let doc =
     "Properties to sample. (X) is true and ( ) is false"
 
 
   let read () =
-    List.rev_map (fun x -> (x, Property.calc x)) Property.all 
+    List.rev_map (fun x -> (x, Property.calc x)) Property.all
     |> List.rev
 
 
@@ -853,7 +977,7 @@ end = struct
 
 
   let to_string l =
-    List.rev_map (fun (x,b) -> 
+    List.rev_map (fun (x,b) ->
       let ch =
          if b then "X" else " "
       in
@@ -863,14 +987,14 @@ end = struct
 
 
   let of_string s =
-    String.split_on_char '\n' s 
+    String.split_on_char '\n' s
     |> List.rev_map (fun x ->
-       let (calc,prop) = 
+       let (calc,prop) =
          String.trim x
          |> String_ext.rsplit2_exn ~on:' '
        in
-       let prop = 
-         String.trim prop 
+       let prop =
+         String.trim prop
          |> Property.of_string
        and calc =
          match calc with
@@ -887,7 +1011,7 @@ end
 (** Check if everything is correct in the input file. *)
 let validate () =
 
-  let _ = 
+  let _ =
     Lazy.force Qputils.ezfio_filename
   in
 
@@ -895,9 +1019,9 @@ let validate () =
   if (not (Ezfio.has_electrons_elec_coord_pool ())) then
     Printf.printf "Warning: No initial walkers\n";
 
-  let meth = 
+  let meth =
      Method.read ()
-  and sampling = 
+  and sampling =
      Sampling.read ()
   and ts =
      Time_step.read ()
@@ -908,10 +1032,10 @@ let validate () =
   (* Check sampling and time steps *)
   let () =
     match (sampling, meth, Pseudo.to_bool do_pseudo) with
-    | (Sampling.Brownian, Method.VMC, _) -> 
+    | (Sampling.Brownian, Method.VMC, _) ->
       if ( (Time_step.to_float ts) >= 10. ) then
           warn "Time step seems large for VMC."
-    | (Sampling.Langevin, Method.VMC, _) -> 
+    | (Sampling.Langevin, Method.VMC, _) ->
       if ( (Time_step.to_float ts) <= 0.01 ) then
           warn "Time step seems small for Langevin sampling."
     | (Sampling.Brownian, _, true) ->
@@ -928,9 +1052,9 @@ let validate () =
   (* Check E_ref is not zero *)
   let () =
     match (meth, Ref_energy.(read () |> to_float) ) with
-    | (Method.SRMC,0.) 
-    | (Method.PDMC,0.) 
-    | (Method.FKMC,0.) 
+    | (Method.SRMC,0.)
+    | (Method.PDMC,0.)
+    | (Method.FKMC,0.)
     | (Method.DMC,0.) -> failwith ("E_ref should not be zero in "^(Method.to_string meth) )
     | _          -> ()
   in
@@ -944,9 +1068,9 @@ let validate () =
   (* Check if E_loc if computed *)
   let () =
     match (meth, Property.(calc E_loc)) with
-    | (Method.SRMC, false) 
-    | (Method.PDMC, false) 
-    | (Method.FKMC, false) 
+    | (Method.SRMC, false)
+    | (Method.PDMC, false)
+    | (Method.FKMC, false)
     | (Method.DMC, false) -> failwith ( "E_loc should be sampled in "^(Method.to_string meth) )
     | (Method.VMC, false) -> warn "Sampling of E_loc is not activated in input"
     | _ -> ()
@@ -954,7 +1078,7 @@ let validate () =
 
   (* Fitcusp is incompatible with pseudo *)
   let () =
-    let f = 
+    let f =
       Fitcusp_factor.read ()
       |> Fitcusp_factor.to_float
     in
@@ -968,7 +1092,7 @@ let validate () =
     | _ -> ()
   in
 
-  
+
   (* Other Checks *)
   let () =
     let _ =

@@ -16,7 +16,7 @@ QMCCHEM_PATH=$(abs_srcdir)
 ARCHIVE=$(AR) crs
 
 AM_LIBS=$(EZFIO_DIR)/lib/libezfio_irp.a
-LIB=$(AM_LIBS) $(LIBS) 
+LIB=$(AM_LIBS) $(LIBS)
 
 
 export FC FCFLAGS QMCCHEM_PATH IRPF90_FLAGS ARCHIVE LDFLAGS LIB
@@ -75,6 +75,28 @@ $(EZFIO_DIR)/lib/libezfio_irp.a: $(EZFIO_DIR)/config/qmc.config $(EZFIO_DIR)/con
 
 
 IRPSOURCES= \
+  src/constants.F \
+  src/det.irp.f \
+  src/electrons.irp.f \
+  src/ezfio_interface.irp.f \
+  src/finish.irp.f \
+  src/Makefile \
+  src/mo.irp.f \
+  src/mo_point.irp.f \
+  src/nuclei.irp.f \
+  src/point.irp.f \
+  src/prepare_walkers.irp.f \
+  src/properties.py \
+  src/pseudo.irp.f \
+  src/psi.irp.f \
+  src/qmckl_f.F90 \
+  src/qmckl.irp.f \
+  src/simulation.irp.f \
+  src/svd.irp.f \
+  src/trexio_f.f90 \
+  src/trexio.irp.f \
+  src/types.F \
+  src/wf.irp.f \
   src/AO/ao.irp.f \
   src/AO/ao_axis.irp.f \
   src/AO/ao_full.irp.f \
@@ -98,9 +120,6 @@ IRPSOURCES= \
   src/MAIN/qmc_create_walkers.irp.f \
   src/MAIN/qmcchem_info.irp.f \
   src/MAIN/vmc_test.irp.f \
-  src/Makefile \
-  src/qmckl_f.F90 \
-  src/qmckl.irp.f \
   src/PROPERTIES/properties.irp.f \
   src/PROPERTIES/properties_ci.irp.f \
   src/PROPERTIES/properties_energy.irp.f \
@@ -126,24 +145,7 @@ IRPSOURCES= \
   src/ZMQ/sockets.irp.f \
   src/ZMQ/utils.irp.f \
   src/ZMQ/worker.irp.f \
-  src/ZMQ/zmq_ezfio.irp.f \
-  src/constants.F \
-  src/det.irp.f \
-  src/electrons.irp.f \
-  src/ezfio_interface.irp.f \
-  src/finish.irp.f \
-  src/mo.irp.f \
-  src/mo_point.irp.f \
-  src/nuclei.irp.f \
-  src/point.irp.f \
-  src/prepare_walkers.irp.f \
-  src/properties.py \
-  src/pseudo.irp.f \
-  src/psi.irp.f \
-  src/simulation.irp.f \
-  src/svd.irp.f \
-  src/types.F \
-  src/wf.irp.f
+  src/ZMQ/zmq_ezfio.irp.f
 
 
 OCAMLSOURCES= \

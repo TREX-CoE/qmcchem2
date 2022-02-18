@@ -101,7 +101,7 @@ subroutine run_qmc(cpu0)
     call zmq_send_real(msg,elec_coord_full,size(elec_coord_full))
   endif
 
-BEGIN_SHELL [ /usr/bin/env python2 ]
+BEGIN_SHELL [ /usr/bin/env python3 ]
 from properties import *
 
 derivlist = []
@@ -178,7 +178,7 @@ for p in properties:
 !     call zmq_send_real(msg,block_weight,$X_max)
    endif
   """
-  print t.replace("$X",p[1])
+  print (t.replace("$X",p[1]))
 END_SHELL
 
 

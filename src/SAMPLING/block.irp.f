@@ -1,6 +1,6 @@
 ! Providers of *_block_walk
 !==============================
-BEGIN_SHELL [ /usr/bin/env python2 ]
+BEGIN_SHELL [ /usr/bin/env python3 ]
 from properties import *
 
 t = """
@@ -52,7 +52,7 @@ for p in properties:
       D1 = ""
     else:
       D1 = ", ("+p[2][1:-1]+")"
-    print t.replace("$X",p[1]).replace("$T",p[0]).replace("$D1",D1)
+    print(t.replace("$X",p[1]).replace("$T",p[0]).replace("$D1",D1))
 END_SHELL
 
 

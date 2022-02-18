@@ -9,7 +9,7 @@ BEGIN_PROVIDER [ logical, do_print_dmc_data ]
  do_print_dmc_data = .False.
 END_PROVIDER
 
-BEGIN_SHELL [ /usr/bin/env python2 ]
+BEGIN_SHELL [ /usr/bin/env python3 ]
 from properties import *
 
 t = """
@@ -35,7 +35,7 @@ for p in properties:
     else:
       D1 = ", ("+p[2][1:-1]+")"
       D2 = ", ("+p[2][1:-1]+",3)"
-    print t.replace("$X",p[1]).replace("$T",p[0]).replace("$D1",D1).replace("$D2",D2)
+    print(t.replace("$X",p[1]).replace("$T",p[0]).replace("$D1",D1).replace("$D2",D2))
 
 END_SHELL
 
@@ -81,7 +81,7 @@ END_SHELL
 
  integer :: k, i_walk, i_step
 
-BEGIN_SHELL [ /usr/bin/env python2 ]
+BEGIN_SHELL [ /usr/bin/env python3 ]
 from properties import *
 t = """
  if (calc_$X) then
@@ -96,7 +96,7 @@ t = """
  endif
 """
 for p in properties:
- print  t.replace("$X",p[1])
+ print (t.replace("$X",p[1]))
 END_SHELL
 
  logical                      :: loop
@@ -223,7 +223,7 @@ END_SHELL
      endif
 
 
-BEGIN_SHELL [ /usr/bin/env python2 ]
+BEGIN_SHELL [ /usr/bin/env python3 ]
 from properties import *
 t = """
      if (calc_$X) then
@@ -253,7 +253,7 @@ for p in properties:
   else:
    D1 = "("+":"*(p[2].count(',')+1)+")"
    D2 = ":"*(p[2].count(',')+1)+","
-  print t.replace("$X",p[1]).replace("$D1",D1).replace("$D2",D2)
+  print (t.replace("$X",p[1]).replace("$D1",D1).replace("$D2",D2))
 
 END_SHELL
 
@@ -375,7 +375,7 @@ END_SHELL
  factor = 1.d0/block_weight
  SOFT_TOUCH block_weight
 
-BEGIN_SHELL [ /usr/bin/env python2 ]
+BEGIN_SHELL [ /usr/bin/env python3 ]
 from properties import *
 t = """
  if (calc_$X) then
@@ -384,7 +384,7 @@ t = """
  endif
 """
 for p in properties:
- print  t.replace("$X",p[1])
+ print (t.replace("$X",p[1]))
 END_SHELL
 
  deallocate ( elec_coord_tmp, psi_grad_psi_inv_save, psi_grad_psi_inv_save_tmp )

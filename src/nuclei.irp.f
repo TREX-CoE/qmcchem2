@@ -4,7 +4,7 @@
   BEGIN_DOC
 ! Number of nuclei
   END_DOC
-  
+
   nucl_num = -1
   call get_nuclei_nucl_num(nucl_num)
   if (nucl_num <= 0) then
@@ -12,19 +12,19 @@
   endif
   integer, external              :: mod_align
   nucl_num_8 = mod_align(nucl_num)
-   
+
 END_PROVIDER
 
- 
+
 BEGIN_PROVIDER  [ real, nucl_charge, (nucl_num) ]
   implicit none
   BEGIN_DOC
 ! Nuclear charge
   END_DOC
-  
+
   nucl_charge = -1.d0
   call get_nuclei_nucl_charge(nucl_charge)
-  
+
   integer                        :: i
   do i=1,nucl_num
     if (nucl_charge(i) < 0.) then
@@ -33,30 +33,40 @@ BEGIN_PROVIDER  [ real, nucl_charge, (nucl_num) ]
   enddo
 END_PROVIDER
 
- 
+
 BEGIN_PROVIDER [ real, nucl_coord,  (nucl_num_8,3) ]
   implicit none
   BEGIN_DOC
 ! Nuclear coordinates
   END_DOC
-  
+
   nucl_coord = 0.
   real, allocatable              :: buffer(:,:)
-  allocate (buffer(nucl_num,3))
-  buffer = 0.
-  call get_nuclei_nucl_coord(buffer)
-  integer                        :: i,j
-  
-  do i=1,3
-    do j=1,nucl_num
-      nucl_coord(j,i) = buffer(j,i)
+  if (use_trexio) then
+    allocate (buffer(nucl_num,3))
+    call get_nucl_coord_trexio(buffer)
+    do i=1,3
+      do j=1,nucl_num
+        nucl_coord(j,i) = buffer(i,j)
+      enddo
     enddo
-  enddo
+  else
+    allocate (buffer(nucl_num,3))
+    buffer = 0.
+    call get_nuclei_nucl_coord(buffer)
+    do i=1,3
+      do j=1,nucl_num
+        nucl_coord(j,i) = buffer(j,i)
+      enddo
+    enddo
+  end if
+  integer                        :: i,j
+
   deallocate(buffer)
-  
+
 END_PROVIDER
 
- 
+
 BEGIN_PROVIDER [ real, nucl_coord_transp, (8,nucl_num)
   implicit none
   BEGIN_DOC
@@ -68,7 +78,7 @@ BEGIN_PROVIDER [ real, nucl_coord_transp, (8,nucl_num)
     ifirst = 1
     nucl_coord_transp = 0.
   endif
-  
+
   !DIR$ VECTOR ALIGNED
   do i=1,nucl_num
     nucl_coord_transp(1,i) = nucl_coord(i,1)
@@ -77,7 +87,7 @@ BEGIN_PROVIDER [ real, nucl_coord_transp, (8,nucl_num)
   enddo
 END_PROVIDER
 
- 
+
  BEGIN_PROVIDER [ real, nucl_dist, (nucl_num_8,nucl_num) ]
 &BEGIN_PROVIDER [ real, nucl_dist_vec_x, (nucl_num_8,nucl_num) ]
 &BEGIN_PROVIDER [ real, nucl_dist_vec_y, (nucl_num_8,nucl_num) ]
@@ -85,10 +95,10 @@ END_PROVIDER
   implicit none
   BEGIN_DOC
 ! nucl_dist     : Nucleus-nucleus distances : nucl_dist(i,j) = |R_i-R_j|
-   
+
 ! nucl_dist_vec : Nucleus-nucleus distances vectors
   END_DOC
-   
+
   integer                        :: ie1, ie2, l
   integer,save                   :: ifirst = 0
   if (ifirst == 0) then
@@ -98,7 +108,7 @@ END_PROVIDER
     nucl_dist_vec_y = 0.
     nucl_dist_vec_z = 0.
   endif
-  
+
   do ie2 = 1,nucl_num
     !DIR$ VECTOR ALIGNED
     !DIR$ LOOP COUNT (100)
@@ -117,9 +127,9 @@ END_PROVIDER
       ASSERT (nucl_dist(ie1,ie2) > 0.)
     enddo
   enddo
-   
+
 END_PROVIDER
- 
+
 BEGIN_PROVIDER [ real, nucl_fitcusp_radius, (nucl_num) ]
   implicit none
   BEGIN_DOC
@@ -129,7 +139,7 @@ BEGIN_PROVIDER [ real, nucl_fitcusp_radius, (nucl_num) ]
   integer                        :: k
   real, parameter                :: a = 1.74891
   real, parameter                :: b = 0.126057
-  
+
   if (.not. do_nucl_fitcusp) then
     nucl_fitcusp_radius = 0.d0
     return
@@ -145,7 +155,7 @@ BEGIN_PROVIDER [ real, nucl_fitcusp_radius, (nucl_num) ]
       nucl_fitcusp_radius(k) = 0.
     endif
   enddo
-   
+
 END_PROVIDER
- 
- 
+
+

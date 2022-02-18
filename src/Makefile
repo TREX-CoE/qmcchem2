@@ -1,6 +1,6 @@
 INCLUDES=-I AO -I SAMPLING -I TOOLS -I JASTROW -I MAIN -I PROPERTIES -I ZMQ
-SRC=ZMQ/f77_zmq_module.f90 qmckl_f.F90
-OBJ=IRPF90_temp/ZMQ/f77_zmq_module.o IRPF90_temp/qmckl_f.o
+SRC=ZMQ/f77_zmq_module.f90 qmckl_f.F90 trexio_f.f90
+OBJ=IRPF90_temp/ZMQ/f77_zmq_module.o IRPF90_temp/qmckl_f.o IRPF90_temp/trexio_f.o
 
 IRPF90+=$(IRPF90_FLAGS) $(INCLUDES)
 

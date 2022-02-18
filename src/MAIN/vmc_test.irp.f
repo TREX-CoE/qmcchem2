@@ -19,7 +19,7 @@ subroutine step2
   print *,  'w = ', block_weight
   print *,  'Accept', accep_rate()
   print *,  ''
-BEGIN_SHELL [ /usr/bin/env python2 ]
+BEGIN_SHELL [ /usr/bin/env python3 ]
 from properties import *
 
 derivlist = []
@@ -31,7 +31,7 @@ for p in properties:
       PROVIDE $X_2_block_walk
     endif
     """
-  print t.replace("$X",p[1])
+  print(t.replace("$X",p[1]))
 END_SHELL
 end
 

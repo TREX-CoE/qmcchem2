@@ -4,7 +4,7 @@
  BEGIN_PROVIDER [ double precision, jast_elec_Core_expo, (nucl_num) ]
 &BEGIN_PROVIDER [ double precision, jast_elec_Core_range, (nucl_num) ]
  implicit none
- BEGIN_DOC  
+ BEGIN_DOC
 ! Exponent of the core jastrow factor per nucleus
  END_DOC
  integer :: i
@@ -29,7 +29,7 @@ END_PROVIDER
 
 BEGIN_PROVIDER [ double precision , jast_elec_Core_value, (elec_num_8)  ]
 implicit none
- BEGIN_DOC  
+ BEGIN_DOC
 ! J(i) = \sum_j a.rij/(1+b^2.rij) - \sum_A (a.riA/(1+a.riA))^2
  END_DOC
  integer :: i,j,k
@@ -70,7 +70,7 @@ END_PROVIDER
 &BEGIN_PROVIDER [ double precision , jast_elec_Core_grad_y, (elec_num_8) ]
 &BEGIN_PROVIDER [ double precision , jast_elec_Core_grad_z, (elec_num_8) ]
  implicit none
- BEGIN_DOC  
+ BEGIN_DOC
 ! Gradient of the Jastrow factor
  END_DOC
 
@@ -101,7 +101,7 @@ END_PROVIDER
       endif
       rij = elec_dist(i,j)
       f1 = exp(-jast_elec_Core_expo(k)*(nucl_elec_dist(k,i)*nucl_elec_dist(k,i)+nucl_elec_dist(k,j)*nucl_elec_dist(k,j)))
-      tmp = f1*(a/(rij*(1.d0+b*rij*(2.d0+b*rij)))) 
+      tmp = f1*(a/(rij*(1.d0+b*rij*(2.d0+b*rij))))
       f1 = -2.d0*jast_elec_Core_expo(k)* f1* (a*rij/(1.d0+b*rij) -a2)
       jast_elec_Core_grad_x(i) +=  elec_dist_vec_x(i,j)*tmp + nucl_elec_dist_vec(1,k,i)*f1
       jast_elec_Core_grad_y(i) +=  elec_dist_vec_y(i,j)*tmp + nucl_elec_dist_vec(2,k,i)*f1
@@ -117,7 +117,7 @@ END_PROVIDER
 
 BEGIN_PROVIDER [ double precision , jast_elec_Core_lapl, (elec_num_8) ]
  implicit none
- BEGIN_DOC  
+ BEGIN_DOC
 ! Laplacian of the Jastrow factor
  END_DOC
 
@@ -145,21 +145,23 @@ BEGIN_PROVIDER [ double precision , jast_elec_Core_lapl, (elec_num_8) ]
       endif
       f1 = exp(-jast_elec_Core_expo(k)*(nucl_elec_dist(k,i)*nucl_elec_dist(k,i)+nucl_elec_dist(k,j)*nucl_elec_dist(k,j)))
       rij = b*elec_dist(i,j)
-      tmp = (a+a)/(elec_dist(i,j)*(1.d0+rij*(3.d0+rij*(3.d0+rij)))) 
+      tmp = (a+a)/(elec_dist(i,j)*(1.d0+rij*(3.d0+rij*(3.d0+rij))))
       jast_elec_Core_lapl(i) += tmp*f1
       jast_elec_Core_lapl(j) += tmp*f1
 
       rij = elec_dist(i,j)
       tmp = f1* ( a*rij/(1.d0+b*rij) -a2 )
-      jast_elec_Core_lapl(i) += tmp*( 4.d0*(nucl_elec_dist(k,i)*jast_elec_Core_expo(k))**2-6.d0*jast_elec_Core_expo(k))
-      jast_elec_Core_lapl(j) += tmp*( 4.d0*(nucl_elec_dist(k,j)*jast_elec_Core_expo(k))**2-6.d0*jast_elec_Core_expo(k))
+      jast_elec_Core_lapl(i) += tmp*( 4.d0*(nucl_elec_dist(k,i)*jast_elec_Core_expo(k))**2 &
+            -6.d0*jast_elec_Core_expo(k))
+      jast_elec_Core_lapl(j) += tmp*( 4.d0*(nucl_elec_dist(k,j)*jast_elec_Core_expo(k))**2 &
+            -6.d0*jast_elec_Core_expo(k))
 
 
       tmp =  4.d0*jast_elec_Core_expo(k)*f1*(a/(rij*(1.d0+b*rij*(2.d0+b*rij))) )
       jast_elec_Core_lapl(i) -= tmp*(nucl_elec_dist_vec(1,k,i)*elec_dist_vec_x(i,j) &
                                    + nucl_elec_dist_vec(2,k,i)*elec_dist_vec_y(i,j) &
                                    + nucl_elec_dist_vec(3,k,i)*elec_dist_vec_z(i,j))
-      jast_elec_Core_lapl(j) += tmp*(nucl_elec_dist_vec(1,k,j)*elec_dist_vec_x(i,j) & 
+      jast_elec_Core_lapl(j) += tmp*(nucl_elec_dist_vec(1,k,j)*elec_dist_vec_x(i,j) &
                                    + nucl_elec_dist_vec(2,k,j)*elec_dist_vec_y(i,j) &
                                    + nucl_elec_dist_vec(3,k,j)*elec_dist_vec_z(i,j))
     enddo

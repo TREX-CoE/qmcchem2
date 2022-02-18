@@ -1,4 +1,4 @@
-BEGIN_SHELL [ /usr/bin/env python2 ]
+BEGIN_SHELL [ /usr/bin/env python3 ]
 import os
 from properties import properties
 root = os.environ['QMCCHEM_PATH']
@@ -26,7 +26,7 @@ END_PROVIDER
 """
 
 for p in properties:
-  print template%{'p':p[1]}
+  print (template%{'p':p[1]})
 
 t="""
  BEGIN_PROVIDER [ $T, $X_min ]
@@ -52,14 +52,14 @@ for p in properties:
   d = ""
   if p[2] != '':
     d = ", %s"%(p[2])
-  print t.replace("$T",p[0]).replace("$X",p[1]).replace("$D",d)
+  print(t.replace("$T",p[0]).replace("$X",p[1]).replace("$D",d))
 END_SHELL
 
 !==========================================================================!
 ! DIMENSIONS
 !==========================================================================!
 
-BEGIN_SHELL [ /usr/bin/env python2 ]
+BEGIN_SHELL [ /usr/bin/env python3 ]
 from properties import *
 make_dims()
 END_SHELL

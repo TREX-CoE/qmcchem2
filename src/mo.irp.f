@@ -23,7 +23,6 @@ BEGIN_PROVIDER [ real, mo_coef_input, (ao_num_8,mo_tot_num) ]
   real,allocatable               :: buffer(:,:)
   allocate (buffer(ao_num,mo_tot_num))
 
-  buffer = 0.
   call get_mo_basis_mo_coef(buffer)
   do i=1,mo_tot_num
     do j=1,ao_num
