@@ -12,13 +12,16 @@ program qmcchem_info
     imax = 100
   endif
   call step1
-  call cpu_time (cpu0)
+  print *,  '---'
+
+  call wall_time (cpu0)
   call step2(imax)
-  call cpu_time (cpu1)
+  call wall_time (cpu1)
   print *,  'QMC=Chem : ', 1000.*(cpu1-cpu0)/float(imax)
-  call cpu_time (cpu0)
+
+  call wall_time (cpu0)
   call step3(imax)
-  call cpu_time (cpu1)
+  call wall_time (cpu1)
   print *,  'QMCkl    : ', 1000.*(cpu1-cpu0)/float(imax)
 end
 

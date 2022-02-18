@@ -33,6 +33,22 @@ integer function mod_align(n)
  endif
 end function
 
+subroutine wall_time(t)
+  implicit none
+  BEGIN_DOC
+  ! The equivalent of cpu_time, but for the wall time.
+  END_DOC
+  double precision, intent(out)  :: t
+  integer*8                        :: c
+  integer*8, save                  :: rate = 0
+  if (rate == 0) then
+    CALL SYSTEM_CLOCK(count_rate=rate)
+  endif
+  CALL SYSTEM_CLOCK(count=c)
+  t = dble(c)/dble(rate)
+end
+
+
 real function fact2(n)
  implicit none
  integer :: n

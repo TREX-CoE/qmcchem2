@@ -472,6 +472,18 @@ interface
 end interface
 
 interface
+   integer(c_int32_t) function qmckl_get_ao_basis_ao_vgl_inplace (context, &
+        ao_vgl, size_max) bind(C)
+     use, intrinsic :: iso_c_binding
+     import
+     implicit none
+     integer (c_int64_t) , intent(in)  , value :: context
+     double precision,     intent(out)         :: ao_vgl(*)
+     integer (c_int64_t) , intent(in)  , value :: size_max
+   end function qmckl_get_ao_basis_ao_vgl_inplace
+end interface
+
+interface
    integer(c_int32_t) function qmckl_ao_gaussian_vgl(context, &
         X, R, n, A, VGL, ldv) bind(C)
      use, intrinsic :: iso_c_binding
@@ -1208,14 +1220,15 @@ interface
 end interface
 interface
   integer(c_int32_t) function qmckl_trexio_read &
-      (context, file_name) &
+      (context, file_name, size_max) &
       bind(C)
     use, intrinsic :: iso_c_binding
     import
     implicit none
 
     integer  (c_int64_t) , intent(in)  , value :: context
-    character(c_char   ) , intent(in)          :: file_name(*)
+    integer  (c_int64_t) , intent(in)  , value :: size_max
+    character(c_char   ) , intent(in)          :: file_name(size_max)
 
   end function qmckl_trexio_read
 end interface

@@ -11,7 +11,7 @@ BEGIN_PROVIDER [ integer*8, qmckl_ctx ]
   if (ifirst == 0) then
     qmckl_ctx = qmckl_context_create()
     ifirst = 1
-    rc = qmckl_trexio_read(qmckl_ctx, trim(trexio_filename))
+    rc = qmckl_trexio_read(qmckl_ctx, trexio_filename, 1_8*len(trim(trexio_filename)))
     call qmckl_check(rc, irp_here)
 
     ! Electrons
@@ -56,7 +56,7 @@ BEGIN_PROVIDER [ double precision, qmckl_ao_vgl, (ao_num, 5, elec_num) ]
  ! AO value, gradients, Laplacian from QMCkl
  END_DOC
  integer(qmckl_exit_code) :: rc
- rc = qmckl_get_ao_basis_ao_vgl(qmckl_ctx, qmckl_ao_vgl, elec_num*ao_num*5_8)
+ rc = qmckl_get_ao_basis_ao_vgl_inplace(qmckl_ctx, qmckl_ao_vgl, elec_num*ao_num*5_8)
  call qmckl_check(rc, irp_here)
 
 END_PROVIDER
