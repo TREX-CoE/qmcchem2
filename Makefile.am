@@ -21,10 +21,10 @@ LIB=$(AM_LIBS) $(LIBS)
 
 export FC FCFLAGS QMCCHEM_PATH IRPF90_FLAGS ARCHIVE LDFLAGS LIB
 
-bin_SCRIPTS = ocaml/qmcchem \
-              src/MAIN/qmc \
-              src/MAIN/qmc_create_walkers \
-              src/MAIN/qmcchem_info
+bin_SCRIPTS = bin/qmcchem \
+              bin/qmc \
+              bin/qmc_create_walkers \
+              bin/qmcchem_info
 
 
 clean_irpf90:
@@ -73,6 +73,18 @@ $(EZFIO_DIR)/config/properties.config: ezfio_config/properties.config
 $(EZFIO_DIR)/lib/libezfio_irp.a: $(EZFIO_DIR)/config/qmc.config $(EZFIO_DIR)/config/properties.config src/irpf90.make
 	$(MAKE) -C $(EZFIO_DIR)
 
+
+bin/qmcchem: ocaml/qmcchem
+	cp ocaml/qmcchem bin/qmcchem
+
+bin/qmc: src/MAIN/qmc
+	cp src/MAIN/qmc bin/qmc
+
+bin/qmcchem_info: src/MAIN/qmcchem_info
+	cp src/MAIN/qmcchem_info bin/qmcchem_info
+
+bin/qmc_create_walkers: src/MAIN/qmc_create_walkers
+	cp src/MAIN/qmc_create_walkers bin/qmc_create_walkers
 
 IRPSOURCES= \
   src/constants.F \

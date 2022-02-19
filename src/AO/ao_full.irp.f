@@ -14,26 +14,55 @@
 ! Laplacian of the atomic orbitals  (blocked)
   END_DOC
 
-  if (ao_block_num == 0) then
-    return
-  endif
-
   integer :: j,idx,k, kmax
-  ao_value_non_zero_idx(0) = ao_oneD_prim_non_zero_idx(0)
-  kmax = ao_oneD_prim_non_zero_idx(0)
-  !DIR$ VECTOR ALIGNED
-  !DIR$ LOOP COUNT (200)
-  do idx=1,kmax
-   ao_value_non_zero_idx(idx) = ao_oneD_prim_non_zero_idx(idx)
-   ao_value_block(idx) = ao_oneD_block(idx) * ao_axis_block(idx)
-   ao_grad_block_x(idx) = ao_oneD_block(idx) * ao_axis_grad_block_x(idx) + ao_oneD_grad_block_x(idx) * ao_axis_block(idx) 
-   ao_grad_block_y(idx) = ao_oneD_block(idx) * ao_axis_grad_block_y(idx) + ao_oneD_grad_block_y(idx) * ao_axis_block(idx) 
-   ao_grad_block_z(idx) = ao_oneD_block(idx) * ao_axis_grad_block_z(idx) + ao_oneD_grad_block_z(idx) * ao_axis_block(idx) 
-   ao_lapl_block(idx) = ao_oneD_block(idx) * ao_axis_lapl_block(idx) + ao_oneD_lapl_block(idx) * ao_axis_block(idx) + &
-                           2.*(ao_oneD_grad_block_x(idx) * ao_axis_grad_block_x(idx) + &
-                               ao_oneD_grad_block_y(idx) * ao_axis_grad_block_y(idx) + &
-                               ao_oneD_grad_block_z(idx) * ao_axis_grad_block_z(idx) )
-  enddo
+
+  if (use_qmckl) then
+
+    idx = 0
+    do k=1,ao_num
+      if (qmckl_ao_vgl(k, 1, ao_elec) == 0.d0) cycle
+      idx += 1
+      ao_value_non_zero_idx(idx) = k
+    end do
+    kmax = idx
+    ao_value_non_zero_idx(0) = kmax
+
+    do idx=1,kmax
+      k = ao_value_non_zero_idx(idx)
+      ao_value_block (idx) = qmckl_ao_vgl(k,1,ao_elec)
+      ao_grad_block_x(idx) = qmckl_ao_vgl(k,2,ao_elec)
+      ao_grad_block_y(idx) = qmckl_ao_vgl(k,3,ao_elec)
+      ao_grad_block_z(idx) = qmckl_ao_vgl(k,4,ao_elec)
+      ao_lapl_block(idx)   = qmckl_ao_vgl(k,5,ao_elec)
+    end do
+
+  else
+
+    if (ao_block_num == 0) then
+      return
+    endif
+
+    ao_value_non_zero_idx(0) = ao_oneD_prim_non_zero_idx(0)
+    kmax = ao_oneD_prim_non_zero_idx(0)
+    !DIR$ VECTOR ALIGNED
+    !DIR$ LOOP COUNT (200)
+    do idx=1,kmax
+      ao_value_non_zero_idx(idx) = ao_oneD_prim_non_zero_idx(idx)
+      ao_value_block (idx) = ao_oneD_block(idx) * ao_axis_block(idx)
+      ao_grad_block_x(idx) = ao_oneD_block(idx) * ao_axis_grad_block_x(idx) + &
+                             ao_oneD_grad_block_x(idx) * ao_axis_block(idx)
+      ao_grad_block_y(idx) = ao_oneD_block(idx) * ao_axis_grad_block_y(idx) + &
+                             ao_oneD_grad_block_y(idx) * ao_axis_block(idx)
+      ao_grad_block_z(idx) = ao_oneD_block(idx) * ao_axis_grad_block_z(idx) + &
+                             ao_oneD_grad_block_z(idx) * ao_axis_block(idx)
+      ao_lapl_block(idx)   = ao_oneD_block(idx) * ao_axis_lapl_block(idx) + &
+                             ao_oneD_lapl_block(idx) * ao_axis_block(idx) + &
+                              2.*(ao_oneD_grad_block_x(idx) * ao_axis_grad_block_x(idx) + &
+                                  ao_oneD_grad_block_y(idx) * ao_axis_grad_block_y(idx) + &
+                                  ao_oneD_grad_block_z(idx) * ao_axis_grad_block_z(idx) )
+    enddo
+
+  end if
 
 END_PROVIDER
 
@@ -52,7 +81,7 @@ END_PROVIDER
 
 BEGIN_PROVIDER [ logical, primitives_reduced ]
   implicit none
-  BEGIN_DOC  
+  BEGIN_DOC
 ! Tells if the number of primitives has been reduced due to the nucl_fitcusp
   END_DOC
   integer, save :: first_pass = 0
