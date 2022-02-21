@@ -9,7 +9,7 @@ t = """
 &BEGIN_PROVIDER [ $T, $X_2_vmc_block_walk $D1 ]
 &BEGIN_PROVIDER [ $T, $X_2_vmc_block_walk_kahan $D2 ]
  implicit none
- BEGIN_DOC  
+ BEGIN_DOC
 ! VMC averages of $X
  END_DOC
 END_PROVIDER
@@ -101,19 +101,19 @@ t = """
    !  $X_vmc_block_walk $D1   += $X
    !  $X_2_vmc_block_walk $D1 += $X_2
    ! see http://en.wikipedia.org/wiki/Kahan_summation_algorithm
-   
+
       $X_vmc_block_walk_kahan($D2 3) = $X - $X_vmc_block_walk_kahan($D2 1)
       $X_vmc_block_walk_kahan($D2 2) = $X_vmc_block_walk $D1  + $X_vmc_block_walk_kahan($D2 3)
       $X_vmc_block_walk_kahan($D2 1) = ($X_vmc_block_walk_kahan($D2 2) - $X_vmc_block_walk $D1 ) &
           - $X_vmc_block_walk_kahan($D2 3)
-      $X_vmc_block_walk $D1  =  $X_vmc_block_walk_kahan($D2 2) 
-   
-   
+      $X_vmc_block_walk $D1  =  $X_vmc_block_walk_kahan($D2 2)
+
+
       $X_2_vmc_block_walk_kahan($D2 3) = $X_2 - $X_2_vmc_block_walk_kahan($D2 1)
       $X_2_vmc_block_walk_kahan($D2 2) = $X_2_vmc_block_walk $D1 + $X_2_vmc_block_walk_kahan($D2 3)
       $X_2_vmc_block_walk_kahan($D2 1) = ($X_2_vmc_block_walk_kahan($D2 2) - $X_2_vmc_block_walk $D1 ) &
           - $X_2_vmc_block_walk_kahan($D2 3)
-      $X_2_vmc_block_walk $D1 =  $X_2_vmc_block_walk_kahan($D2 2) 
+      $X_2_vmc_block_walk $D1 =  $X_2_vmc_block_walk_kahan($D2 2)
      endif
 """
 for p in properties:
@@ -127,7 +127,7 @@ for p in properties:
 
 END_SHELL
 
-   
+
       call system_clock(cpu1, count_rate, count_max)
       if (cpu1 < cpu0) then
         cpu1 = cpu1+cpu0

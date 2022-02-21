@@ -83,7 +83,7 @@ subroutine step2(imax)
       endif
       PROVIDE ao_value_block
     end do
-    TOUCH elec_coord
+    TOUCH elec_coord_full
   enddo
 end
 

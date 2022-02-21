@@ -46,8 +46,6 @@ END_PROVIDER
   END_DOC
   mo_scale = 1.d0/(0.4d0*log(float(elec_num+1)))
   mo_norm = mo_scale*mo_scale
-  mo_scale = 1.
-  mo_norm  = 1.
 END_PROVIDER
 
 

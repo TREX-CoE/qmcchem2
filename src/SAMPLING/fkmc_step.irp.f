@@ -9,7 +9,7 @@ t = """
 &BEGIN_PROVIDER [ $T, $X_2_fkmc_block_walk $D1 ]
 &BEGIN_PROVIDER [ $T, $X_2_fkmc_block_walk_kahan $D2 ]
  implicit none
- BEGIN_DOC  
+ BEGIN_DOC
 ! fkMC averages of $X. Computed in E_loc_fkmc_block_walk
  END_DOC
  $X_fkmc_block_walk = 0.d0
@@ -45,8 +45,8 @@ END_SHELL
   integer, parameter :: BIRTH=1, DEATH=2
   real, allocatable :: elec_coord_tmp(:,:,:)
   integer :: mod_align
-  double precision :: E_loc_save(walk_num_dmc_max)
-  double precision :: E_loc_save_tmp(walk_num_dmc_max)
+  double precision :: E_loc_save(walk_num)
+  double precision :: E_loc_save_tmp(walk_num)
   double precision :: psi_value_save(walk_num)
   double precision :: psi_value_save_tmp(walk_num)
   double precision :: fkmc_weight(walk_num)
@@ -116,7 +116,7 @@ END_SHELL
 
   ! Every walker makes a step
   do i_walk=1,walk_num
-    
+
     if (.not.first_loop) then
       integer                        :: i,j,l
       do l=1,3
@@ -139,7 +139,7 @@ END_SHELL
         enddo
       enddo
       TOUCH elec_coord
-      E_loc_save(i_walk) = E_loc 
+      E_loc_save(i_walk) = E_loc
       psi_value_save(i_walk) = psi_value
     endif
 
@@ -158,7 +158,7 @@ END_SHELL
      fkmc_weight(i_walk) = dexp(-dtime_step*delta(i_walk))
      elec_coord(elec_num+1,1) += p*time_step
      elec_coord(elec_num+1,2)  = E_loc
-     elec_coord(elec_num+1,3)  = fkmc_weight(i_walk) 
+     elec_coord(elec_num+1,3)  = fkmc_weight(i_walk)
      do l=1,3
         do i=1,elec_num+1
           elec_coord_full(i,l,i_walk) = elec_coord(i,l)
@@ -181,19 +181,19 @@ t = """
    !  $X_fkmc_block_walk    += $X * fkmc_weight(i_walk)
    !  $X_2_fkmc_block_walk  += $X_2 * fkmc_weight(i_walk)
    ! see http://en.wikipedia.org/wiki/Kahan_summation_algorithm
-   
+
       $X_fkmc_block_walk_kahan($D2 3) = $X * fkmc_weight(i_walk) - $X_fkmc_block_walk_kahan($D2 1)
       $X_fkmc_block_walk_kahan($D2 2) = $X_fkmc_block_walk $D1  + $X_fkmc_block_walk_kahan($D2 3)
       $X_fkmc_block_walk_kahan($D2 1) = ($X_fkmc_block_walk_kahan($D2 2) - $X_fkmc_block_walk $D1 ) &
           - $X_fkmc_block_walk_kahan($D2 3)
-      $X_fkmc_block_walk $D1  =  $X_fkmc_block_walk_kahan($D2 2) 
-   
-   
+      $X_fkmc_block_walk $D1  =  $X_fkmc_block_walk_kahan($D2 2)
+
+
       $X_2_fkmc_block_walk_kahan($D2 3) = $X_2 * fkmc_weight(i_walk) - $X_2_fkmc_block_walk_kahan($D2 1)
       $X_2_fkmc_block_walk_kahan($D2 2) = $X_2_fkmc_block_walk $D1 + $X_2_fkmc_block_walk_kahan($D2 3)
       $X_2_fkmc_block_walk_kahan($D2 1) = ($X_2_fkmc_block_walk_kahan($D2 2) - $X_2_fkmc_block_walk $D1 ) &
           - $X_2_fkmc_block_walk_kahan($D2 3)
-      $X_2_fkmc_block_walk $D1 =  $X_2_fkmc_block_walk_kahan($D2 2) 
+      $X_2_fkmc_block_walk $D1 =  $X_2_fkmc_block_walk_kahan($D2 2)
      endif
 """
 for p in properties:
@@ -251,14 +251,14 @@ END_SHELL
 
   ! Identify first which walkers will be killed to place branched walkers there
   ! later
-  
+
   double precision, external     :: qmc_ranf
   integer                        :: ipm, m
   integer                        :: killed(walk_num)
 
   m=1
   do k=1,walk_num
-    fkmc_clock(DEATH,k) = fkmc_clock_tmp(DEATH,k) 
+    fkmc_clock(DEATH,k) = fkmc_clock_tmp(DEATH,k)
     if (fkmc_clock_tmp(DEATH,k) <= 0.d0) then
       killed(m) = k
       m += 1
@@ -284,7 +284,7 @@ END_SHELL
 
   m=1
   do k=1,walk_num
-    fkmc_clock(BIRTH,k) = fkmc_clock_tmp(BIRTH,k) 
+    fkmc_clock(BIRTH,k) = fkmc_clock_tmp(BIRTH,k)
     if (fkmc_clock_tmp(BIRTH,k) <= 0.d0) then
       fkmc_clock(BIRTH,k) = -dlog(qmc_ranf())
       if (killed(m) == 0) then
@@ -308,12 +308,12 @@ END_SHELL
       enddo
       psi_value_save(ipm) = psi_value_save_tmp(k)
       E_loc_save(ipm) = E_loc_save_tmp(k)
-      
+
     endif
 
   enddo
 
-  
+
 
   call system_clock(cpu1, count_rate, count_max)
   if (cpu1 < cpu0) then
@@ -328,7 +328,7 @@ END_SHELL
   endif
 
 ! Update E_ref to take into account the weight of the population
-  E_ref -= dlog(sum_weight / dble(walk_num) ) / time_step 
+  E_ref -= dlog(sum_weight / dble(walk_num) ) / time_step
   SOFT_TOUCH elec_coord_full E_ref
 
   first_loop = .False.

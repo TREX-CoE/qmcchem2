@@ -60,6 +60,9 @@ END_SHELL
  psi_value_save_tmp = 0.d0
  dmc_weight = 1.d0
 
+ if (use_qmckl) then
+    call abrt(irp_here, 'QMCkl not implemented with walk_num_dmc_max')
+ endif
 ! Initialization
  if (vmc_algo /= t_Brownian) then
    call abrt(irp_here,'DMC should run with Brownian algorithm')

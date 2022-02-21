@@ -22,7 +22,7 @@ BEGIN_PROVIDER [ integer*8, qmckl_ctx ]
   end if
 
   rc = qmckl_set_electron_coord(qmckl_ctx, 'T', dble(elec_coord(1:elec_num,1:3)),  &
-   int(3*elec_num,8))
+   3_8*elec_num)
   call qmckl_check(rc, irp_here)
 
 END_PROVIDER
