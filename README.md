@@ -37,6 +37,13 @@ tar -zxf ocaml-bundle_x86.tar.gz
 Installation
 ------------
 
+To compile the program, run
+
+```bash
+$ ./autogen.sh
+$ ./configure && make
+```
+
 Before using QMC=Chem, environment variables need to be loaded. The
 environment variables are located in the `qmcchemrc` file:
 
@@ -46,12 +53,6 @@ $ source qmcchemrc
 
 The `QMCCHEM_NIC` environment variable should be set to the proper network interface,
 usually `ib0` on HPC machines.
-
-To compile the program, run
-
-```bash
-$ ./configure && make
-```
 
 To create files suitable for QMC=Chem, the `save_for_qmcchem` plugin
 needs to be installed in Quandtum Package. This can be done as
