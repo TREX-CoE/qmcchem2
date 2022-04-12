@@ -1,6 +1,6 @@
 type short_opt     = char
-type long_opt      = string 
-type optional      = Mandatory | Optional 
+type long_opt      = string
+type optional      = Mandatory | Optional
 type documentation = string
 type argument      = With_arg of string | Without_arg | With_opt_arg of string
 
@@ -19,7 +19,7 @@ and description_doc = ref ""
 and footer_doc = ref ""
 and specs      = ref []
 
-let reset () = 
+let reset () =
     anon_args  := [];
     header_doc := "";
     description_doc := "";
@@ -33,7 +33,7 @@ let set_description_doc s = description_doc := s
 let set_footer_doc s = footer_doc := s
 
 (* Hash table containing all the options *)
-let dict = Hashtbl.create 67 
+let dict = Hashtbl.create 67
 
 let get_bool x = Hashtbl.mem dict x
 
@@ -54,7 +54,7 @@ let output_text t =
                     Str.split (Str.regexp " ") x
                     |> List.iter (fun y -> Format.printf "@[%s@]@ " y) ;
                     Format.printf "@]"
-    | t       -> List.iter (fun x -> 
+    | t       -> List.iter (fun x ->
                     Format.printf "@[<hov 0>";
                     Str.split (Str.regexp " ") x
                     |> List.iter (fun y -> Format.printf "@[%s@]@ " y) ;
@@ -62,7 +62,7 @@ let output_text t =
   end;
   Format.printf "@]"
 ;;
-  
+
 
 let output_short x =
   match x.short, x.opt, x.arg  with
@@ -117,7 +117,7 @@ let help () =
 
     (* Find column lengths *)
     let max_width =
-      List.map (fun x -> 
+      List.map (fun x ->
         ( match x.arg with
           | Without_arg      -> String.length x.long
           | With_arg arg     -> String.length x.long + String.length arg
@@ -204,7 +204,7 @@ let set_specs ?(no_help=false) specs_in =
 
     (* Check that all mandatory arguments are set *)
     List.filter (fun x -> x.short <> ' ' && x.opt = Mandatory) !specs
-    |> List.iter (fun x -> 
+    |> List.iter (fun x ->
         match get x.long with
         | Some _ -> ()
         | None -> failwith ("Error: --"^x.long^" option is missing.")

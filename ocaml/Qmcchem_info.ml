@@ -1,16 +1,16 @@
 
 
-let run ezfio_filename = 
+let run ezfio_filename =
   Qputils.set_ezfio_filename ezfio_filename;
   let qmcchem_info =
       Lazy.force Qmcchem_config.qmcchem_info
   in
-  let prog, argv = 
-      qmcchem_info, 
+  let prog, argv =
+      qmcchem_info,
     [| qmcchem_info ; ezfio_filename |]
   in
   ignore @@
-    Unix.execvp prog argv 
+    Unix.execvp prog argv
 
 let command () =
   let open Command_line in
@@ -23,7 +23,7 @@ let command () =
 
   let ezfio_file =
     match Command_line.anon_args () with
-    | ezfio_file :: [] -> ezfio_file                                                          
+    | ezfio_file :: [] -> ezfio_file
     | _ -> (Command_line.help () ; failwith "Inconsistent command line")
   in
 

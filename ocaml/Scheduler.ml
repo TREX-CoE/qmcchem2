@@ -1,4 +1,4 @@
-type t = 
+type t =
   | SGE
   | PBS
   | SLURM
@@ -13,16 +13,16 @@ let to_string = function
 
 
 
-let find () = 
-  let scheduler = 
+let find () =
+  let scheduler =
     [  "SLURM_NODELIST" ; "PE_HOSTFILE" ; "PBS_NODEFILE" ]
-    |> List.map (function x -> 
+    |> List.map (function x ->
          try ignore @@ (Sys.getenv x) ; Some x with
          | Not_found -> None
          )
     |> List.hd
   in
-  let result = 
+  let result =
     match scheduler with
       | Some "SLURM_NODELIST"  -> SLURM
       | Some "PE_HOSTFILE"     -> SGE

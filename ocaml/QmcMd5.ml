@@ -5,12 +5,12 @@ let input_directory = lazy (
     Lazy.force Qputils.ezfio_filename
   in
 
-  let dirname = 
+  let dirname =
     Filename.concat ezfio_filename "input"
   in
 
   begin
-    if not (Sys.file_exists dirname) then 
+    if not (Sys.file_exists dirname) then
       Unix.mkdir dirname 0o777
   end ;
 
@@ -23,9 +23,9 @@ let files_to_track = [
   "ao_basis/ao_coef.gz" ;
   "ao_basis/ao_expo.gz" ;
   "ao_basis/ao_nucl.gz" ;
-  "ao_basis/ao_num" ; 
+  "ao_basis/ao_num" ;
   "ao_basis/ao_power.gz" ;
-  "ao_basis/ao_prim_num.gz" ; 
+  "ao_basis/ao_prim_num.gz" ;
   "electrons/elec_alpha_num" ;
   "electrons/elec_beta_num" ;
   "electrons/elec_walk_num" ;
@@ -83,22 +83,22 @@ let hash_file filename =
   if Sys.file_exists filename then
     begin
       let ic = open_in filename in
-      let result = 
+      let result =
         Cryptokit.hash_channel (Cryptokit.Hash.md5 ()) ic
-        |> Cryptokit.transform_string (Cryptokit.Hexa.encode ()) 
+        |> Cryptokit.transform_string (Cryptokit.Hexa.encode ())
       in
       close_in ic;
       result
     end
   else ""
-  
+
 
 (** Cache containing the current value of the MD5 hash. *)
-let _hash = 
+let _hash =
   ref None
 
 (** Get the hash correcponding to the EZFIO file. *)
-let hash () = 
+let hash () =
   let compute_hash () =
     let ezfio_filename =
       Lazy.force Qputils.ezfio_filename
@@ -109,17 +109,17 @@ let hash () =
       else
          ""
     in
-    let md5_string = 
+    let md5_string =
       files_to_track
       |> List.rev_map (fun x -> Printf.sprintf "%s/%s" ezfio_filename x)
       |> List.rev_map hash_file
       |> String.concat ""
     in
 
-    let new_md5 = 
+    let new_md5 =
       md5_string
-      |> Cryptokit.hash_string (Cryptokit.Hash.md5 ()) 
-      |> Cryptokit.transform_string (Cryptokit.Hexa.encode ()) 
+      |> Cryptokit.hash_string (Cryptokit.Hash.md5 ())
+      |> Cryptokit.transform_string (Cryptokit.Hexa.encode ())
     in
     if (new_md5 <> old_md5) then
       begin
@@ -131,7 +131,7 @@ let hash () =
   in
   match (!_hash) with
   | Some key -> key
-  | None -> 
+  | None ->
       begin
         let key =
           compute_hash ()

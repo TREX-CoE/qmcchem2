@@ -189,6 +189,13 @@ let sum { property ; data } =
        in accu +. num
      ) 0. data
 
+(** Compute sum of the weights *)
+let total_weight { property ; data } =
+  List.fold_left (fun accu x ->
+       let num = (Weight.to_float x.Block.weight)
+       in accu +. num
+     ) 0. data
+
 
 
 (** Calculation of the average and error bar *)
@@ -414,7 +421,7 @@ let create_hash ~create_key ?(update_block_id=(fun x->x))
                compute_node = block.compute_node;
             }
       | None -> Some
-          {  property = block.property ;
+          { property = block.property ;
             weight   = block.weight;
             value    = block.value ;
             block_id = update_block_id block.block_id;

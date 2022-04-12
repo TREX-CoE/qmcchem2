@@ -58,7 +58,7 @@ let of_bytes b =
   | 8 -> let x = Qptypes.float_of_bytes b in
          One_dimensional x
   | l -> let len = l/8 in
-let result = 
+let result =
          Multidimensional ( Array.init len (fun i ->
                                Bytes.get_int64_ne b (i*8)
                                |> Int64.float_of_bits ),

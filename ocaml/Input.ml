@@ -3,130 +3,6 @@ open Qputils
 
 
 
-module TREXIO: sig
-
-  type t = bool
-  val doc   : string
-  val read  : unit -> t
-  val to_bool : t -> bool
-  val of_bool : bool -> t
-  val to_int  : t -> int
-  val of_int  : int -> t
-  val to_string : t -> string
-  val of_string : string -> t
-
-end = struct
-
-  type t = bool
-
-  let doc = "Use TREXIO"
-
-  let of_bool x = x
-
-  let to_bool x = x
-
-  let read () =
-    let _ =
-      Lazy.force Qputils.ezfio_filename
-    in
-    if (not (Ezfio.has_simulation_use_trexio ())) then
-      Ezfio.set_simulation_use_trexio false;
-    Ezfio.get_simulation_use_trexio ()
-    |> of_bool
-
-
-  let to_string t =
-    to_bool t
-    |> string_of_bool
-
-
-  let of_string t =
-    try
-      String.lowercase_ascii t
-      |> bool_of_string
-      |> of_bool
-    with
-    | Invalid_argument msg -> failwith msg
-
-
-  let to_int t =
-    let t =
-      to_bool t
-    in
-    if t then 1
-    else 0
-
-
-  let of_int = function
-    | 0 -> false
-    | 1 -> true
-    | _ -> failwith "Expected 0 or 1"
-
-
-end
-
-module QMCkl: sig
-
-  type t = bool
-  val doc   : string
-  val read  : unit -> t
-  val to_bool : t -> bool
-  val of_bool : bool -> t
-  val to_int  : t -> int
-  val of_int  : int -> t
-  val to_string : t -> string
-  val of_string : string -> t
-
-end = struct
-
-  type t = bool
-
-  let doc = "Use QMCkl"
-
-  let of_bool x = x
-
-  let to_bool x = x
-
-  let read () =
-    let _ =
-      Lazy.force Qputils.ezfio_filename
-    in
-    if (not (Ezfio.has_simulation_use_qmckl ())) then
-      Ezfio.set_simulation_use_qmckl false;
-    Ezfio.get_simulation_use_qmckl ()
-    |> of_bool
-
-
-  let to_string t =
-    to_bool t
-    |> string_of_bool
-
-
-  let of_string t =
-    try
-      String.lowercase_ascii t
-      |> bool_of_string
-      |> of_bool
-    with
-    | Invalid_argument msg -> failwith msg
-
-
-  let to_int t =
-    let t =
-      to_bool t
-    in
-    if t then 1
-    else 0
-
-
-  let of_int = function
-    | 0 -> false
-    | 1 -> true
-    | _ -> failwith "Expected 0 or 1"
-
-
-end
-
 module Pseudo: sig
 
   type t = bool
@@ -899,7 +775,7 @@ end
 
 module Jastrow_type : sig
 
-  type t = None | Core | Simple | Mu | Qmckl
+  type t = None | Core | Simple | Mu
   val doc : string
   val read  : unit -> t
   val write : t -> unit
@@ -908,8 +784,8 @@ module Jastrow_type : sig
 
 end = struct
 
-  type t = None | Core | Simple | Mu | Qmckl
-  let doc = "Type of Jastrow factor [ None | Core | Simple | Mu | Qmckl ]"
+  type t = None | Core | Simple | Mu
+  let doc = "Type of Jastrow factor [ None | Core | Simple | Mu ]"
 
   let of_string s =
     match String.capitalize_ascii (String.trim  s) with
@@ -917,15 +793,13 @@ end = struct
     | "Simple" -> Simple
     | "None" -> None
     | "Mu" -> Mu
-    | "Qmckl" -> Qmckl
-    | _ -> failwith "Jastrow type should be [ None | Core | Simple | Mu | Qmckl ]"
+    | _ -> failwith "Jastrow type should be [ None | Core | Simple | Mu ]"
 
 
   let to_string = function
   | Core -> "Core"
   | Simple -> "Simple"
   | Mu -> "Mu"
-  | Qmckl -> "Qmckl"
   | None -> "None"
 
 

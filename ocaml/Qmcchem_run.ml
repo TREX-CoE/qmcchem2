@@ -1,9 +1,9 @@
 
-let full_run ?(start_dataserver=true) ezfio_filename  = 
+let full_run ?(start_dataserver=true) ezfio_filename  =
   (* Identify the job scheduler *)
   let launcher =
     Launcher.find ()
-  and scheduler = 
+  and scheduler =
     Scheduler.find ()
   in
   Printf.printf "Scheduler : %s\n%!" (Scheduler.to_string scheduler);
@@ -13,15 +13,15 @@ let full_run ?(start_dataserver=true) ezfio_filename  =
   (* Create the node file *)
   (*
   let () =
-    let server_file = 
+    let server_file =
       Filename.concat ezfio_filename "nodefile"
     in
     Out_channel.with_file server_file ~f:(fun out_channel ->
       Launcher.create_nodefile ()
-      |> Out_channel.output_string out_channel 
-    ) 
+      |> Out_channel.output_string out_channel
+    )
   *)
-  
+
 
   (* Get the configuration of executables *)
   let qmcchem =
@@ -38,28 +38,28 @@ let full_run ?(start_dataserver=true) ezfio_filename  =
 
 
       (* Start the data server *)
-      let prog, args = 
+      let prog, args =
         qmcchem,  [| qmcchem; "run" ; "-d" ; ezfio_filename |]
       in
-      let pid_dataserver = 
+      let pid_dataserver =
         Watchdog.fork_exec ~prog ~args ()
       in
       Printf.printf "%7d : %s\n%!" pid_dataserver (String.concat " " (Array.to_list args))
     end;
-  
+
 
   (* Check if the Zmq Rep socket is open *)
   let test_open_rep_socket () =
     let zmq_context =
       Zmq.Context.create ()
     in
-    let socket = 
+    let socket =
       Zmq.Socket.create zmq_context Zmq.Socket.req
-    and address = 
+    and address =
       Ezfio.get_simulation_http_server ()
     in
     Zmq.Socket.set_receive_timeout socket 100;
-    let reply = 
+    let reply =
        try
         (
            Zmq.Socket.connect socket address;
@@ -79,10 +79,10 @@ let full_run ?(start_dataserver=true) ezfio_filename  =
 
 
   (* Wait until the rep socket is open *)
-  let rec count = function 
+  let rec count = function
   | 0  -> false
   | -1 -> true
-  | n  -> 
+  | n  ->
     if (not (test_open_rep_socket ())) then
       begin
        Unix.sleep 2;
@@ -94,7 +94,7 @@ let full_run ?(start_dataserver=true) ezfio_filename  =
   if (not (count 300)) then
     Watchdog.kill ();
   Unix.sleep 3;
-     
+
 
   (* Start the qmc processes *)
   let prog, args_list =
@@ -107,19 +107,19 @@ let full_run ?(start_dataserver=true) ezfio_filename  =
     |> List.rev
     |> List.filter (fun x -> x <> "")
     with
-    | launcher_exe::launcher_flags -> 
-       launcher_exe, launcher_exe :: launcher_flags @ qmc @ [ 
-         Ezfio.get_simulation_http_server () ; ezfio_filename ] 
+    | launcher_exe::launcher_flags ->
+       launcher_exe, launcher_exe :: launcher_flags @ qmc @ [
+         Ezfio.get_simulation_http_server () ; ezfio_filename ]
     | _ -> failwith "Error in launcher"
   in
   let args = Array.of_list args_list in
-  let pid_qmc = 
-    try 
+  let pid_qmc =
+    try
       Watchdog.fork_exec ~prog ~args ()
     with
     | Unix.Unix_error _ ->
         begin
-          let command = 
+          let command =
             String.concat " " args_list
           in
           Printf.printf "
@@ -128,10 +128,10 @@ Error: Unable to run the following command
  %s
 ============================================================
 \n%!" command ;
-          Watchdog.kill () 
+          Watchdog.kill ()
         end
   in
-  Printf.printf "%7d : %s\n%!" pid_qmc (String.concat " " args_list);  
+  Printf.printf "%7d : %s\n%!" pid_qmc (String.concat " " args_list);
 
   (* Wait for processes to finish *)
   Watchdog.join ()
@@ -146,7 +146,7 @@ let qmc_run dataserver ezfio_filename =
 let ssh_run host dataserver ezfio_filename =
   print_endline ("ssh "^host^" "^ezfio_filename^" "^dataserver)
 
-let run a d ?q ?s ezfio_filename = 
+let run a d ?q ?s ezfio_filename =
 
   Qputils.set_ezfio_filename ezfio_filename;
 
@@ -159,7 +159,7 @@ let run a d ?q ?s ezfio_filename =
     [
       Sys.sigint  ;
       Sys.sigterm ;
-      Sys.sigquit ;                                                                           
+      Sys.sigquit ;
     ]
   ;
 
@@ -168,20 +168,20 @@ let run a d ?q ?s ezfio_filename =
   Input.validate ();
 (*  Printf.printf "MD5 : %s\n" (Lazy.force Md5.hash) ; *)
 
-  let runtype = 
+  let runtype =
     match (a,d,q,s) with
     | (false,false, None, None) -> `Run
     | (false,true, None, None) -> `Data
-    | (true,false, None, None) -> `Add 
+    | (true,false, None, None) -> `Add
     | (false,false, Some dataserver, None) -> `Qmc dataserver
     | (false,false, Some dataserver, Some host) -> `Ssh (host, dataserver)
     | _ -> failwith "Options (-a|-d|-q [-s]) are mutually exclusive"
   in
 
-  let run = 
+  let run =
     match runtype with
     | `Run  -> full_run ~start_dataserver:true
-    | `Data -> data_run 
+    | `Data -> data_run
     | `Add  -> full_run ~start_dataserver:false
     | `Qmc dataserver -> qmc_run dataserver
     | `Ssh (host,dataserver)  -> ssh_run host dataserver
@@ -225,11 +225,11 @@ let command () =
 
   let ezfio_file =
     match Command_line.anon_args () with
-    | ezfio_file :: [] -> ezfio_file                                                          
+    | ezfio_file :: [] -> ezfio_file
     | _ -> (Command_line.help () ; failwith "Inconsistent command line")
   in
 
-  run a d ?q ?s ezfio_file 
+  run a d ?q ?s ezfio_file
 
 
 

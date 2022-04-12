@@ -1,5 +1,5 @@
 let simulation_nucl_fitcusp_factor  = lazy(
-  let default = 
+  let default =
     1.
   in
   if (Ezfio.has_pseudo_do_pseudo ()) then
@@ -21,7 +21,7 @@ let simulation_sampling             = lazy ( "Langevin"  )
 let simulation_stop_time            = lazy ( 3600        )
 let simulation_time_step            = lazy ( 0.15        )
 let simulation_srmc_projection_time = lazy ( 1.          )
-                                 
+
 let reset_defaults () =
   List.iter (fun x -> Sys.remove ( (Lazy.force Qputils.ezfio_filename) ^ x))
     [ "/electrons/elec_walk_num"       ;

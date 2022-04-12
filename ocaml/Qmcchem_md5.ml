@@ -9,16 +9,16 @@ let run ?c ?d ~l ~update ezfio_filename =
 
   let handle_options () =
 
-    let current_md5 = 
+    let current_md5 =
       QmcMd5.hash ()
     in
 
-    let filename_of_key key = 
+    let filename_of_key key =
       Filename.concat  input_directory  key
     in
 
     let key_is_valid key =
-      let filename = 
+      let filename =
         filename_of_key key
       in
       Sys.file_exists filename
@@ -36,19 +36,19 @@ let run ?c ?d ~l ~update ezfio_filename =
 
             if (old_key <> new_key) then
               begin
-                let prefix = 
-                  Filename.concat ezfio_filename "blocks" 
+                let prefix =
+                  Filename.concat ezfio_filename "blocks"
                 in
-                let new_name = 
-                  Filename.concat prefix new_key 
-                and old_name = 
-                  Filename.concat prefix old_key 
+                let new_name =
+                  Filename.concat prefix new_key
+                and old_name =
+                  Filename.concat prefix old_key
                 in
                 Printf.printf "Renaming %s -> %s\n" old_name new_name;
                 try Sys.rename old_name new_name with
                 | Sys_error _ -> ();
 
-                let old_name = 
+                let old_name =
                   String.concat "/" [ ezfio_filename; "input"; old_key ]
                 in
                 Printf.printf "Removing %s\n%!" old_name;
@@ -65,19 +65,19 @@ let run ?c ?d ~l ~update ezfio_filename =
     let () =
       match c with
       | None -> ()
-      | Some new_md5 -> 
+      | Some new_md5 ->
           if (key_is_valid new_md5) then
             Qmcchem_edit.run ~c:false ~input:(filename_of_key new_md5) ezfio_filename
           else
-            failwith ("Error: " ^ new_md5 ^ " does not exist") 
+            failwith ("Error: " ^ new_md5 ^ " does not exist")
     in
 
-    let () = 
+    let () =
       match l with
       | false -> ()
       | true  ->
           Sys.readdir   input_directory
-          |> Array.iter (fun md5 -> 
+          |> Array.iter (fun md5 ->
               let filename =
                 Filename.concat  input_directory  md5
               in
@@ -89,7 +89,7 @@ let run ?c ?d ~l ~update ezfio_filename =
               in
               let date =
                 let open Unix in
-                localtime (stat filename).st_mtime 
+                localtime (stat filename).st_mtime
                 |> Time.string_of_date
               in
               Printf.printf "%s : %s  %s\n" md5 date this)
@@ -108,14 +108,14 @@ let run ?c ?d ~l ~update ezfio_filename =
             in
             ignore @@ Unix.system command
           else
-            failwith ("Error: " ^ other_key ^ " does not exist") 
+            failwith ("Error: " ^ other_key ^ " does not exist")
     in
     ()
 
   in
 
   match (c,d,l,update) with
-  | (None,None,false,false) -> 
+  | (None,None,false,false) ->
       Printf.printf "Current key :\n%s\n" (QmcMd5.hash ())
   | _ -> handle_options ()
 
@@ -144,7 +144,7 @@ let command () =
 
       anonymous "EZFIO_DIR" Mandatory "EZFIO directory";
     ]
-    |> set_specs 
+    |> set_specs
   end;
 
   let update = Command_line.get_bool "update" in
@@ -158,7 +158,7 @@ let command () =
     | _ -> (Command_line.help () ; failwith "Inconsistent command line")
   in
 
-  run ?c ?d ~l ~update ezfio_file 
+  run ?c ?d ~l ~update ezfio_file
 
 
 

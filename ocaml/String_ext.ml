@@ -67,7 +67,7 @@ let lsplit2_exn ?(on=' ') s =
 (** Split a string in two pieces when a character is found the 1st time from the right *)
 let rsplit2_exn ?(on=' ') s =
     let length =
-        String.length s 
+        String.length s
     in
     let rec do_work i =
         if (i = -1) then
@@ -135,7 +135,7 @@ let tr ~target ~replacement s =
 
 let substr_index ?(pos=0) ~pattern s =
   try
-    let regexp = 
+    let regexp =
       Str.regexp pattern
     in
     Some (Str.search_forward regexp s pos)
@@ -149,12 +149,12 @@ let substr_replace_all ~pattern ~with_ s =
   Str.global_replace regexp with_ s
 
 
-let input_lines ic =                                                                    
+let input_lines ic =
   let rec aux ic accu =
     try
       aux ic ((input_line ic)::accu)
     with
     | End_of_file -> List.rev accu
   in
-  aux ic [] 
+  aux ic []
 

@@ -1,15 +1,15 @@
-let _list    = ref [] 
+let _list    = ref []
 let _running = ref false
-let _threads = ref [] 
+let _threads = ref []
 
 (** Kill the current process and all children *)
 let kill () =
-  let kill pid = 
+  let kill pid =
     Unix.kill pid Sys.sigkill;
     Printf.printf "Killed %d\n%!" pid
   in
   List.iter kill (!_list);
-  exit 1 
+  exit 1
 
 
 
@@ -17,7 +17,7 @@ let kill () =
 let start () =
 
   if (!_running) then
-    failwith "Watchdog error: Already running" 
+    failwith "Watchdog error: Already running"
   else
     begin
       _running := true;
@@ -41,7 +41,7 @@ let start () =
 
           let continue () =
             List.fold_left
-              ( fun accu x -> accu && (pid_is_running x)) 
+              ( fun accu x -> accu && (pid_is_running x))
               true (!_list)
           in
           if ( not (continue ()) ) then
@@ -61,15 +61,15 @@ let stop () =
 
 
 (** Add a PID to tracking *)
-let add pid = 
+let add pid =
   if (not !_running) then
     start ();
   _list := pid :: (!_list)
 
 
 (** Remove a PID from tracking *)
-let del pid = 
-  let rec aux accu = function 
+let del pid =
+  let rec aux accu = function
     | [] -> accu
     | a :: rest ->
         if (a <> pid) then
@@ -86,21 +86,21 @@ let del pid =
 
 (** Fork and exec a new process *)
 let fork_exec ~prog ~args () =
-  let pid = 
+  let pid =
     match Unix.fork () with
-    | 0 -> Unix.execvp prog args 
+    | 0 -> Unix.execvp prog args
     | pid -> pid
   in
 
-  let f () = 
+  let f () =
     add pid;
-    let success = 
+    let success =
       match (Unix.waitpid [] pid) with
       | pid , Unix.WEXITED n -> true
-      | pid , Unix.WSIGNALED n -> 
+      | pid , Unix.WSIGNALED n ->
           ( Printf.printf "PID %d killed with signal %d\n%!" pid n;
             false )
-      | pid , Unix.WSTOPPED n -> 
+      | pid , Unix.WSTOPPED n ->
           ( Printf.printf "PID %d stopped with signal %d\n%!" pid n;
             false )
     in

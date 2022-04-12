@@ -1,6 +1,6 @@
 open Qputils
 
-type t = 
+type t =
 | Stopped
 | Queued
 | Running
@@ -8,7 +8,7 @@ type t =
 ;;
 
 let of_string = function
-| "Stopped"   -> Stopped  
+| "Stopped"   -> Stopped
 | "Queued"    -> Queued
 | "Running"   -> Running
 | "Stopping"  -> Stopping
@@ -16,7 +16,7 @@ let of_string = function
 ;;
 
 let of_int    = function
-| 0 -> Stopped  
+| 0 -> Stopped
 | 1 -> Queued
 | 2 -> Running
 | 3 -> Stopping
@@ -24,7 +24,7 @@ let of_int    = function
 ;;
 
 let to_string = function
-| Stopped   -> "Stopped"  
+| Stopped   -> "Stopped"
 | Queued    -> "Queued"
 | Running   -> "Running"
 | Stopping  -> "Stopping"
@@ -50,6 +50,6 @@ let write x =
   if not !is_set then
     (Ezfio.set_file (Lazy.force ezfio_filename); is_set := true);
   to_int x
-  |> Ezfio.set_simulation_do_run 
+  |> Ezfio.set_simulation_do_run
 ;;
 

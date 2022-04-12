@@ -24,9 +24,9 @@ let to_string = function
 
 
 (** Find the launcher for the current job scheduler *)
-let find () = 
+let find () =
 
-  let result = 
+  let result =
     match Scheduler.find () with
     | Scheduler.SLURM -> Srun
     | Scheduler.Batch
@@ -61,7 +61,7 @@ let create_nodefile () =
   String_ext.input_lines in_channel
   |> List.map  String.trim
   |> List.iter ( fun host ->
-       let n = 
+       let n =
           match Hashtbl.find_opt h host with
           | Some x -> x+1
           | None -> 1
@@ -74,13 +74,13 @@ let create_nodefile () =
   | _ -> ();
 
 
-  let f = 
+  let f =
     match launcher with
     | MPI ->
         fun (node, n) ->
             Printf.sprintf "%s slots=%d\n" node n
-    | Srun 
-    | Bash -> 
+    | Srun
+    | Bash ->
         fun (node, n) ->
             Printf.sprintf "%s %d\n" node n
   in

@@ -1,4 +1,4 @@
-let split_re = 
+let split_re =
   Str.regexp " +"
 
 
@@ -8,29 +8,29 @@ let split s =
 
 
 let set_ezfio_filename ezfio_filename =
-  let () = 
+  let () =
     if (not (Sys.file_exists ezfio_filename)) then
       failwith (ezfio_filename^" does not exist")
   in
   let () =
     if Sys.file_exists ezfio_filename && Sys.is_directory ezfio_filename then
-      Ezfio.set_file ezfio_filename 
+      Ezfio.set_file ezfio_filename
     else
       failwith ("Error : "^ezfio_filename^" is not a directory")
-  in 
+  in
   let dir, result =
     Filename.dirname ezfio_filename,
     Filename.basename ezfio_filename
   in
   Unix.chdir dir ;
   Ezfio.set_file result
-  
+
 
 let ezfio_filename = lazy (
   let f =
     !Ezfio.ezfio_filename
   in
-  let full_path = 
+  let full_path =
     match f with
     | "EZFIO_File" ->
         begin

@@ -1,9 +1,9 @@
 
-let run ezfio_filename = 
+let run ezfio_filename =
   Qputils.set_ezfio_filename ezfio_filename;
   Status.write Status.Stopping
 
-let command () = 
+let command () =
   let open Command_line in
   begin
     set_header_doc (Sys.argv.(0) ^ " - QMC=Chem command");
@@ -12,7 +12,7 @@ let command () =
     |> set_specs
   end;
 
-  let ezfio_file = 
+  let ezfio_file =
     match Command_line.anon_args () with
     | ezfio_file :: [] -> ezfio_file
     | _ -> (Command_line.help () ; failwith "Inconsistent command line")

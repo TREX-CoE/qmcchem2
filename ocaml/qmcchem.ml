@@ -7,40 +7,40 @@ let update_command_line () =
   Sys.argv.(last+1) <- ""
 
 
-let help () = 
+let help () =
   Printf.printf "
-qmcchem - QMC=Chem command 
+qmcchem - QMC=Chem command
 
 Usage:
-  
+
   qmcchem [-h] COMMAND
-  
+
 Arguments:
-  
+
   COMMAND       QMC=Chem command to run :
-                [run|edit|stop|result|md5|info|debug] 
-  
+                [run|edit|stop|result|md5|info|debug]
+
 Options:
-  
-  -h  --help    Prints the help message. 
-  
+
+  -h  --help    Prints the help message.
+
 Description:
-  
-  Driver for subcommands. 
+
+  Driver for subcommands.
 
 "
 
 let () =
   if Array.length Sys.argv < 2 then
     (help (); failwith "Inconsistent command line") ;
-  
+
   match String.trim Sys.argv.(1) with
-  | "-h" | "--help" -> 
+  | "-h" | "--help" ->
     begin
       help () ;
       exit 0
     end
-  | _ -> 
+  | _ ->
     begin
       let command =
         Sys.argv.(1)

@@ -15,7 +15,7 @@ let run ~t ezfio_filename=
     Zmq.Socket.create zmq_context Zmq.Socket.sub
   in
 
-  let address = 
+  let address =
     match (Ezfio.get_simulation_http_server ()
         |> String_ext.rsplit2 ~on:':' )
     with
@@ -30,12 +30,12 @@ let run ~t ezfio_filename=
         let re_split =
            Str.regexp " *: *"
         in
-        let tot_size = 
+        let tot_size =
           ref 0.
         in
         while true
         do
-          let msg = 
+          let msg =
             Zmq.Socket.recv socket
           in
           let (socket, bytes)  =
@@ -53,7 +53,7 @@ let run ~t ezfio_filename=
       begin
         while true
         do
-          let msg = 
+          let msg =
             Zmq.Socket.recv socket
           in
           Printf.printf "%s\n%!" msg;

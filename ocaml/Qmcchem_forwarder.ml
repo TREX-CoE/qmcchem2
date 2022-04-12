@@ -1,17 +1,17 @@
 let bind_socket ~socket_type ~socket ~address =
-  let rec loop = function 
-    | 0 -> failwith @@ Printf.sprintf 
+  let rec loop = function
+    | 0 -> failwith @@ Printf.sprintf
         "Unable to bind the forwarder's %s socket : %s\n"
         socket_type address
-    | -1 -> () 
-    | i ->  
-      try 
-        Zmq.Socket.bind socket address; 
-        loop (-1) 
-      with 
-      | Unix.Unix_error _ -> (Unix.sleep 1 ; loop (i-1) ) 
-      | other_exception -> raise other_exception 
-  in loop 10 
+    | -1 -> ()
+    | i ->
+      try
+        Zmq.Socket.bind socket address;
+        loop (-1)
+      with
+      | Unix.Unix_error _ -> (Unix.sleep 1 ; loop (i-1) )
+      | other_exception -> raise other_exception
+  in loop 10
 
 
 
@@ -19,26 +19,26 @@ let run ezfio_filename dataserver =
 
   let dataserver_address, dataserver_port =
     String.sub dataserver 6 (String.length dataserver - 6)
-    |> String_ext.lsplit2_exn ~on:':' 
-  and qmc = 
+    |> String_ext.lsplit2_exn ~on:':'
+  and qmc =
     Lazy.force Qmcchem_config.qmc
   in
 
   (* Go into /dev/shm *)
   Unix.chdir Qmcchem_config.dev_shm;
 
-  let tmpdir = 
+  let tmpdir =
     ezfio_filename ^ "_" ^ dataserver_port
   in
 
   (* Port of the data server *)
-  let port = 
+  let port =
     (int_of_string dataserver_port)+10
   in
 
   (* Build qmc executable command *)
-  let prog, argv = 
-      qmc, 
+  let prog, argv =
+      qmc,
     [| qmc ; ezfio_filename ;
        Printf.sprintf "ipc://%s:%d" Qmcchem_config.dev_shm port |];
   in
@@ -46,7 +46,7 @@ let run ezfio_filename dataserver =
   (* Create the temporary directory. If it is possible, then the process is a
    * master and the forwarder will start. Otherwise, only start a qmc process.
    *)
-  let () = 
+  let () =
     try
       Unix.mkdir tmpdir 0o755;
       Unix.chdir tmpdir
@@ -57,7 +57,7 @@ let run ezfio_filename dataserver =
         Unix.sleep 1;
         if Sys.file_exists "PID" then
           begin
-            let pid = 
+            let pid =
               let ic = open_in "PID" in
               try
                 int_of_string (input_line ic)
@@ -79,7 +79,7 @@ let run ezfio_filename dataserver =
   (* Now, only one forwarder will execute the following code *)
   let oc = open_out "PID" in
   Unix.getpid ()
-  |> Printf.sprintf "%d\n" 
+  |> Printf.sprintf "%d\n"
   |> output_string oc
   ; close_out oc;
 
@@ -92,7 +92,7 @@ let run ezfio_filename dataserver =
     Zmq.Context.create ()
   in
 
-  let terminate () = 
+  let terminate () =
     (* Clean up the temp directory *)
     Unix.chdir Qmcchem_config.dev_shm;
     Zmq.Context.terminate zmq_context ;
@@ -107,7 +107,7 @@ let run ezfio_filename dataserver =
       | _ ->  ()
       ;
     done;
-    let command = 
+    let command =
       Printf.sprintf "rm -rf -- \"%s\" " tmpdir
     in
     try
@@ -136,13 +136,13 @@ let run ezfio_filename dataserver =
   (* Fetch walkers *)
   let walk_num =
     ref 0
-  and walkers = 
+  and walkers =
     ref []
   in
 
 
   (* Status thread *)
-  let status = 
+  let status =
     ref Status.Running
   in
 
@@ -274,7 +274,7 @@ let run ezfio_filename dataserver =
       in
 
       (* EZFIO Cache *)
-      let ezfio_cache = 
+      let ezfio_cache =
         Hashtbl.create 63
       in
       let handle_ezfio msg =
@@ -283,14 +283,14 @@ let run ezfio_filename dataserver =
         | None ->
           begin
             Zmq.Socket.send_all req_socket ["Ezfio" ; msg];
-            let result = 
+            let result =
               Zmq.Socket.recv_all req_socket
             in
             Hashtbl.add ezfio_cache msg result;
             result
           end
       in
-        
+
 
       (* Main loop *)
       while (!status <> Status.Stopped)
@@ -300,7 +300,7 @@ let run ezfio_filename dataserver =
         in
         if (polling.(0) = Some Zmq.Poll.In) then
           begin
-            let raw_msg = 
+            let raw_msg =
               Zmq.Socket.recv_all ~block:false dealer_socket
             in
             let header, msg =
@@ -313,11 +313,11 @@ let run ezfio_filename dataserver =
             in
             let handle message =
               match message with
-              | Message.Ezfio ezfio_msg -> 
-                  let result = 
+              | Message.Ezfio ezfio_msg ->
+                  let result =
                     handle_ezfio ezfio_msg
                   in
-                  Zmq.Socket.send_all dealer_socket (header @ result) 
+                  Zmq.Socket.send_all dealer_socket (header @ result)
               | Message.GetWalkers n_walks ->
                 begin
                   if (!walk_num = 0) then
@@ -332,7 +332,7 @@ let run ezfio_filename dataserver =
                   Zmq.Socket.send_all dealer_socket (header @ [ "OK" ])
               | Message.Error _ ->  ()
               | Message.Register _
-              | Message.Unregister _ 
+              | Message.Unregister _
               | Message.Walkers  _
               | Message.Property _ ->
                   failwith "Bad message"
@@ -392,7 +392,7 @@ let run ezfio_filename dataserver =
 
       (* Handles messages coming into the ROUTER socket. *)
       let handle_router () =
-        let raw_msg = 
+        let raw_msg =
           Zmq.Socket.recv_all ~block:false router_socket
         in
         let header, msg =
@@ -405,7 +405,7 @@ let run ezfio_filename dataserver =
         in
         let handle message =
           match message with
-          | Message.GetWalkers _ 
+          | Message.GetWalkers _
           | Message.Ezfio _
           | Message.Test ->
               Zmq.Socket.send_all proxy_socket raw_msg
@@ -430,14 +430,14 @@ let run ezfio_filename dataserver =
       in
 
       let select_n_of ~n ~len l =
-        let a = 
+        let a =
           Array.of_list l
         in
-        let s = 
+        let s =
           (Array.length a)/ len
         in
-        let fetch i = 
-          let rec loop accu = function 
+        let fetch i =
+          let rec loop accu = function
           | -1 -> accu
           | k -> loop ((Array.get a (i*len+k)) :: accu) (k-1)
           in
@@ -447,7 +447,7 @@ let run ezfio_filename dataserver =
         | 0 -> accu
         | i -> let new_accu =
                 (fetch @@ Random.int s) :: accu
-              in 
+              in
               select new_accu (i-1)
         in
         select [] n
@@ -456,13 +456,13 @@ let run ezfio_filename dataserver =
 
       (* Handles messages coming into the PULL socket. *)
       let handle_pull () =
-        let message = 
+        let message =
           Zmq.Socket.recv_all ~block:false pull_socket
         in
-        let new_message = 
+        let new_message =
           match message with
           | "elec_coord":: hostname :: pid :: id :: n_str :: rest ->
-            let n = 
+            let n =
               int_of_string n_str
             in
             let len =
@@ -472,13 +472,13 @@ let run ezfio_filename dataserver =
             if (n < 5*len) then
               message
             else
-              List.concat [ [ "elec_coord" ; hostname ; pid ; id ; 
+              List.concat [ [ "elec_coord" ; hostname ; pid ; id ;
               string_of_int (5*len)] ; ( select_n_of ~n:5 ~len rest ) ]
           | prop :: c :: pid :: b :: d :: w :: [] -> message
           | prop :: c :: pid :: b :: d :: w :: l ->
             if Qmcchem_config.binary_io then
               match Message.create message with
-              | Message.Property block -> 
+              | Message.Property block ->
                   prop :: c :: pid :: b :: d :: w :: "bin" ::
                   (Block.to_bytes block |> Bytes.unsafe_to_string ) :: []
               | _ -> failwith "Inconsistent message"
@@ -525,7 +525,7 @@ let run ezfio_filename dataserver =
   (* Start the status thread and the main thread *)
   begin
     try
-      (List.iter Thread.join 
+      (List.iter Thread.join
         [ start_status_thread ();
           start_log_thread ();
           start_proxy_thread ();
@@ -546,7 +546,7 @@ let run ezfio_filename dataserver =
     ignore (Watchdog.join ());
     terminate ()
   with
-  | error -> 
+  | error ->
     begin
       terminate ();
       raise error
