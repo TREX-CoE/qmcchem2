@@ -43,8 +43,8 @@ AC_SUBST([QMCCHEM_NIC])
 AX_ZMQ([4.0], [], [ AC_MSG_ERROR([Please install ZeroMQ >= 4.0]) ])
 AC_CHECK_LIB([z], [compress])
 AC_CHECK_LIB([zmq], [zmq_send])
-AC_CHECK_LIB([qmckl], [qmckl_context_create])
-AC_CHECK_LIB([trexio], [trexio_read_mo_num_32])
+AC_CHECK_LIB([qmckl], [qmckl_context_create], [], [AC_MSG_ERROR([QMCKL not found])])
+AC_CHECK_LIB([trexio], [trexio_read_mo_num_32], [], [AC_MSG_ERROR([TREXIO not found])])
 AC_CHECK_LIB([f77zmq], [f77_zmq_send__], [],
   AC_CHECK_LIB([f77zmq], [f77_zmq_send_], [],
     AC_CHECK_LIB([f77zmq], [f77_zmq_send], [], [], [-lzmq]),
@@ -111,7 +111,7 @@ AC_OUTPUT
 echo \
 "-------------------------------------------------
 
-${PACKAGE_NAME} Version ${PACKAGE_VERSION} ${QMCKL_DEVEL}
+${PACKAGE_NAME} Version ${PACKAGE_VERSION}
 
 Prefix: '${prefix}'.
 
