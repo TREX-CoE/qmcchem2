@@ -250,7 +250,7 @@ subroutine get_$X(res)
         character*(128) :: msg
         call trexio_string_of_error(ierr, msg)
         print *, trim(msg)
-        stop ierr
+        stop -1
       end if
     else
       print *, 'Error: use_trexio should be true'

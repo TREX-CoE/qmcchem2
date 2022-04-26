@@ -159,7 +159,7 @@ END_SHELL
 !      delta = -((-251.d0*E_loc)-646.d0*E_loc_save(1,i_walk)+264.d0*E_loc_save(2,i_walk)-&
 !         106.d0*E_loc_save(3,i_walk)+19.d0*E_loc_save(4,i_walk))/720.d0
 
-     delta = (delta - E_ref)*p
+     delta = (delta - E_ref) !*p
 
      if (delta >= 0.d0) then
        srmc_weight(i_walk) = dexp(-dtime_step*delta)
@@ -168,7 +168,8 @@ END_SHELL
      endif
 
      ! Trick to avoid holes in DMC PES.
-     if (dabs(delta/E_ref) * time_step_sq > p * 0.5d0 ) then
+!    if (dabs(delta/E_ref) * time_step_sq > p * 0.5d0 ) then
+     if (dabs(delta/E_ref) * time_step_sq > 0.5d0 ) then
        srmc_weight(i_walk) = 0.d0
      endif
 

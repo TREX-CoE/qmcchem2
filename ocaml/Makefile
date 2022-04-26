@@ -33,7 +33,7 @@ tests: $(ALL_TESTS)
 	$(OCAMLBUILD) $*.native -use-ocamlfind $(PKGS)
 	ln -s $*.native $*
 
-qptypes_generator.byte: qptypes_generator.ml
+qptypes_generator.byte: qptypes_generator.ml ezfio.ml
 	$(OCAMLBUILD) qptypes_generator.byte  -use-ocamlfind 
 
 Qptypes.ml: qptypes_generator.byte
