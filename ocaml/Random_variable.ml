@@ -155,7 +155,7 @@ let variance { property ; data } =
         let num =
           Array.mapi (fun i y ->
              let z = (y -. average.(i)) in
-              z *. z
+              (Weight.to_float x.Block.weight) *. z *. z
           )
           (Sample.to_float_array x.Block.value)
         and den = (Weight.to_float x.Block.weight)
@@ -341,14 +341,17 @@ let of_raw_data ?(locked=true) ~range ~clean property =
           let f = float_of_int (List.length data) /. (total_weight { property ; data }) in
           let result =
             if Property.is_scalar property then
+              begin
               let var = Variance.to_float variance in
               let ave = Average.to_float average in
-                List.filter (fun x ->
-                          let weight = (Weight.to_float x.Block.weight) *. f in
-                          let sigma = sqrt (var /. weight) in
-                          abs_float ((Sample.to_float x.Block.value) -. ave) < clean *. sigma
-                ) data
+              List.filter (fun x ->
+                let weight = (Weight.to_float x.Block.weight) *. f in
+                let sigma = sqrt (var /. weight) in
+                abs_float ((Sample.to_float x.Block.value) -. ave) < clean *. sigma
+              ) data
+              end
             else
+              begin
               let var = Variance.to_float_array variance in
               let ave = Average.to_float_array average in
               List.filter (fun x ->
@@ -359,6 +362,7 @@ let of_raw_data ?(locked=true) ~range ~clean property =
                 ) (Sample.to_float_array x.Block.value)
                 |> Array.fold_left (fun x y -> x && y) true
               ) data
+            end
           in
           match result with
           | [] -> data
