@@ -1,10 +1,10 @@
 open Qptypes
 
 (** Display a table that can be plotted by gnuplot *)
-let display_table ~range property =
+let display_table ~clean ~range property =
   let p =
     Property.of_string property
-    |> Random_variable.of_raw_data ~range
+    |> Random_variable.of_raw_data ~range ~clean
   in
   let  conv = Random_variable.convergence p
   and rconv = Random_variable.rev_convergence p
@@ -21,15 +21,15 @@ let display_table ~range property =
 
 
 (** Display a convergence plot of the requested property *)
-let display_plot ~range property =
+let display_plot ~clean ~range property =
   print_string ("display_plot "^property^".\n")
 
 
 (** Display a convergence table of the error *)
-let display_err_convergence ~range property =
+let display_err_convergence ~clean ~range property =
   let p =
     Property.of_string property
-    |> Random_variable.of_raw_data ~range
+    |> Random_variable.of_raw_data ~range ~clean
   in
   let rec aux n p =
       match Random_variable.ave_error p with
@@ -52,10 +52,10 @@ let display_err_convergence ~range property =
 
 
 (** Display the centered cumulants of a property *)
-let display_cumulants ~range property =
+let display_cumulants ~clean ~range property =
   let p =
     Property.of_string property
-    |> Random_variable.of_raw_data ~range
+    |> Random_variable.of_raw_data ~range ~clean
   in
   let cum =
     Random_variable.centered_cumulants p
@@ -73,10 +73,10 @@ let display_cumulants ~range property =
 
 
 (** Display a table for the autocovariance of the property *)
-let display_autocovariance ~range property =
+let display_autocovariance ~clean ~range property =
   let p =
     Property.of_string property
-    |> Random_variable.of_raw_data ~range
+    |> Random_variable.of_raw_data ~range ~clean
   in
   Random_variable.autocovariance p
   |> List.iteri (fun i x ->
@@ -84,10 +84,10 @@ let display_autocovariance ~range property =
 
 
 (** Display a histogram of the property *)
-let display_histogram ~range property =
+let display_histogram ~clean ~range property =
   let p =
     Property.of_string property
-    |> Random_variable.of_raw_data ~range
+    |> Random_variable.of_raw_data ~range ~clean
   in
   let histo =
     Random_variable.histogram p
@@ -132,12 +132,12 @@ let display_histogram ~range property =
 
 
 (** Display a summary of all the computed quantities *)
-let display_summary ~range =
+let display_summary ~clean ~range =
 
   let properties =
     Lazy.force Block.properties
   and print_property property =
-    let p = Random_variable.of_raw_data ~range property
+    let p = Random_variable.of_raw_data ~range ~clean property
     in
     Printf.printf "%20s : %!" (Property.to_string property);
     Printf.printf "%s\n%!" (Random_variable.to_string p)
@@ -146,14 +146,14 @@ let display_summary ~range =
 
 
   let cpu =
-    Random_variable.of_raw_data ~range Property.Cpu
+    Random_variable.of_raw_data ~range ~clean Property.Cpu
     |> Random_variable.sum
   and wall =
-    Random_variable.of_raw_data ~range Property.Wall
+    Random_variable.of_raw_data ~range ~clean Property.Wall
     |> Random_variable.max_value_per_compute_node
     |> Random_variable.sum
   and total_weight =
-    Random_variable.of_raw_data ~range Property.E_loc
+    Random_variable.of_raw_data ~range ~clean Property.E_loc
     |> Random_variable.total_weight
   in
 
@@ -165,7 +165,7 @@ let display_summary ~range =
 
 
 
-let run ?a ?c ?e ?h ?t ?p ?rmin ?rmax ezfio_file =
+let run ?a ?c ?e ?h ?t ?p ?rmin ?rmax ?clean ezfio_file =
 
   Qputils.set_ezfio_filename ezfio_file;
 
@@ -181,7 +181,13 @@ let run ?a ?c ?e ?h ?t ?p ?rmin ?rmax ezfio_file =
       | Some x when (float_of_string x < 0.)   -> failwith "rmax should be >= 0"
       | Some x when (float_of_string x > 100.) -> failwith "rmax should be <= 100"
       | Some x -> float_of_string x
+  and clean =
+      match clean with
+      | Some x -> Some (float_of_string x)
+      | None -> None
   in
+
+
   let range =
     (rmin, rmax)
   in
@@ -198,7 +204,7 @@ let run ?a ?c ?e ?h ?t ?p ?rmin ?rmax ezfio_file =
 
   List.iter (fun (x,func) ->
       match x with
-      | Some property -> func ~range property
+      | Some property -> func ~clean ~range property
       | None -> ()
     ) l;
 
@@ -208,7 +214,7 @@ let run ?a ?c ?e ?h ?t ?p ?rmin ?rmax ezfio_file =
       | (Some _,_) -> false
      ) true l
     ) then
-    display_summary ~range
+    display_summary ~range ~clean
 
 
 let command () =
@@ -245,6 +251,10 @@ let command () =
         doc="Upper bound of the percentage of the total weight to consider (default 100)" ;
         arg=With_arg "<int>"; };
 
+      { short='x' ; long="clean" ; opt=Optional ;
+        doc="Clean values which are beyond x.sigma (default None)" ;
+        arg=With_arg "<float>"; };
+
       { short='t' ; long="table" ; opt=Optional ;
         doc="Print a table for the convergence of a property" ;
         arg=With_arg "<string>"; };
@@ -263,13 +273,14 @@ let command () =
   let p = Command_line.get "plot" in
   let rmin = Command_line.get "rmin" in
   let rmax = Command_line.get "rmax" in
+  let clean = Command_line.get "clean" in
 
   let ezfio_file =
     match Command_line.anon_args () with
     | ezfio_file :: [] -> ezfio_file
     | _ -> (Command_line.help () ; failwith "Inconsistent command line")
   in
-  run ?a ?c ?e ?h ?t ?p ?rmin ?rmax ezfio_file
+  run ?a ?c ?e ?h ?t ?p ?rmin ?rmax ?clean ezfio_file
 
 
 

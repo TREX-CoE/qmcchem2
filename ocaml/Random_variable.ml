@@ -89,60 +89,6 @@ let hashtbl_change table key f =
     | Some value -> Hashtbl.replace table key value
 
 
-(** Build from raw data. Range values are given in percent. *)
-let of_raw_data ?(locked=true) ~range property =
-    let data =
-         Block.raw_data ~locked ()
-         |> List.filter (fun x -> x.Block.property = property)
-         |> List.sort (fun x y ->
-              let x = Block_id.to_int x.Block.block_id in
-              let y = Block_id.to_int y.Block.block_id in
-              if (x>y) then 1
-              else if (x<y) then -1
-              else 0)
-    in
-
-    let data_in_range rmin rmax =
-
-        let total_weight =
-          List.fold_left (fun accu x ->
-              (Weight.to_float x.Block.weight) +. accu
-            ) 0.  data
-        in
-
-        let wmin, wmax =
-          rmin *. total_weight *. 0.01,
-          rmax *. total_weight *. 0.01
-        in
-
-        let (_, new_data) =
-            List.fold_left (fun (wsum, l) x ->
-                if (wsum > wmax) then
-                  (wsum,l)
-                else
-                  begin
-                    let wsum_new =
-                        wsum +. (Weight.to_float x.Block.weight)
-                    in
-                    if (wsum_new > wmin) then
-                        (wsum_new, x::l)
-                    else
-                        (wsum_new, l)
-                  end
-              ) (0.,[]) data
-        in
-        List.rev new_data
-    in
-
-    let result =
-      match range with
-      | (0.,100.)   -> { property ; data }
-      | (rmin,rmax) -> { property ; data=data_in_range rmin rmax }
-    in
-    result
-
-
-
 (** Compute average *)
 let average { property ; data } =
   if Property.is_scalar property then
@@ -177,6 +123,50 @@ let average { property ; data } =
     in
     Array.map (fun x -> x *. denom_inv) num
     |> Average.of_float_array ~dim
+
+
+
+(** Compute variance *)
+let variance { property ; data } =
+  let average = average { property ; data } in
+  if Property.is_scalar property then
+    let average = Average.to_float average in
+    let (num,denom) =
+      List.fold_left (fun (an, ad) x ->
+        let num =
+          let z = (Sample.to_float x.Block.value) -. average in
+          (Weight.to_float x.Block.weight) *. z *. z
+        and den =
+          (Weight.to_float x.Block.weight)
+        in (an +. num, ad +. den)
+      ) (0., 0.) data
+    in
+    num /. denom
+    |> Variance.of_float
+  else
+    let average = Average.to_float_array average in
+    let dim =
+      match data with
+      | [] -> 1
+      | x :: tl -> Sample.dimension x.Block.value
+    in
+    let (num,denom) =
+      List.fold_left (fun (an, ad) x ->
+        let num =
+          Array.mapi (fun i y ->
+             let z = (y -. average.(i)) in
+              z *. z
+          )
+          (Sample.to_float_array x.Block.value)
+        and den = (Weight.to_float x.Block.weight)
+        in ( Array.mapi (fun i y -> y +. num.(i)) an , ad +. den)
+      ) (Array.make dim 0. , 0.) data
+    in
+    let denom_inv =
+      1. /. denom
+    in
+    Array.map (fun x -> x *. denom_inv) num
+    |> Variance.of_float_array ~dim
 
 
 
@@ -279,6 +269,147 @@ let ave_error { property ; data } =
             | (_,None)   -> 0.) result
           |> Average.of_float_array ~dim)
       )
+
+(** Computes the first 4 centered cumulants (zero mean) *)
+let centered_cumulants { property ; data } =
+  let ave =
+    average { property ; data }
+    |> Average.to_float
+  in
+  let centered_data =
+     List.rev_map (fun x ->
+      ( (Weight.to_float x.Block.weight),
+        (Sample.to_float x.Block.value) -. ave )
+      ) data
+     |> List.rev
+  in
+  let var  =
+     let (num, denom) =
+     List.fold_left (fun (a2, ad) (w,x) ->
+       let x2 = x *. x
+       in
+       let var = w *. x2
+       and den = w
+       in (a2 +. var, ad +. den)
+     ) (0., 0.) centered_data
+     in num /. denom
+  in
+  let centered_data =
+     let sigma_inv =
+       1. /. (sqrt var)
+     in
+     List.rev_map (fun x ->
+      ( (Weight.to_float x.Block.weight),
+        ( (Sample.to_float x.Block.value) -. ave ) *. sigma_inv )
+      ) data
+     |> List.rev
+  in
+  let (cum3,cum4) =
+     let (cum3, cum4, denom) =
+     List.fold_left (fun (a3, a4, ad) (w,x) ->
+       let x2 = x *. x
+       in
+       let cum3 = w *. x2 *. x
+       and cum4 = w *. x2 *. x2
+       and den = w
+       in (a3 +. cum3, a4 +. cum4, ad +. den)
+     ) (0., 0., 0.) centered_data
+     in
+     ( cum3 /. denom, cum4 /. denom -. 3. )
+  in
+  [| ave ; var  ; cum3 ;  cum4 |]
+
+
+(** Build from raw data. Range values are given in percent. *)
+let of_raw_data ?(locked=true) ~range ~clean property =
+    let raw_data =
+      let data =
+         Block.raw_data ~locked ()
+         |> List.filter (fun x -> x.Block.property = property)
+      in
+      match clean with
+      | None -> data
+      | Some clean ->
+          let average =
+            average { property ; data }
+          in
+          let variance =
+            variance { property ; data }
+          in
+          let result =
+            if Property.is_scalar property then
+              let var = Variance.to_float variance in
+              let sigma = sqrt var in
+              let ave = Average.to_float average in
+                List.filter (fun x ->
+                          abs_float ((Sample.to_float x.Block.value) -. ave) < clean *. sigma
+                ) data
+            else
+              let sigma =
+                  Array.map sqrt (Variance.to_float_array variance)
+              in
+              let ave = Average.to_float_array average in
+              List.filter (fun x ->
+                Array.mapi (fun i y ->
+                  abs_float (y -. ave.(i)) < clean *. sigma.(i)
+                ) (Sample.to_float_array x.Block.value)
+                |> Array.fold_left (fun x y -> x && y) true
+              ) data
+          in
+          match result with
+          | [] -> data
+          | _ -> result
+    in
+    let data =
+         raw_data
+         |> List.sort (fun x y ->
+              let x = Block_id.to_int x.Block.block_id in
+              let y = Block_id.to_int y.Block.block_id in
+              if (x>y) then 1
+              else if (x<y) then -1
+              else 0)
+    in
+
+    let data_in_range rmin rmax =
+
+        let total_weight =
+          List.fold_left (fun accu x ->
+              (Weight.to_float x.Block.weight) +. accu
+            ) 0.  data
+        in
+
+        let wmin, wmax =
+          rmin *. total_weight *. 0.01,
+          rmax *. total_weight *. 0.01
+        in
+
+        let (_, new_data) =
+            List.fold_left (fun (wsum, l) x ->
+                if (wsum > wmax) then
+                  (wsum,l)
+                else
+                  begin
+                    let wsum_new =
+                        wsum +. (Weight.to_float x.Block.weight)
+                    in
+                    if (wsum_new > wmin) then
+                        (wsum_new, x::l)
+                    else
+                        (wsum_new, l)
+                  end
+              ) (0.,[]) data
+        in
+        List.rev new_data
+    in
+
+    let result =
+      match range with
+      | (0.,100.)   -> { property ; data }
+      | (rmin,rmax) -> { property ; data=data_in_range rmin rmax }
+    in
+    result
+
+
 
 
 
@@ -738,13 +869,13 @@ let compress_files () =
       match p with
         | Property.Cpu
         | Property.Accep ->
-          of_raw_data ~locked:false ~range:(0.,100.) p
+          of_raw_data ~locked:false ~range:(0.,100.) ~clean:None p
             |> merge_per_compute_node
         | Property.Wall  ->
-          of_raw_data ~locked:false ~range:(0.,100.) p
+          of_raw_data ~locked:false ~range:(0.,100.) ~clean:None p
             |> max_value_per_compute_node
         | _     ->
-          of_raw_data ~locked:false ~range:(0.,100.) p
+          of_raw_data ~locked:false ~range:(0.,100.) ~clean:None p
             (*
             |> merge_per_compute_node_and_block_id
             *)
@@ -791,55 +922,6 @@ let autocovariance { property ; data } =
   |> Array.to_list
 
 
-
-(** Computes the first 4 centered cumulants (zero mean) *)
-let centered_cumulants { property ; data } =
-  let ave =
-    average { property ; data }
-    |> Average.to_float
-  in
-  let centered_data =
-     List.rev_map (fun x ->
-      ( (Weight.to_float x.Block.weight),
-        (Sample.to_float x.Block.value) -. ave )
-      ) data
-     |> List.rev
-  in
-  let var  =
-     let (num, denom) =
-     List.fold_left (fun (a2, ad) (w,x) ->
-       let x2 = x *. x
-       in
-       let var = w *. x2
-       and den = w
-       in (a2 +. var, ad +. den)
-     ) (0., 0.) centered_data
-     in num /. denom
-  in
-  let centered_data =
-     let sigma_inv =
-       1. /. (sqrt var)
-     in
-     List.rev_map (fun x ->
-      ( (Weight.to_float x.Block.weight),
-        ( (Sample.to_float x.Block.value) -. ave ) *. sigma_inv )
-      ) data
-     |> List.rev
-  in
-  let (cum3,cum4) =
-     let (cum3, cum4, denom) =
-     List.fold_left (fun (a3, a4, ad) (w,x) ->
-       let x2 = x *. x
-       in
-       let cum3 = w *. x2 *. x
-       and cum4 = w *. x2 *. x2
-       and den = w
-       in (a3 +. cum3, a4 +. cum4, ad +. den)
-     ) (0., 0., 0.) centered_data
-     in
-     ( cum3 /. denom, cum4 /. denom -. 3. )
-  in
-  [| ave ; var  ; cum3 ;  cum4 |]
 
 
 

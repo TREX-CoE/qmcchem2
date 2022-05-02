@@ -836,7 +836,7 @@ let run ?(daemon=true) ezfio_filename =
       with
       | _ -> ()
     end;
-    Qmcchem_result.display_summary ~range:(0.,100.);
+    Qmcchem_result.display_summary ~range:(0.,100.) ~clean:None;
   in
 
   (** {3 Main function} *)
