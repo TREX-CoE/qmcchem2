@@ -140,16 +140,24 @@ let display_summary ~clean ~range =
     let p = Random_variable.of_raw_data ~range ~clean property
     in
     Printf.printf "%20s : %!" (Property.to_string property);
-    Printf.printf "%s\n%!" (Random_variable.to_string p)
+    Printf.printf "%s%!" (Random_variable.to_string p);
+    begin
+      match property with
+      | Accep
+      | Wall
+      | Cpu -> ()
+      | _ -> Printf.printf " (%d)%!" (List.length p.Random_variable.data)
+    end;
+    Printf.printf "\n%!"
   in
   List.iter print_property properties ;
 
 
   let cpu =
-    Random_variable.of_raw_data ~range ~clean Property.Cpu
+    Random_variable.of_raw_data ~range ~clean:None Property.Cpu
     |> Random_variable.sum
   and wall =
-    Random_variable.of_raw_data ~range ~clean Property.Wall
+    Random_variable.of_raw_data ~range ~clean:None Property.Wall
     |> Random_variable.max_value_per_compute_node
     |> Random_variable.sum
   and total_weight =

@@ -174,17 +174,19 @@ let variance { property ; data } =
 
 (** Compute sum (for CPU/Wall time) *)
 let sum { property ; data } =
-  List.fold_left (fun accu x ->
+  List.filter (fun x -> x.Block.property = property) data
+  |> List.fold_left (fun accu x ->
        let num = (Weight.to_float x.Block.weight) *. (Sample.to_float x.Block.value)
        in accu +. num
-     ) 0. data
+     ) 0.
 
 (** Compute sum of the weights *)
 let total_weight { property ; data } =
-  List.fold_left (fun accu x ->
+  List.filter (fun x -> x.Block.property = property) data
+  |>  List.fold_left (fun accu x ->
        let num = (Weight.to_float x.Block.weight)
        in accu +. num
-     ) 0. data
+     ) 0.
 
 
 
@@ -336,22 +338,24 @@ let of_raw_data ?(locked=true) ~range ~clean property =
           let variance =
             variance { property ; data }
           in
+          let f = float_of_int (List.length data) /. (total_weight { property ; data }) in
           let result =
             if Property.is_scalar property then
               let var = Variance.to_float variance in
-              let sigma = sqrt var in
               let ave = Average.to_float average in
                 List.filter (fun x ->
+                          let weight = (Weight.to_float x.Block.weight) *. f in
+                          let sigma = sqrt (var /. weight) in
                           abs_float ((Sample.to_float x.Block.value) -. ave) < clean *. sigma
                 ) data
             else
-              let sigma =
-                  Array.map sqrt (Variance.to_float_array variance)
-              in
+              let var = Variance.to_float_array variance in
               let ave = Average.to_float_array average in
               List.filter (fun x ->
+                let weight_inv = 1. /. ((Weight.to_float x.Block.weight) *. f) in
                 Array.mapi (fun i y ->
-                  abs_float (y -. ave.(i)) < clean *. sigma.(i)
+                  let sigma = sqrt (var.(i) *. weight_inv) in
+                  abs_float (y -. ave.(i)) < clean *. sigma
                 ) (Sample.to_float_array x.Block.value)
                 |> Array.fold_left (fun x y -> x && y) true
               ) data
@@ -764,7 +768,7 @@ let to_string p =
                 Average.to_float ave,
                 Error.to_float error
               in
-              Printf.sprintf "%16.10f +/- %16.10f" ave error
+              Printf.sprintf "%16.10f +/- %14.10f" ave error
           | (ave, None) ->
               let ave =
                 Average.to_float ave
