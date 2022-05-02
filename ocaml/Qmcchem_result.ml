@@ -137,16 +137,20 @@ let display_summary ~clean ~range =
   let properties =
     Lazy.force Block.properties
   and print_property property =
-    let p = Random_variable.of_raw_data ~range ~clean property
-    in
     Printf.printf "%20s : %!" (Property.to_string property);
-    Printf.printf "%s%!" (Random_variable.to_string p);
     begin
       match property with
       | Accep
       | Wall
-      | Cpu -> ()
-      | _ -> Printf.printf " (%d)%!" (List.length p.Random_variable.data)
+      | Cpu -> begin
+        let p = Random_variable.of_raw_data ~range ~clean property in
+        Printf.printf "%s%!" (Random_variable.to_string p)
+        end
+      | _ -> begin
+        let p = Random_variable.of_raw_data ~range ~clean property in
+        Printf.printf "%s%!" (Random_variable.to_string p);
+        Printf.printf " (%d)%!" (List.length p.Random_variable.data)
+        end
     end;
     Printf.printf "\n%!"
   in
