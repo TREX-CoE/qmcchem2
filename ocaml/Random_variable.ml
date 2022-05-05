@@ -344,24 +344,42 @@ let of_raw_data ?(locked=true) ~range ~clean property =
               begin
               let var = Variance.to_float variance in
               let ave = Average.to_float average in
+(*
               List.filter (fun x ->
                 let weight = (Weight.to_float x.Block.weight) *. f in
                 let sigma = sqrt (var /. weight) in
                 abs_float ((Sample.to_float x.Block.value) -. ave) < clean *. sigma
               ) data
+*)
+              List.rev_map (fun x ->
+                let weight_inv = 1. /. ((Weight.to_float x.Block.weight) *. f) in
+                { x with Block.value =
+                  let y = (Sample.to_float x.Block.value) in
+                  let sigma = sqrt (var *. weight_inv) in
+                  Sample.of_float (
+                  if (abs_float (y -. ave) < clean *. sigma) then y
+                  else ave)
+                }
+              ) data
+              |> List.rev
               end
             else
               begin
               let var = Variance.to_float_array variance in
               let ave = Average.to_float_array average in
-              List.filter (fun x ->
+              List.rev_map (fun x ->
                 let weight_inv = 1. /. ((Weight.to_float x.Block.weight) *. f) in
-                Array.mapi (fun i y ->
-                  let sigma = sqrt (var.(i) *. weight_inv) in
-                  abs_float (y -. ave.(i)) < clean *. sigma
-                ) (Sample.to_float_array x.Block.value)
-                |> Array.fold_left (fun x y -> x && y) true
+                { x with Block.value =
+                  let a = (Sample.to_float_array x.Block.value) in
+                  Array.mapi (fun i y ->
+                    let sigma = sqrt (var.(i) *. weight_inv) in
+                    if (abs_float (y -. ave.(i)) < clean *. sigma) then y
+                    else ave.(i)
+                  ) a
+                  |> Sample.of_float_array ~dim:(Array.length a)
+                }
               ) data
+              |> List.rev
             end
           in
           match result with
