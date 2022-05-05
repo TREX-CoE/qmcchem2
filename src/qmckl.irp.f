@@ -21,8 +21,9 @@ BEGIN_PROVIDER [ integer*8, qmckl_ctx ]
     call qmckl_check(rc, irp_here)
   end if
 
-  rc = qmckl_set_electron_coord(qmckl_ctx, 'T', dble(elec_coord(1:elec_num,1:3)),  &
-   3_8*elec_num)
+  double precision :: buffer(elec_num,3)
+  buffer(1:elec_num,1:3) = elec_coord(1:elec_num,1:3)
+  rc = qmckl_set_electron_coord(qmckl_ctx, 'T', buffer,  3_8*elec_num)
   call qmckl_check(rc, irp_here)
 
 END_PROVIDER
@@ -67,6 +68,14 @@ BEGIN_PROVIDER [ double precision, qmckl_ao_vgl, (ao_num, 5, elec_num) ]
  integer(qmckl_exit_code) :: rc
  rc = qmckl_get_ao_basis_ao_vgl_inplace(qmckl_ctx, qmckl_ao_vgl, elec_num*ao_num*5_8)
  call qmckl_check(rc, irp_here)
+
+ integer :: i,j
+ do j=1,elec_num
+   do i=1,5
+     call dset_order(qmckl_ao_vgl(1,i,j),ao_nucl_sort_idx, ao_num)
+!     call dset_order(qmckl_ao_vgl(1,i,j),ao_radius_order, ao_num)
+   enddo
+ enddo
 
 END_PROVIDER
 

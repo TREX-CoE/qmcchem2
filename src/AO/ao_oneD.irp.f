@@ -349,6 +349,18 @@ END_PROVIDER
     ao_oneD_grad_block_z(idx) = 0.
   endif
   
+  integer :: iorder(ao_num)
+  do i=1,ao_num
+    iorder(i) = i
+  enddo
+
+!  ! For consistency with qmckl
+!  call insertion_isort(ao_oneD_prim_non_zero_idx(1),iorder,ao_oneD_prim_non_zero_idx(0))
+!  call set_order(ao_oneD_block, iorder, ao_oneD_prim_non_zero_idx(0))
+!  call set_order(ao_oneD_grad_block_x, iorder, ao_oneD_prim_non_zero_idx(0))
+!  call set_order(ao_oneD_grad_block_y, iorder, ao_oneD_prim_non_zero_idx(0))
+!  call set_order(ao_oneD_grad_block_z, iorder, ao_oneD_prim_non_zero_idx(0))
+!  call set_order(ao_oneD_lapl_block, iorder, ao_oneD_prim_non_zero_idx(0))
 END_PROVIDER
 
 

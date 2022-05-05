@@ -13,11 +13,24 @@ end
 subroutine step2
   implicit none
   real :: accep_rate
-  print *,  '---'
-  print *,  '<E_loc> = ', E_loc_block_walk
-  print *,  '<E_loc_2> = ', E_loc_2_block_walk
-  print *,  'w = ', block_weight
-  print *,  'Accept', accep_rate()
+  integer, parameter :: NMAX=1000
+  double precision :: E(NMAX), ave, err, w
+  integer :: i
+  w = 0.d0
+  do i=1,NMAX
+    E(i) = E_loc_block_walk
+    w += block_weight   
+    TOUCH elec_coord
+  
+    ave = sum(E(1:i))/dble(i)
+    err = dsqrt(sum( (E(1:i)-ave)**2 ) / dble(i*i-i))
+   
+    print *,  '---'
+    print *,  '<E_loc> = ', ave, '+/-', real(err)
+    print *,  '<E_loc_2> = ', E_loc_2_block_walk
+    print *,  'w = ', w
+    print *,  'Accept', accep_rate()
+  end do
   print *,  ''
 BEGIN_SHELL [ /usr/bin/env python3 ]
 from properties import *

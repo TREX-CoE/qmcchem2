@@ -16,6 +16,11 @@
 
   integer :: j,idx,k, kmax
 
+  if (ao_block_num == 0) then
+    return
+  endif
+
+
   if (use_qmckl) then
 
     idx = 0
@@ -38,10 +43,6 @@
 
   else
 
-    if (ao_block_num == 0) then
-      return
-    endif
-
     ao_value_non_zero_idx(0) = ao_oneD_prim_non_zero_idx(0)
     kmax = ao_oneD_prim_non_zero_idx(0)
     !DIR$ VECTOR ALIGNED
@@ -60,7 +61,36 @@
                               2.*(ao_oneD_grad_block_x(idx) * ao_axis_grad_block_x(idx) + &
                                   ao_oneD_grad_block_y(idx) * ao_axis_grad_block_y(idx) + &
                                   ao_oneD_grad_block_z(idx) * ao_axis_grad_block_z(idx) )
+
     enddo
+
+!    idx = 0
+!    print *, ao_value_non_zero_idx(0)
+!    do k=1,ao_num
+!      if (qmckl_ao_vgl(k, 1, ao_elec) == 0.d0) cycle
+!      idx += 1
+!      ao_value_non_zero_idx(idx) = k
+!    end do
+!    kmax = idx
+!    ao_value_non_zero_idx(0) = kmax
+!    print *, ao_value_non_zero_idx(0)
+!
+!    do idx=1,kmax
+!      k = ao_value_non_zero_idx(idx)
+!      print *, k
+!      print *, ao_value_block (idx) , qmckl_ao_vgl(k,1,ao_elec)
+!      print *, ao_grad_block_x(idx) , qmckl_ao_vgl(k,2,ao_elec)
+!      print *, ao_grad_block_y(idx) , qmckl_ao_vgl(k,3,ao_elec)
+!      print *, ao_grad_block_z(idx) , qmckl_ao_vgl(k,4,ao_elec)
+!      print *, ao_lapl_block(idx)   , qmckl_ao_vgl(k,5,ao_elec)
+!      print *, ''
+!
+!      ao_value_block (idx) = qmckl_ao_vgl(k,1,ao_elec)
+!      ao_grad_block_x(idx) = qmckl_ao_vgl(k,3,ao_elec)
+!      ao_grad_block_y(idx) = qmckl_ao_vgl(k,2,ao_elec)
+!      ao_grad_block_z(idx) = qmckl_ao_vgl(k,4,ao_elec)
+!      ao_lapl_block(idx)   = qmckl_ao_vgl(k,5,ao_elec)
+!    end do
 
   end if
 

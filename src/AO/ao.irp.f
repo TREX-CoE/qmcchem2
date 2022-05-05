@@ -61,6 +61,7 @@ END_PROVIDER
     endif
     ao_nucl_sort_idx(i) = i
   enddo
+
   call insertion_isort(ao_nucl,ao_nucl_sort_idx,ao_num)
   ao_nucl_idx(1,ao_nucl(1)) = 1
   ao_nucl_idx(2,ao_nucl(1)) = 1
