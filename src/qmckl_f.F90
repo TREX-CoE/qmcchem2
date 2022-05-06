@@ -690,13 +690,13 @@ interface
    end function qmckl_context_create
 end interface
 
-interface
-   integer (qmckl_context) function qmckl_context_copy(context) bind(C)
-     use, intrinsic :: iso_c_binding
-     import
-     integer (qmckl_context), intent(in), value :: context
-   end function qmckl_context_copy
-end interface
+! interface
+!    integer (qmckl_context) function qmckl_context_copy(context) bind(C)
+!      use, intrinsic :: iso_c_binding
+!      import
+!      integer (qmckl_context), intent(in), value :: context
+!    end function qmckl_context_copy
+! end interface
 
 interface
    integer (qmckl_exit_code) function qmckl_context_destroy(context) bind(C)
@@ -887,17 +887,103 @@ interface
      character, intent(out) :: string(128)
    end subroutine qmckl_string_of_error
 end interface
+! Fortran interfaces
+
+
 interface
-  integer(c_int32_t) function qmckl_get_mo_basis_vgl (context, mo_vgl) &
-      bind(C)
+  integer(c_int32_t) function qmckl_get_mo_basis_mo_num (context, &
+       mo_num) bind(C)
     use, intrinsic :: iso_c_binding
     import
     implicit none
-
     integer (c_int64_t) , intent(in)  , value :: context
-    double precision,     intent(out)         :: mo_vgl(*)
-  end function
+    integer (c_int64_t) , intent(out)         :: mo_num
+  end function qmckl_get_mo_basis_mo_num
 end interface
+
+interface
+  integer(c_int32_t) function qmckl_get_mo_basis_coefficient(context, &
+       coefficient, size_max) bind(C)
+    use, intrinsic :: iso_c_binding
+    import
+    implicit none
+    integer (c_int64_t) , intent(in)  , value :: context
+    double precision, intent(out)             :: coefficient(*)
+    integer (c_int64_t) , intent(in)  , value :: size_max
+  end function qmckl_get_mo_basis_coefficient
+end interface
+
+interface
+   integer(c_int32_t) function qmckl_get_mo_basis_mo_vgl (context, &
+        mo_vgl, size_max) bind(C)
+     use, intrinsic :: iso_c_binding
+     import
+     implicit none
+
+     integer (c_int64_t) , intent(in)  , value :: context
+     double precision,     intent(out)         :: mo_vgl(*)
+     integer (c_int64_t) , intent(in)  , value :: size_max
+   end function qmckl_get_mo_basis_mo_vgl
+end interface
+
+interface
+   integer(c_int32_t) function qmckl_get_mo_basis_mo_vgl_inplace (context, &
+        mo_vgl, size_max) bind(C)
+     use, intrinsic :: iso_c_binding
+     import
+     implicit none
+     integer (c_int64_t) , intent(in)  , value :: context
+     double precision,     intent(out)         :: mo_vgl(*)
+     integer (c_int64_t) , intent(in)  , value :: size_max
+   end function qmckl_get_mo_basis_mo_vgl_inplace
+end interface
+interface
+  integer(c_int32_t) function qmckl_get_nucleus_num(context, num) &
+    bind(C)
+    use, intrinsic :: iso_c_binding
+    import
+    implicit none
+    integer (c_int64_t) , intent(in)  , value :: context
+    integer (c_int64_t) , intent(out)         :: num
+  end function qmckl_get_nucleus_num
+end interface
+
+interface
+  integer(c_int32_t) function qmckl_get_nucleus_charge(context, charge, size_max) &
+    bind(C)
+    use, intrinsic :: iso_c_binding
+    import
+    implicit none
+    integer (c_int64_t) , intent(in)  , value :: context
+    real    (c_double)  , intent(out)         :: charge(*)
+    integer (c_int64_t) , intent(in)  , value :: size_max
+  end function qmckl_get_nucleus_charge
+end interface
+
+interface
+  integer(c_int32_t) function qmckl_get_nucleus_rescale_factor(context, kappa) &
+    bind(C)
+    use, intrinsic :: iso_c_binding
+    import
+    implicit none
+    integer (c_int64_t) , intent(in)  , value :: context
+    real    (c_double)  , intent(out)         :: kappa
+  end function qmckl_get_nucleus_rescale_factor
+end interface
+
+interface
+  integer(c_int32_t) function qmckl_get_nucleus_coord(context, transp, coord, size_max) &
+    bind(C)
+    use, intrinsic :: iso_c_binding
+    import
+    implicit none
+    integer (c_int64_t) , intent(in)  , value :: context
+    character(c_char)   , intent(in)  , value :: transp
+    real    (c_double)  , intent(out)         :: coord(*)
+    integer (c_int64_t) , intent(in)  , value :: size_max
+  end function qmckl_get_nucleus_coord
+end interface
+
 interface
   integer(c_int32_t) function qmckl_set_nucleus_num(context, num) &
     bind(C)
@@ -906,7 +992,7 @@ interface
     implicit none
     integer (c_int64_t) , intent(in)  , value :: context
     integer (c_int64_t) , intent(in)  , value :: num
-  end function
+  end function qmckl_set_nucleus_num
 end interface
 
 interface
@@ -931,18 +1017,18 @@ interface
     character(c_char)   , intent(in)  , value :: transp
     real    (c_double)  , intent(in)          :: coord(*)
     integer (c_int64_t) , intent(in)  , value :: size_max
-  end function
+  end function qmckl_set_nucleus_coord
 end interface
 
 interface
-  integer(c_int32_t) function qmckl_set_rescale_factor(context, kappa) &
+  integer(c_int32_t) function qmckl_set_nucleus_rescale_factor(context, kappa) &
     bind(C)
     use, intrinsic :: iso_c_binding
     import
     implicit none
     integer (c_int64_t) , intent(in)  , value :: context
     real    (c_double)  , intent(in)  , value :: kappa
-  end function
+  end function qmckl_set_nucleus_rescale_factor
 end interface
 
 interface
@@ -1000,12 +1086,12 @@ interface
 end interface
 
 interface
-   integer (qmckl_exit_code) function qmckl_numprec_set_range(context, range) bind(C)
+   integer (qmckl_exit_code) function qmckl_set_numprec_range(context, range) bind(C)
      use, intrinsic :: iso_c_binding
      import
      integer (qmckl_context), intent(in), value :: context
      integer (c_int32_t), intent(in), value :: range
-   end function qmckl_numprec_set_range
+   end function qmckl_set_numprec_range
 end interface
 
 interface
@@ -1049,7 +1135,7 @@ end interface
 
 interface
   integer(c_int32_t) function qmckl_set_point(context, &
-       transp, coord, size_max) bind(C)
+       transp, coord, num) bind(C)
     use, intrinsic :: iso_c_binding
     import
     implicit none
@@ -1057,7 +1143,7 @@ interface
     integer (c_int64_t) , intent(in)  , value :: context
     character(c_char)   , intent(in)  , value :: transp
     real    (c_double ) , intent(in)          :: coord(*)
-    integer (c_int64_t) , intent(in)  , value :: size_max
+    integer (c_int64_t) , intent(in)  , value :: num
   end function
 end interface
 ! Fortran interface                                               :noexport:

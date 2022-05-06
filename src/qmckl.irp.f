@@ -73,9 +73,34 @@ BEGIN_PROVIDER [ double precision, qmckl_ao_vgl, (ao_num, 5, elec_num) ]
  do j=1,elec_num
    do i=1,5
      call dset_order(qmckl_ao_vgl(1,i,j),ao_nucl_sort_idx, ao_num)
-!     call dset_order(qmckl_ao_vgl(1,i,j),ao_radius_order, ao_num)
    enddo
  enddo
+
+END_PROVIDER
+
+
+BEGIN_PROVIDER [ double precision, qmckl_mo_vgl, (qmckl_mo_num, 5, elec_num) ]
+ use qmckl
+ implicit none
+ BEGIN_DOC
+ ! MO value, gradients, Laplacian from QMCkl
+ END_DOC
+ integer(qmckl_exit_code) :: rc
+ rc = qmckl_get_mo_basis_mo_vgl_inplace(qmckl_ctx, qmckl_mo_vgl, walk_num*elec_num*qmckl_mo_num*5_8)
+ call qmckl_check(rc, irp_here)
+
+END_PROVIDER
+
+
+BEGIN_PROVIDER [ integer*8, qmckl_mo_num ]
+ use qmckl
+ implicit none
+ BEGIN_DOC
+ ! Number of MOs in QMCkl
+ END_DOC
+ integer(qmckl_exit_code) :: rc
+ rc = qmckl_get_mo_basis_mo_num(qmckl_ctx, qmckl_mo_num)
+ call qmckl_check(rc, irp_here)
 
 END_PROVIDER
 

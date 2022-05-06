@@ -159,57 +159,86 @@ END_PROVIDER
     PROVIDE nucl_elec_dist_inv
   endif
 
+  if (use_qmckl) then
 
-  do i=1,elec_num
-    if (i>1) then
-      ao_elec = i
-      TOUCH ao_elec
-    endif
     if (num_present_mos == mo_num) then
-      call sparse_full_mv(mo_coef_transp,mo_num_8,                   &
-          ao_value_block(1),ao_num_8,                                &
-          ao_grad_block_x(1),                                        &
-          ao_grad_block_y(1),                                        &
-          ao_grad_block_z(1),                                        &
-          ao_lapl_block(1),                                          &
-          ao_value_non_zero_idx(0),                                  &
-          mo_value_transp(1,i),mo_num_8,                             &
-          mo_grad_transp_x(1,i),                                     &
-          mo_grad_transp_y(1,i),                                     &
-          mo_grad_transp_z(1,i),                                     &
-          mo_lapl_transp(1,i),                                       &
-          ao_num)
-
+      do i=1,elec_num
+        mo_value_transp(1:mo_num,i)  = qmckl_mo_vgl(1:mo_num,1,i)
+        mo_grad_transp_x(1:mo_num,i) = qmckl_mo_vgl(1:mo_num,2,i)
+        mo_grad_transp_y(1:mo_num,i) = qmckl_mo_vgl(1:mo_num,3,i)
+        mo_grad_transp_z(1:mo_num,i) = qmckl_mo_vgl(1:mo_num,4,i)
+        mo_lapl_transp(1:mo_num,i)   = qmckl_mo_vgl(1:mo_num,5,i)
+      end do
     else
-      call sparse_full_mv(mo_coef_transp_present,num_present_mos_8,  &
-          ao_value_block(1),ao_num_8,                                &
-          ao_grad_block_x(1),                                        &
-          ao_grad_block_y(1),                                        &
-          ao_grad_block_z(1),                                        &
-          ao_lapl_block(1),                                          &
-          ao_value_non_zero_idx(0),                                  &
-          mo_value_transp(1,i),mo_num_8,                             &
-          mo_grad_transp_x(1,i),                                     &
-          mo_grad_transp_y(1,i),                                     &
-          mo_grad_transp_z(1,i),                                     &
-          mo_lapl_transp(1,i),                                       &
-          ao_num)
+      do i=1,elec_num
+        do j=num_present_mos,1,-1
+          mo_value_transp (present_mos(j),i) = qmckl_mo_vgl(j,1,i)
+          mo_grad_transp_x(present_mos(j),i) = qmckl_mo_vgl(j,2,i)
+          mo_grad_transp_y(present_mos(j),i) = qmckl_mo_vgl(j,3,i)
+          mo_grad_transp_z(present_mos(j),i) = qmckl_mo_vgl(j,4,i)
+          mo_lapl_transp  (present_mos(j),i) = qmckl_mo_vgl(j,5,i)
+        end do
+      end do
+    end if
 
-      do j=num_present_mos,1,-1
-        mo_value_transp (present_mos(j),i) = mo_value_transp (j,i)
-        mo_grad_transp_x(present_mos(j),i) = mo_grad_transp_x(j,i)
-        mo_grad_transp_y(present_mos(j),i) = mo_grad_transp_y(j,i)
-        mo_grad_transp_z(present_mos(j),i) = mo_grad_transp_z(j,i)
-        mo_lapl_transp  (present_mos(j),i) = mo_lapl_transp  (j,i)
-        if (present_mos(j) == j) then
-          exit
-        endif
-      enddo
-    endif
+  else
 
-    if (do_nucl_fitcusp) then
-      real                           :: r, r2, r_inv, d, expzr, Z, Z2, a, b, c, phi, rx, ry, rz
+    do i=1,elec_num
+      if (i>1) then
+        ao_elec = i
+        TOUCH ao_elec
+      endif
+      if (num_present_mos == mo_num) then
+        call sparse_full_mv(mo_coef_transp,mo_num_8,                   &
+            ao_value_block(1),ao_num_8,                                &
+            ao_grad_block_x(1),                                        &
+            ao_grad_block_y(1),                                        &
+            ao_grad_block_z(1),                                        &
+            ao_lapl_block(1),                                          &
+            ao_value_non_zero_idx(0),                                  &
+            mo_value_transp(1,i),mo_num_8,                             &
+            mo_grad_transp_x(1,i),                                     &
+            mo_grad_transp_y(1,i),                                     &
+            mo_grad_transp_z(1,i),                                     &
+            mo_lapl_transp(1,i),                                       &
+            ao_num)
 
+      else
+        call sparse_full_mv(mo_coef_transp_present,num_present_mos_8,  &
+            ao_value_block(1),ao_num_8,                                &
+            ao_grad_block_x(1),                                        &
+            ao_grad_block_y(1),                                        &
+            ao_grad_block_z(1),                                        &
+            ao_lapl_block(1),                                          &
+            ao_value_non_zero_idx(0),                                  &
+            mo_value_transp(1,i),mo_num_8,                             &
+            mo_grad_transp_x(1,i),                                     &
+            mo_grad_transp_y(1,i),                                     &
+            mo_grad_transp_z(1,i),                                     &
+            mo_lapl_transp(1,i),                                       &
+            ao_num)
+
+        do j=num_present_mos,1,-1
+          mo_value_transp (present_mos(j),i) = mo_value_transp (j,i)
+          mo_grad_transp_x(present_mos(j),i) = mo_grad_transp_x(j,i)
+          mo_grad_transp_y(present_mos(j),i) = mo_grad_transp_y(j,i)
+          mo_grad_transp_z(present_mos(j),i) = mo_grad_transp_z(j,i)
+          mo_lapl_transp  (present_mos(j),i) = mo_lapl_transp  (j,i)
+          if (present_mos(j) == j) then
+            exit
+          endif
+        enddo
+      endif
+    enddo  ! i
+    ao_elec = 1
+    SOFT_TOUCH ao_elec
+
+  endif
+
+
+  if (do_nucl_fitcusp) then
+    real                           :: r, r2, r_inv, d, expzr, Z, Z2, a, b, c, phi, rx, ry, rz
+    do i=1,elec_num
       do k=1,nucl_num
         r = nucl_elec_dist(k,i)
         if (r > nucl_fitcusp_radius(k)) then
@@ -234,12 +263,9 @@ END_PROVIDER
         enddo
         exit
       enddo ! k
+    enddo ! i
 
-    endif
-
-  enddo  ! i
-  ao_elec = 1
-  SOFT_TOUCH ao_elec
+  endif
 
 
   if (do_prepare) then
