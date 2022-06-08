@@ -1,4 +1,7 @@
-let bind_socket ~socket_type ~socket ~address =
+let socket_convert socket =
+    ((Obj.magic (Obj.repr socket)) : [ `Xsub ] Zmq.Socket.t )
+
+let bind_socket socket_type socket address =
   let rec loop = function
     | 0 -> failwith @@ Printf.sprintf
         "Unable to bind the forwarder's %s socket : %s\n"
@@ -184,10 +187,8 @@ let run ezfio_filename dataserver =
             status := Status.of_string msg;
           end;
       done;
-      List.iter (fun socket ->
-        Zmq.Socket.set_linger_period socket 1000 ;
-        Zmq.Socket.close socket)
-        [ sub_socket ; pub_socket ]
+      Zmq.Socket.set_linger_period sub_socket 1000 ; Zmq.Socket.close sub_socket;
+      Zmq.Socket.set_linger_period pub_socket 1000 ; Zmq.Socket.close pub_socket
     in
     Thread.create f
   in
@@ -212,7 +213,9 @@ let run ezfio_filename dataserver =
       let pollitem =
         Zmq.Poll.mask_of
         [| (sub_socket, Zmq.Poll.In) ;
+(*
            (pub_socket, Zmq.Poll.In) ;
+*)
         |]
       in
 
@@ -237,7 +240,7 @@ let run ezfio_filename dataserver =
       List.iter (fun socket ->
         Zmq.Socket.set_linger_period socket 1000 ;
         Zmq.Socket.close socket)
-        [ sub_socket ; pub_socket ]
+        [ socket_convert sub_socket ; socket_convert pub_socket ]
     in
     Thread.create f
   in
@@ -492,10 +495,10 @@ let run ezfio_filename dataserver =
       (* Polling item to poll ROUTER and PULL sockets. *)
       let pollitem =
         Zmq.Poll.mask_of
-        [| (router_socket , Zmq.Poll.In) ;
-            (pull_socket  , Zmq.Poll.In) ;
-            (dealer_socket, Zmq.Poll.In) ;
-            (proxy_socket , Zmq.Poll.In)
+        [| (socket_convert router_socket, Zmq.Poll.In) ;
+           (socket_convert pull_socket  , Zmq.Poll.In) ;
+           (socket_convert dealer_socket, Zmq.Poll.In) ;
+           (socket_convert proxy_socket , Zmq.Poll.In)
         |]
       in
       (* Main loop *)
@@ -516,7 +519,9 @@ let run ezfio_filename dataserver =
       List.iter (fun socket ->
         Zmq.Socket.set_linger_period socket 1000 ;
         Zmq.Socket.close socket)
-      [ router_socket ; dealer_socket ; push_socket ; pull_socket ; proxy_socket ]
+      [ socket_convert router_socket ; socket_convert dealer_socket ;
+        socket_convert push_socket ; socket_convert pull_socket ;
+        socket_convert proxy_socket ]
     in
     Thread.create f
   in

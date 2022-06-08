@@ -1,4 +1,4 @@
-let run ~t ezfio_filename=
+let run t ezfio_filename=
 
   Qputils.set_ezfio_filename ezfio_filename;
 

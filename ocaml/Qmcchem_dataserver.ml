@@ -1,5 +1,8 @@
 open Qptypes
 
+let socket_convert socket =
+    ((Obj.magic (Obj.repr socket)) : [ `Xsub ] Zmq.Socket.t )
+
 (** Data server of QMC=Chem.
 
 5 ZeroMQ sockets are opened:
@@ -14,7 +17,7 @@ open Qptypes
 
 let initialization_timeout = 600.
 
-let bind_socket ~socket_type ~socket ~address =
+let bind_socket socket_type socket address =
   try
     Zmq.Socket.bind socket address
   with
@@ -504,8 +507,8 @@ let run ?(daemon=true) ezfio_filename =
 
         let pollitem =
           Zmq.Poll.mask_of
-          [| (socket , Zmq.Poll.In) ;
-             (debug_socket , Zmq.Poll.In)
+          [| (socket_convert socket , Zmq.Poll.In) ;
+             (socket_convert debug_socket , Zmq.Poll.In)
           |]
         in
         while (!status <> Status.Stopped)
@@ -620,8 +623,8 @@ let run ?(daemon=true) ezfio_filename =
       (** Polling item to poll REP and PULL sockets. *)
       let pollitem =
         Zmq.Poll.mask_of
-        [| (  rep_socket, Zmq.Poll.In) ;
-           ( pull_socket, Zmq.Poll.In) ;
+        [| (  socket_convert rep_socket, Zmq.Poll.In) ;
+           ( socket_convert pull_socket, Zmq.Poll.In) ;
         |]
       in
 
@@ -810,7 +813,7 @@ let run ?(daemon=true) ezfio_filename =
       List.iter (fun socket ->
         Zmq.Socket.set_linger_period socket 1000 ;
         Zmq.Socket.close socket)
-      [ rep_socket ; pull_socket ]
+      [ socket_convert rep_socket ; socket_convert pull_socket ]
     in
     Thread.create f
   in
