@@ -40,7 +40,9 @@ QMCCHEM_NIC=$NIC
 AC_SUBST([QMCCHEM_NIC])
 
 # Checks for libraries.
-AX_ZMQ([4.0], [], [ AC_MSG_ERROR([Please install ZeroMQ >= 4.0]) ])
+AX_ZMQ([], [], [ AC_MSG_ERROR([Please install ZeroMQ]) ])
+#AX_ZMQ([4.0], [], [ AC_MSG_ERROR([Please install ZeroMQ >= 4.0]) ])
+AC_CHECK_LIB([m], [sqrt])
 AC_CHECK_LIB([z], [compress])
 AC_CHECK_LIB([zmq], [zmq_send])
 AC_CHECK_LIB([qmckl], [qmckl_context_create], [], [AC_MSG_ERROR([QMCKL not found])])
