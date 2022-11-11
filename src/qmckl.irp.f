@@ -12,31 +12,30 @@ BEGIN_PROVIDER [ integer*8, qmckl_ctx ]
     qmckl_ctx = qmckl_context_create()
     ifirst = 1
     rc = qmckl_trexio_read(qmckl_ctx, trexio_filename, 1_8*len(trim(trexio_filename)))
-    call qmckl_check(rc, irp_here)
+    call check_qmckl(rc, irp_here, qmckl_ctx)
 
     ! Electrons
     rc = rc + qmckl_set_electron_num(qmckl_ctx, int(elec_alpha_num,8), int(elec_beta_num,8))
-    call qmckl_check(rc, irp_here)
-    rc = rc + qmckl_set_electron_walk_num(qmckl_ctx, 1_8)
-    call qmckl_check(rc, irp_here)
+    call check_qmckl(rc, irp_here, qmckl_ctx)
   end if
 
   double precision :: buffer(elec_num,3)
   buffer(1:elec_num,1:3) = elec_coord(1:elec_num,1:3)
-  rc = qmckl_set_electron_coord(qmckl_ctx, 'T', buffer,  3_8*elec_num)
-  call qmckl_check(rc, irp_here)
+  rc = qmckl_set_electron_coord(qmckl_ctx, 'T', 1_8, buffer,  3_8*elec_num)
+  call check_qmckl(rc, irp_here, qmckl_ctx)
 
 END_PROVIDER
 
-subroutine qmckl_check(rc, here)
+subroutine check_qmckl(rc, here, ctx)
   use qmckl
   implicit none
-  integer(qmckl_exit_code), intent(in) :: rc
+  integer(qmckl_exit_code), intent(inout) :: rc
   character*(*), intent(in) :: here
+  integer(qmckl_context), intent(in) :: ctx
   character*(128) :: msg
   if (rc == QMCKL_SUCCESS) return
-  call qmckl_string_of_error(rc, msg)
   print *, here
+  rc = qmckl_check(ctx, rc)
   print *, msg
   stop -1
 end
@@ -67,7 +66,7 @@ BEGIN_PROVIDER [ double precision, qmckl_ao_vgl, (ao_num, 5, elec_num) ]
  END_DOC
  integer(qmckl_exit_code) :: rc
  rc = qmckl_get_ao_basis_ao_vgl_inplace(qmckl_ctx, qmckl_ao_vgl, elec_num*ao_num*5_8)
- call qmckl_check(rc, irp_here)
+ call check_qmckl(rc, irp_here, qmckl_ctx)
 
  integer :: i,j
  do j=1,elec_num
@@ -87,7 +86,7 @@ BEGIN_PROVIDER [ double precision, qmckl_mo_vgl, (qmckl_mo_num, 5, elec_num) ]
  END_DOC
  integer(qmckl_exit_code) :: rc
  rc = qmckl_get_mo_basis_mo_vgl_inplace(qmckl_ctx, qmckl_mo_vgl, walk_num*elec_num*qmckl_mo_num*5_8)
- call qmckl_check(rc, irp_here)
+ call check_qmckl(rc, irp_here, qmckl_ctx)
 
 END_PROVIDER
 
@@ -100,7 +99,7 @@ BEGIN_PROVIDER [ integer*8, qmckl_mo_num ]
  END_DOC
  integer(qmckl_exit_code) :: rc
  rc = qmckl_get_mo_basis_mo_num(qmckl_ctx, qmckl_mo_num)
- call qmckl_check(rc, irp_here)
+ call check_qmckl(rc, irp_here, qmckl_ctx)
 
 END_PROVIDER
 

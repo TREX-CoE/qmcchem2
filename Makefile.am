@@ -1,4 +1,4 @@
-ACLOCAL_AMFLAGS = -I m4
+ACLOCAL_AMFLAGS = -I m4 $(CPPFLAGS)
 
 #bin_PROGRAMS = \
 #   ocaml/qmcchem
@@ -19,7 +19,7 @@ AM_LIBS=$(EZFIO_DIR)/lib/libezfio_irp.a
 LIB=$(AM_LIBS) $(LIBS)
 
 
-export FC FCFLAGS QMCCHEM_PATH IRPF90_FLAGS ARCHIVE LDFLAGS LIB
+export FC FCFLAGS QMCCHEM_PATH IRPF90_FLAGS ARCHIVE LDFLAGS LIB IRPF90
 
 bin_SCRIPTS = bin/qmcchem \
               bin/qmc \
@@ -101,7 +101,7 @@ IRPSOURCES= \
   src/properties.py \
   src/pseudo.irp.f \
   src/psi.irp.f \
-  src/qmckl_f.F90 \
+  src/qmckl_module.F90 \
   src/qmckl.irp.f \
   src/simulation.irp.f \
   src/svd.irp.f \

@@ -40,18 +40,18 @@ QMCCHEM_NIC=$NIC
 AC_SUBST([QMCCHEM_NIC])
 
 # Checks for libraries.
-AX_ZMQ([], [], [ AC_MSG_ERROR([Please install ZeroMQ]) ])
+AC_LANG_PUSH(C)
+AX_ZMQ([], [], [AC_MSG_ERROR([ZeroMQ not found]) ])
 #AX_ZMQ([4.0], [], [ AC_MSG_ERROR([Please install ZeroMQ >= 4.0]) ])
 AC_CHECK_LIB([m], [sqrt])
 AC_CHECK_LIB([z], [compress])
 AC_CHECK_LIB([zmq], [zmq_send])
 AC_CHECK_LIB([qmckl], [qmckl_context_create], [], [AC_MSG_ERROR([QMCKL not found])])
 AC_CHECK_LIB([trexio], [trexio_read_mo_num_32], [], [AC_MSG_ERROR([TREXIO not found])])
-AC_CHECK_LIB([f77zmq], [f77_zmq_send__], [],
-  AC_CHECK_LIB([f77zmq], [f77_zmq_send_], [],
-    AC_CHECK_LIB([f77zmq], [f77_zmq_send], [], [], [-lzmq]),
-  [-lzmq])
-[-lzmq])
+AC_LANG_PUSH([Fortran])
+AC_CHECK_LIB([f77zmq], [f77_zmq_send], [], [AC_MSG_ERROR([f77zmq not found])])
+AC_LANG_POP()
+
 AS_IF([test $FC == ifort],
   [BLAS_LIBS="-mkl=sequential"], [
   AX_BLAS()
@@ -82,6 +82,7 @@ AC_TYPE_UINT8_T
 AC_CHECK_HEADER_STDBOOL
 AC_TYPE_INT64_T
 AC_TYPE_UINT64_T
+AC_CHECK_HEADERS([qmckl_f.F90])
 
 AC_LANG([Fortran])
 
@@ -101,10 +102,9 @@ AS_CASE([$with_arch],
   [avx512], [ALIGN=64 ; FCFLAGS="${FCFLAGS} -march=skylake-avx512 -ftree-vectorize"])
 ])
 
-AS_IF([test "x.$ALIGN" != "x."],
-  IRPF90_FLAGS="--align=$ALIGN"
-])
+AS_IF([test "x.$ALIGN" != "x."], [IRPF90_FLAGS="--align=$ALIGN"],[IRPF90_FLAGS="--align=32"])
 AC_SUBST([IRPF90_FLAGS])
+AC_SUBST([IRPF90])
 
 AC_CONFIG_FILES([Makefile qmcchemrc])
 AC_OUTPUT
@@ -125,6 +125,7 @@ FCLAGS...............: ${FCFLAGS}
 LDFLAGS:.............: ${LDFLAGS}
 LIBS.................: ${LIBS}
 CPU features.........: ${X86_FEATURE_CFLAGS}
+IRPF90...............: ${IRPF90}
 IRPF90_FLAGS.........: ${IRPF90_FLAGS}
 
 Package features:
@@ -136,3 +137,6 @@ where the optional <target> is:
   check         - run tests
   install       - install ${PACKAGE_NAME}
 --------------------------------------------------"
+
+# With Intel, default flags should be set to
+# -O2 -g -ip -ftz -finline 
