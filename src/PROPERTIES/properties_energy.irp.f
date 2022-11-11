@@ -251,12 +251,12 @@ BEGIN_PROVIDER  [ double precision, E_loc ]
     E_loc += E_kin_elec(i) + E_pot_elec(i)
   enddo
 
-  ! Avoid divergence of E_loc and population explosion
-  if (do_pseudo .and. (qmc_method == t_DMC) ) then
-    double precision :: delta_e
-    delta_e = E_loc-E_ref
-    E_loc = E_ref + delta_e * dexp(-dabs(delta_e)*time_step_sq)
-  endif
+!  ! Avoid divergence of E_loc and population explosion
+!  if (do_pseudo .and. (.not. (qmc_method == t_VMC) )) then
+!    double precision :: delta_e
+!    delta_e = E_loc-E_ref
+!    E_loc = E_ref + delta_e * dexp(-dabs(delta_e)*time_step)
+!  endif
   E_loc_min = min(E_loc,E_loc_min)
   E_loc_max = max(E_loc,E_loc_max)
   SOFT_TOUCH E_loc_min E_loc_max

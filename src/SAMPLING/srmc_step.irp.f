@@ -1,14 +1,5 @@
 ! Providers of *_srmc_block_walk
 !==============================
-
-BEGIN_PROVIDER [ logical, do_print_dmc_data ]
- implicit none
- BEGIN_DOC
- ! If true, print in stdout the data to fit a Jastrow
- END_DOC
- do_print_dmc_data = .False.
-END_PROVIDER
-
 BEGIN_SHELL [ /usr/bin/env python3 ]
 from properties import *
 
@@ -51,32 +42,31 @@ END_SHELL
 ! Properties averaged over the block using the SRMC method
  END_DOC
 
-  real, allocatable :: elec_coord_tmp(:,:,:)
-  integer :: mod_align
-  double precision :: E_loc_save(4,walk_num_dmc_max)
-  double precision :: E_loc_save_tmp(4,walk_num_dmc_max)
-  integer :: trapped_walk_tmp(walk_num_dmc_max)
-  double precision :: psi_value_save(walk_num)
-  double precision :: psi_value_save_tmp(walk_num)
-  double precision :: srmc_weight(walk_num)
-  double precision, allocatable :: psi_grad_psi_inv_save(:,:,:)
-  double precision, allocatable :: psi_grad_psi_inv_save_tmp(:,:,:)
-  !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: psi_grad_psi_inv_save
-  !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: psi_grad_psi_inv_save_tmp
-  !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: E_loc_save
-  !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: E_loc_save_tmp
-  !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: psi_value_save
-  !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: psi_value_save_tmp
-  !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: srmc_weight
-
-  double precision, external     :: qmc_ranf
-
-  allocate ( psi_grad_psi_inv_save(elec_num_8,3,walk_num) ,          &
+ real, allocatable :: elec_coord_tmp(:,:,:)
+ integer :: mod_align
+ double precision :: E_loc_save(4,walk_num_dmc_max)
+ double precision :: E_loc_save_tmp(4,walk_num_dmc_max)
+ integer :: trapped_walk_tmp(walk_num_dmc_max)
+ double precision :: psi_value_save(walk_num)
+ double precision :: psi_value_save_tmp(walk_num)
+ double precision :: srmc_weight(walk_num)
+ double precision, allocatable :: psi_grad_psi_inv_save(:,:,:)
+ double precision, allocatable :: psi_grad_psi_inv_save_tmp(:,:,:)
+ !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: psi_grad_psi_inv_save
+ !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: psi_grad_psi_inv_save_tmp
+ !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: E_loc_save
+ !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: E_loc_save_tmp
+ !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: psi_value_save
+ !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: psi_value_save_tmp
+ !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: srmc_weight
+ allocate ( psi_grad_psi_inv_save(elec_num_8,3,walk_num) ,          &
        psi_grad_psi_inv_save_tmp(elec_num_8,3,walk_num) ,            &
        elec_coord_tmp(mod_align(elec_num+1),3,walk_num) )
-  psi_value_save = 0.d0
-  psi_value_save_tmp = 0.d0
-  srmc_weight = 1.d0
+ psi_value_save = 0.d0
+ psi_value_save_tmp = 0.d0
+ srmc_weight = 1.d0
+
+ double precision, external     :: qmc_ranf
 
 ! Initialization
  if (vmc_algo /= t_Brownian) then
@@ -149,7 +139,7 @@ END_SHELL
       TOUCH elec_coord
       psi_value_save(i_walk) = psi_value
       E_loc_save(:,i_walk) = E_loc
-    endif
+   endif
 
    double precision               :: p,q
    real                           :: delta_x
@@ -167,31 +157,35 @@ END_SHELL
 !     ! 2-step
 !     delta = (E_loc+E_loc_save(1,i_walk))*0.5d0
 
-     ! 4-step
-     delta = (9.d0*E_loc+19.d0*E_loc_save(1,i_walk)- &
-             5.d0*E_loc_save(2,i_walk)+E_loc_save(3,i_walk))/24.d0
+      ! 3-step
+      delta = (5.d0 * E_loc + 8.d0 * E_loc_save(1,i_walk) - E_loc_save(2,i_walk))/12.d0
+
+!     ! 4-step
+!     delta = (9.d0*E_loc+19.d0*E_loc_save(1,i_walk)- &
+!            5.d0*E_loc_save(2,i_walk)+E_loc_save(3,i_walk))/24.d0
+
+     ! 5-step
+!     delta = -((-251.d0*E_loc)-646.d0*E_loc_save(1,i_walk)+264.d0*E_loc_save(2,i_walk)-&
+!          106.d0*E_loc_save(3,i_walk)+19.d0*E_loc_save(4,i_walk))/720.d0
+
 
      delta = (delta - E0)*p
 
-     if (delta >= 0.d0) then
-       srmc_weight(i_walk) = dexp(-dtime_step*delta)
-     else
-       srmc_weight(i_walk) = max(2.d0-dexp(dtime_step*delta), 0.d0)
-     endif
+     srmc_weight(i_walk) = dexp(-dtime_step*delta)
 
    else
      srmc_weight(i_walk) = 0.d0
      trapped_walk(i_walk) = 0
    endif
 
-   ! Trick to avoid holes in DMC PES.
-   if (dabs(delta/E_ref) * time_step_sq > p * 0.5d0 ) then
-     srmc_weight(i_walk) = 0.d0
-   endif
+    ! Trick to avoid holes in DMC PES.
+!    if (dabs(delta/E0) * time_step_sq > p * 0.5d0 ) then
+!      srmc_weight(i_walk) = 0.d0
+!    endif
 
    elec_coord(elec_num+1,1) += p*time_step
    elec_coord(elec_num+1,2)  = E_loc
-   elec_coord(elec_num+1,3)  = srmc_weight(i_walk) * srmc_pop_weight_mult
+   elec_coord(elec_num+1,3)  = srmc_weight(i_walk)
    do l=1,3
       do i=1,elec_num+1
         elec_coord_full(i,l,i_walk) = elec_coord(i,l)
@@ -241,13 +235,21 @@ for p in properties:
   else:
    D1 = "("+":"*(p[2].count(',')+1)+")"
    D2 = ":"*(p[2].count(',')+1)+","
-  print (t.replace("$X",p[1]).replace("$D1",D1).replace("$D2",D2))
+  print(t.replace("$X",p[1]).replace("$D1",D1).replace("$D2",D2))
 
 END_SHELL
 
-    block_weight += srmc_pop_weight_mult * srmc_weight(i_walk)
+   block_weight += srmc_pop_weight_mult * srmc_weight(i_walk)
 
+  enddo ! i_walk
+
+  ! Compute the new weight of the population
+  double precision :: sum_weight
+  sum_weight = 0.d0
+  do k=1,walk_num
+    sum_weight += srmc_weight(k)
   enddo
+  E0 = E_ref - log(sum_weight/real(walk_num)) * 0.1d0 /dtime_step
 
   ! Move to the next projection step
   if (srmc_projection > 0) then
@@ -257,29 +259,22 @@ END_SHELL
   endif
 
   ! Eventually, recompute the weight of the population
-! if (srmc_projection_step == 1) then
-!   srmc_pop_weight_mult = 1.d0
-!   do k=1,srmc_projection
-!     srmc_pop_weight_mult *= srmc_pop_weight(k)
-!   enddo
-! endif
+  if (srmc_projection_step == 1) then
+    srmc_pop_weight_mult = 1.d0
+    do k=1,srmc_projection
+      srmc_pop_weight_mult *= srmc_pop_weight(k)
+    enddo
+  endif
 
   ! Remove contribution of the old value of the weight at the new
   ! projection step
-!  srmc_pop_weight_mult *= 1.d0/srmc_pop_weight(srmc_projection_step)
-
-  ! Compute the new weight of the population
-  double precision :: sum_weight
-  sum_weight = 0.d0
-  do k=1,walk_num
-    sum_weight += srmc_weight(k)
-  enddo
-!  E0 = E_ref - log(sum_weight/real(walk_num)) * 0.1d0 /dtime_step
+   srmc_pop_weight_mult *= 1.d0/srmc_pop_weight(srmc_projection_step)
 
   srmc_pop_weight(srmc_projection_step) = sum_weight/dble(walk_num)
 
   ! Update the running population weight
   srmc_pop_weight_mult *= srmc_pop_weight(srmc_projection_step)
+
 
   if (do_print_dmc_data) then
     do k=1,walk_num
@@ -297,12 +292,6 @@ END_SHELL
   integer :: ipos(walk_num)
 
   do k=1,walk_num
-    ipos(k) = k
-  enddo
-  call reconfigure(ipos,srmc_weight)
-!  call reconfigure_simple(ipos,srmc_weight)
-
-  do k=1,walk_num
     do l=1,3
      do i=1,elec_num+1
       elec_coord_tmp(i,l,k) = elec_coord_full(i,l,k)
@@ -314,7 +303,10 @@ END_SHELL
     psi_value_save_tmp(k) = psi_value_save(k)
     E_loc_save_tmp(:,k) = E_loc_save(:,k)
     trapped_walk_tmp(k) = trapped_walk(k)
+    ipos(k) = k
   enddo
+
+  call reconfigure(ipos,srmc_weight)
 
   integer :: ipm
   do k=1,walk_num
@@ -329,7 +321,7 @@ END_SHELL
    enddo
    psi_value_save(k) = psi_value_save_tmp(ipm)
    E_loc_save(:,k) = E_loc_save_tmp(:,ipm)
-   trapped_walk_tmp(k) = trapped_walk(ipm)
+   trapped_walk(k) = trapped_walk_tmp(ipm)
   enddo
 
 
@@ -367,7 +359,7 @@ for p in properties:
  print (t.replace("$X",p[1]))
 END_SHELL
 
- deallocate ( elec_coord_tmp, psi_grad_psi_inv_save, psi_grad_psi_inv_save_tmp )
+ deallocate(elec_coord_tmp, psi_grad_psi_inv_save, psi_grad_psi_inv_save_tmp)
 
 END_PROVIDER
 
@@ -398,7 +390,15 @@ BEGIN_PROVIDER [ double precision, srmc_pop_weight, (0:srmc_projection+1) ]
  BEGIN_DOC
 ! Population weight of SRMC
  END_DOC
- srmc_pop_weight = 1.d0
+ srmc_pop_weight(:) = 1.d0
 END_PROVIDER
 
+
+BEGIN_PROVIDER [ logical, do_print_dmc_data ]
+ implicit none
+ BEGIN_DOC
+ ! If true, print in stdout the data to fit a Jastrow
+ END_DOC
+ do_print_dmc_data = .False.
+END_PROVIDER
 

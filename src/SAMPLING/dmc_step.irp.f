@@ -46,10 +46,10 @@ END_SHELL
  integer :: mod_align
  double precision :: E_loc_save(4,walk_num_dmc_max)
  double precision :: E_loc_save_tmp(4,walk_num_dmc_max)
+ integer :: trapped_walk_tmp(walk_num_dmc_max)
  double precision :: psi_value_save(walk_num_dmc_max)
  double precision :: psi_value_save_tmp(walk_num_dmc_max)
  double precision :: dmc_weight(walk_num_dmc_max)
- integer :: trapped_walk_tmp(walk_num_dmc_max)
  double precision, allocatable :: psi_grad_psi_inv_save(:,:,:)
  double precision, allocatable :: psi_grad_psi_inv_save_tmp(:,:,:)
  !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: psi_grad_psi_inv_save
@@ -59,16 +59,15 @@ END_SHELL
  !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: psi_value_save
  !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: psi_value_save_tmp
  !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: dmc_weight
-  allocate ( psi_grad_psi_inv_save(elec_num_8,3,walk_num_dmc_max) ,          &
+ allocate ( psi_grad_psi_inv_save(elec_num_8,3,walk_num_dmc_max) ,          &
        psi_grad_psi_inv_save_tmp(elec_num_8,3,walk_num_dmc_max) ,            &
        elec_coord_tmp(mod_align(elec_num+1),3,walk_num_dmc_max) )
  psi_value_save = 0.d0
  psi_value_save_tmp = 0.d0
  dmc_weight = 1.d0
 
- if (use_qmckl) then
-    call abrt(irp_here, 'QMCkl not implemented with walk_num_dmc_max')
- endif
+ double precision, external     :: qmc_ranf
+
 ! Initialization
  if (vmc_algo /= t_Brownian) then
    call abrt(irp_here,'DMC should run with Brownian algorithm')
@@ -94,8 +93,8 @@ for p in properties:
  print (t.replace("$X",p[1]))
 END_SHELL
 
- logical                        :: loop
- integer*8                      :: cpu0, cpu1, cpu2, count_rate, count_max
+ logical                      :: loop
+ integer*8                    :: cpu0, cpu1, cpu2, count_rate, count_max
 
  loop = .True.
  call system_clock(cpu0, count_rate, count_max)
@@ -104,12 +103,11 @@ END_SHELL
  block_weight = 0.d0
 
  real, external                 :: accep_rate
- double precision               :: delta, thr, E0
+ double precision               :: delta, E0
 
  logical :: first_loop
  first_loop = .True.
 
-! thr = 2.d0/time_step_sq
  E0 = E_ref
 
  do while (loop)
@@ -168,18 +166,19 @@ END_SHELL
      if (delta >= 0.d0) then
        dmc_weight(i_walk) = dexp(-dtime_step*delta)
      else
-       dmc_weight(i_walk) = max(2.d0-dexp(dtime_step*delta), 0.d0)
+       dmc_weight(i_walk) = min(.05d0*walk_num,dexp(-dtime_step*delta))
+!       dmc_weight(i_walk) = max(2.d0-dexp(dtime_step*delta), 0.d0)
      endif
 
    else
      dmc_weight(i_walk) = 0.d0
      trapped_walk(i_walk) = 0
    endif
-   
+
     ! Trick to avoid holes in DMC PES.
-    if (dabs(delta/E_ref) * time_step_sq > p * 0.5d0 ) then
-      dmc_weight(i_walk) = 0.d0
-    endif
+!   if (dabs(delta/E_ref) * time_step_sq > p * 0.5d0 ) then
+!     dmc_weight(i_walk) = 0.d0
+!   endif
 
    elec_coord(elec_num+1,1) += p*time_step
    elec_coord(elec_num+1,2)  = E_loc
@@ -239,7 +238,7 @@ END_SHELL
 
    block_weight += dmc_weight(i_walk)
 
-  enddo
+  enddo ! i_walk
 
   ! Population control
   double precision :: sum_weight
@@ -250,9 +249,8 @@ END_SHELL
   E0 = E_ref - log(sum_weight/real(walk_num)) * 0.1d0 /dtime_step
 
 ! Branching
-  integer                        :: ipos(walk_num_dmc_max), walk_num_dmc_new
-  double precision, external     :: qmc_ranf
-  double precision               :: r
+  integer                        :: walk_num_dmc_new
+  integer                        :: ipos(walk_num_dmc_max)
 
   do k=1,walk_num_dmc
     do l=1,3
@@ -269,25 +267,35 @@ END_SHELL
     ipos(k) = k
   enddo
 
+! call reconfigure(ipos,dmc_weight)
+! walk_num_dmc = walk_num
+  
   walk_num_dmc_new = walk_num_dmc
+  double precision               :: r, u
   do k=1,walk_num_dmc
+    u = dmc_weight(k)
+    do while (u >= 1.d0)
+      walk_num_dmc_new = walk_num_dmc_new+1
+      if (walk_num_dmc_new > walk_num_dmc_max) exit
+      ipos(walk_num_dmc_new) = k
+      u = u-1.d0
+    end do
+    if (walk_num_dmc_new > walk_num_dmc_max) exit
     r = qmc_ranf()
-    if (dmc_weight(k) > 1.d0) then
-      if ( 1.d0+r < dmc_weight(k) ) then
-        walk_num_dmc_new = walk_num_dmc_new+1
-        ipos(walk_num_dmc_new) = k
-      endif
-    else
-      if ( r > dmc_weight(k) ) then
-        ipos(k) = ipos(walk_num_dmc_new)
-        walk_num_dmc_new = walk_num_dmc_new-1
-      endif
+    if ( r < u ) then
+      ipos(k) = ipos(walk_num_dmc_new)
+      walk_num_dmc_new = walk_num_dmc_new+1
     endif
+    if (walk_num_dmc_new > walk_num_dmc_max) exit
   enddo
+  if (walk_num_dmc_new == 0) then
+    call abrt(irp_here,'Population disappeared')
+  end if
   if (walk_num_dmc_new > walk_num_dmc_max) then
     call abrt(irp_here,'Population explosion')
   end if
   walk_num_dmc = walk_num_dmc_new
+
 
   integer :: ipm
   do k=1,walk_num_dmc
@@ -317,12 +325,11 @@ END_SHELL
     cpu2 = cpu1
   endif
 
-
   SOFT_TOUCH elec_coord_full_dmc psi_value psi_grad_psi_inv_x psi_grad_psi_inv_y psi_grad_psi_inv_z elec_coord 
 
   first_loop = .False.
 
- enddo
+ enddo ! while loop
 
  double precision :: factor
  factor = 1.d0/block_weight
@@ -340,7 +347,7 @@ for p in properties:
  print (t.replace("$X",p[1]))
 END_SHELL
 
- deallocate ( elec_coord_tmp )
+ deallocate(elec_coord_tmp, psi_grad_psi_inv_save, psi_grad_psi_inv_save_tmp)
 
  do k=1,min(walk_num,walk_num_dmc)
   do l=1,3
