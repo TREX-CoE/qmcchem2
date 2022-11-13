@@ -177,6 +177,17 @@ END_PROVIDER
 ! PROPERTIES                                                              !
 !==========================================================================!
 
+BEGIN_PROVIDER [ double precision, E_ref_ave]
+  implicit none
+  BEGIN_DOC
+  ! DMC Reference energy
+  END_DOC
+  E_ref_ave = E_ref
+  E_ref_ave_min = min(E_ref_ave,E_ref_ave_min)
+  E_ref_ave_max = max(E_ref_ave,E_ref_ave_max)
+  SOFT_TOUCH E_ref_ave_min E_ref_ave_max
+END_PROVIDER
+
 BEGIN_PROVIDER [ double precision, E_nucl ]
   implicit none
   BEGIN_DOC

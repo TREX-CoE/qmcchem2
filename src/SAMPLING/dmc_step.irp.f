@@ -384,7 +384,7 @@ END_PROVIDER
 ! Number of steps when the walkers were trapped
  END_DOC
  trapped_walk = 0
- trapped_walk_max = 20
+ trapped_walk_max = 30
 END_PROVIDER
 
 

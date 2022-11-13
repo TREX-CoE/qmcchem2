@@ -103,12 +103,10 @@ END_SHELL
  block_weight = 0.d0
 
  real, external                 :: accep_rate
- double precision               :: delta, E0
+ double precision               :: delta
 
  logical :: first_loop
  first_loop = .True.
-
- E0 = E_ref
 
  do while (loop)
 
@@ -158,20 +156,20 @@ END_SHELL
 !     delta = (E_loc+E_loc_save(1,i_walk))*0.5d0
 
       ! 3-step
-      delta = (5.d0 * E_loc + 8.d0 * E_loc_save(1,i_walk) - E_loc_save(2,i_walk))/12.d0
+!     delta = (5.d0 * E_loc + 8.d0 * E_loc_save(1,i_walk) - E_loc_save(2,i_walk))/12.d0
 
 !     ! 4-step
 !     delta = (9.d0*E_loc+19.d0*E_loc_save(1,i_walk)- &
 !            5.d0*E_loc_save(2,i_walk)+E_loc_save(3,i_walk))/24.d0
 
      ! 5-step
-!     delta = -((-251.d0*E_loc)-646.d0*E_loc_save(1,i_walk)+264.d0*E_loc_save(2,i_walk)-&
-!          106.d0*E_loc_save(3,i_walk)+19.d0*E_loc_save(4,i_walk))/720.d0
+      delta = -((-251.d0*E_loc)-646.d0*E_loc_save(1,i_walk)+264.d0*E_loc_save(2,i_walk)-&
+           106.d0*E_loc_save(3,i_walk)+19.d0*E_loc_save(4,i_walk))/720.d0
 
 
-     delta = (delta - E0)*p
+     delta = (delta - E_ref)
 
-     srmc_weight(i_walk) = dexp(-dtime_step*delta)
+     srmc_weight(i_walk) = dexp(-dtime_step*delta*p)
 
    else
      srmc_weight(i_walk) = 0.d0
@@ -179,7 +177,7 @@ END_SHELL
    endif
 
     ! Trick to avoid holes in DMC PES.
-!    if (dabs(delta/E0) * time_step_sq > p * 0.5d0 ) then
+!    if (dabs(delta/E_ref) * time_step_sq > p * 0.5d0 ) then
 !      srmc_weight(i_walk) = 0.d0
 !    endif
 
@@ -249,7 +247,7 @@ END_SHELL
   do k=1,walk_num
     sum_weight += srmc_weight(k)
   enddo
-  E0 = E_ref - log(sum_weight/real(walk_num)) * 0.1d0 /dtime_step
+  E_ref = E_ref - log(sum_weight/real(walk_num)) * 1.d0/srmc_projection_time
 
   ! Move to the next projection step
   if (srmc_projection > 0) then
@@ -324,7 +322,6 @@ END_SHELL
    trapped_walk(k) = trapped_walk_tmp(ipm)
   enddo
 
-
   call system_clock(cpu1, count_rate, count_max)
   if (cpu1 < cpu0) then
     cpu1 = cpu1+cpu0
@@ -337,7 +334,7 @@ END_SHELL
     cpu2 = cpu1
   endif
 
-  SOFT_TOUCH elec_coord_full srmc_pop_weight_mult psi_value psi_grad_psi_inv_x psi_grad_psi_inv_y psi_grad_psi_inv_z elec_coord 
+  SOFT_TOUCH elec_coord_full srmc_pop_weight_mult psi_value psi_grad_psi_inv_x psi_grad_psi_inv_y psi_grad_psi_inv_z elec_coord E_ref
 
   first_loop = .False.
 
@@ -372,15 +369,23 @@ BEGIN_PROVIDER [ double precision, srmc_pop_weight_mult ]
  srmc_pop_weight_mult = srmc_pop_weight(srmc_projection)
 END_PROVIDER
 
+BEGIN_PROVIDER [ real, srmc_projection_time ]
+ implicit none
+ BEGIN_DOC
+! SRMC project time in au
+ END_DOC
+ srmc_projection_time = 1.
+ call get_simulation_srmc_projection_time(srmc_projection_time)
+END_PROVIDER
+
+
+
  BEGIN_PROVIDER [ integer, srmc_projection ]
 &BEGIN_PROVIDER [ integer, srmc_projection_step ]
  implicit none
  BEGIN_DOC
 ! Number of projection steps for SRMC
  END_DOC
- real :: srmc_projection_time
- srmc_projection_time = 1.
- call get_simulation_srmc_projection_time(srmc_projection_time)
  srmc_projection = int( srmc_projection_time/time_step)
  srmc_projection_step = 0
 END_PROVIDER
