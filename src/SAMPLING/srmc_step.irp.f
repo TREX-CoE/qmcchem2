@@ -159,12 +159,12 @@ END_SHELL
 !     delta = (5.d0 * E_loc + 8.d0 * E_loc_save(1,i_walk) - E_loc_save(2,i_walk))/12.d0
 
 !     ! 4-step
-!     delta = (9.d0*E_loc+19.d0*E_loc_save(1,i_walk)- &
-!            5.d0*E_loc_save(2,i_walk)+E_loc_save(3,i_walk))/24.d0
+      delta = (9.d0*E_loc+19.d0*E_loc_save(1,i_walk)- &
+             5.d0*E_loc_save(2,i_walk)+E_loc_save(3,i_walk))/24.d0
 
      ! 5-step
-      delta = -((-251.d0*E_loc)-646.d0*E_loc_save(1,i_walk)+264.d0*E_loc_save(2,i_walk)-&
-           106.d0*E_loc_save(3,i_walk)+19.d0*E_loc_save(4,i_walk))/720.d0
+!     delta = -((-251.d0*E_loc)-646.d0*E_loc_save(1,i_walk)+264.d0*E_loc_save(2,i_walk)-&
+!          106.d0*E_loc_save(3,i_walk)+19.d0*E_loc_save(4,i_walk))/720.d0
 
 
      delta = (delta - E_ref)
@@ -247,7 +247,7 @@ END_SHELL
   do k=1,walk_num
     sum_weight += srmc_weight(k)
   enddo
-  E_ref = E_ref - log(sum_weight/real(walk_num)) * 1.d0/srmc_projection_time
+!  E_ref = E_ref - log(sum_weight/real(walk_num)) * 1.d0/srmc_projection_time
 
   ! Move to the next projection step
   if (srmc_projection > 0) then
