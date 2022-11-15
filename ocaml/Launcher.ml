@@ -4,7 +4,9 @@ type t =
   | Bash
 
 let to_string = function
-  | Srun     -> "srun"
+  | Srun     -> String.concat " " [ "srun" ; 
+                    try Sys.getenv "QMCCHEM_SRUN_FLAGS"  with Not_found -> ""
+                  ]
   | Bash     -> "env"
   | MPI      -> String.concat " " [ Lazy.force Qmcchem_config.mpirun ;
                     try Sys.getenv "QMCCHEM_MPIRUN_FLAGS"  with Not_found -> ""
