@@ -152,15 +152,15 @@ END_SHELL
    if ( (trapped_walk(i_walk) < trapped_walk_max).and. &
         (psi_value * psi_value_save(i_walk) >= 0.d0) ) then
 
-!     ! 2-step
-!     delta = (E_loc+E_loc_save(1,i_walk))*0.5d0
+      ! 2-step
+      delta = (E_loc+E_loc_save(1,i_walk))*0.5d0
 
-      ! 3-step
+!     ! 3-step
 !     delta = (5.d0 * E_loc + 8.d0 * E_loc_save(1,i_walk) - E_loc_save(2,i_walk))/12.d0
 
 !     ! 4-step
-      delta = (9.d0*E_loc+19.d0*E_loc_save(1,i_walk)- &
-             5.d0*E_loc_save(2,i_walk)+E_loc_save(3,i_walk))/24.d0
+!     delta = (9.d0*E_loc+19.d0*E_loc_save(1,i_walk)- &
+!            5.d0*E_loc_save(2,i_walk)+E_loc_save(3,i_walk))/24.d0
 
      ! 5-step
 !     delta = -((-251.d0*E_loc)-646.d0*E_loc_save(1,i_walk)+264.d0*E_loc_save(2,i_walk)-&
@@ -196,12 +196,12 @@ END_SHELL
    enddo
 
    psi_value_save(i_walk) = psi_value
-   if (accepted) then
+!  if (accepted) then
       E_loc_save(4,i_walk) = E_loc_save(3,i_walk)
       E_loc_save(3,i_walk) = E_loc_save(2,i_walk)
       E_loc_save(2,i_walk) = E_loc_save(1,i_walk)
       E_loc_save(1,i_walk) = E_loc
-   endif
+!  endif
 
 BEGIN_SHELL [ /usr/bin/env python3 ]
 from properties import *
