@@ -213,8 +213,7 @@ let run ezfio_filename dataserver =
       let pollitem =
         Zmq.Poll.mask_of
         [| (sub_socket, Zmq.Poll.In) ;
-(*
-           (pub_socket, Zmq.Poll.In) ;
+(*           (pub_socket, Zmq.Poll.In) ;
 *)
         |]
       in
@@ -230,12 +229,14 @@ let run ezfio_filename dataserver =
             Zmq.Socket.recv ~block:false sub_socket
             |> Zmq.Socket.send pub_socket ;
           end
+(*
         else if (polling.(1) = Some Zmq.Poll.In) then
           begin
             Printf.eprintf "Forwarder subscribe\n%!";
             Zmq.Socket.recv ~block:false pub_socket
             |> Zmq.Socket.send sub_socket ;
           end
+*)
       done;
       List.iter (fun socket ->
         Zmq.Socket.set_linger_period socket 1000 ;
