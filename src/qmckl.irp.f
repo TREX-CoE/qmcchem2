@@ -14,9 +14,6 @@ BEGIN_PROVIDER [ integer*8, qmckl_ctx ]
     rc = qmckl_trexio_read(qmckl_ctx, trexio_filename, 1_8*len(trim(trexio_filename)))
     call check_qmckl(rc, irp_here, qmckl_ctx)
 
-    ! Electrons
-    rc = rc + qmckl_set_electron_num(qmckl_ctx, int(elec_alpha_num,8), int(elec_beta_num,8))
-    call check_qmckl(rc, irp_here, qmckl_ctx)
   end if
 
   double precision :: buffer(elec_num,3)
