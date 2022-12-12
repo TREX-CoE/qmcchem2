@@ -1177,6 +1177,220 @@ END_PROVIDER
 
 END_PROVIDER
 
+ BEGIN_PROVIDER [ double precision, det_alpha_value_curr_qmckl ]
+&BEGIN_PROVIDER [ real, slater_matrix_alpha_qmckl, (elec_alpha_num_8,elec_alpha_num) ]
+&BEGIN_PROVIDER [ double precision, slater_matrix_alpha_inv_det_qmckl, (elec_alpha_num_8,elec_alpha_num) ]
+
+   implicit none
+
+   BEGIN_DOC
+   ! det_alpha_value_curr_qmckl : Value of the current alpha determinant
+   !
+   ! slater_matrix_alpha_qmckl : Slater matrix for the current alpha determinant.
+   !  1st index runs over electrons and
+   !  2nd index runs over MOs.
+   !  Built with 1st determinant
+   !
+   ! slater_matrix_alpha_inv_det_qmckl: Inverse of the alpha Slater matrix x determinant
+   END_DOC
+
+   use qmckl
+
+   double precision               :: ddet
+   integer                        :: i,j,k,imo,l,nupds_selected,series
+   integer                        :: to_do(elec_alpha_num), n_to_do_old, n_to_do
+   double precision               :: tmp_inv(elec_alpha_num_8)
+   real                           :: tmp_det(elec_alpha_num_8)
+   integer, save                  :: ifirst, series_counter = 1
+
+   double precision               :: cpu0, cpu1
+   double precision, save         :: cpu_accumulator = 0.0d0
+   integer (qmckl_exit_code)      :: rc
+   integer(kind=8)                :: nupdates
+   real(c_double)                 :: breakdown
+   real(c_double)                 :: updates(elec_alpha_num_8, elec_alpha_num)
+   !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: tmp_inv, tmp_det
+
+   if (ifirst == 0) then
+     ifirst = 1
+     !DIR$ VECTOR ALIGNED
+     slater_matrix_alpha_qmckl = 0.
+     !DIR$ VECTOR ALIGNED
+     slater_matrix_alpha_inv_det_qmckl = 0.d0
+   endif ! (1)
+   PROVIDE mo_value
+
+   ! allocate(updates(elec_alpha_num_8, elec_alpha_num))
+   updates = 0.0d0 !! Needed for zero-padding / correct local energy
+
+   call cpu_time(cpu0)
+
+   if (det_i /= det_alpha_order(1) ) then ! alpha determinant order has changed
+
+     n_to_do = 0
+     do k=1,elec_alpha_num ! run over all alpha electrons
+       imo = mo_list_alpha_curr(k) !  pick MO-number from list of alpha-MOs
+       if ( imo /= mo_list_alpha_prev(k) ) then ! check if MO-number of kth alpha electron has changed
+         ! write(*,*) "(2a.1) imo DIFF FROM mp_list_alpha_prev(k) : imo = ", imo
+         n_to_do += 1        ! update MO of kth alpha electron
+         to_do(n_to_do) = k  ! remember which electrons to update
+       endif
+     enddo
+
+     ! make swaps and keep 1 update
+     if (n_to_do > 1 .and. mo_exc_alpha_curr == 1) then
+
+       if (iand(n_to_do+1,1)==1) then !! Test if n_to_do is even
+         ! write(*,*) "(2a.2.1) n_to_do is EVEN"
+         det_alpha_value_curr_qmckl = -det_alpha_value_curr_qmckl
+         !DIR$ VECTOR ALWAYS
+         !DIR$ VECTOR ALIGNED
+         slater_matrix_alpha_inv_det_qmckl = - slater_matrix_alpha_inv_det_qmckl
+       endif
+
+       if (mo_list_alpha_curr(to_do(1)) == mo_list_alpha_prev(to_do(1)+1)) then
+
+         !DIR$ VECTOR ALWAYS
+         !DIR$ VECTOR ALIGNED
+         do l=1,elec_alpha_num_8
+           tmp_det(l) = slater_matrix_alpha_qmckl(l,to_do(1))
+           tmp_inv(l) = slater_matrix_alpha_inv_det_qmckl(l,to_do(1))
+         enddo
+
+         do k=to_do(1),to_do(n_to_do-1)
+           !DIR$ VECTOR ALWAYS
+           !DIR$ VECTOR ALIGNED
+           do l=1,elec_alpha_num_8
+             slater_matrix_alpha_qmckl(l,k) = slater_matrix_alpha_qmckl(l,k+1)
+             slater_matrix_alpha_inv_det_qmckl(l,k) = slater_matrix_alpha_inv_det_qmckl(l,k+1)
+           enddo
+         enddo
+         k = to_do(n_to_do)
+         !DIR$ VECTOR ALWAYS
+         !DIR$ VECTOR ALIGNED
+         do l=1,elec_alpha_num_8
+           slater_matrix_alpha_qmckl(l,k) = tmp_det(l)
+           slater_matrix_alpha_inv_det_qmckl(l,k) = tmp_inv(l)
+         enddo
+         to_do(1) = to_do(n_to_do)
+
+       else if (mo_list_alpha_curr(to_do(n_to_do)) == mo_list_alpha_prev(to_do(n_to_do)-1)) then
+         ! write(*,*) "(2a.2.2b) mo_list_alpha_curr(to_do(n_to_do)) == mo_list_alpha_prev(to_do(n_to_do)-1)"
+         k = to_do(n_to_do)
+         !DIR$ VECTOR ALWAYS
+         !DIR$ VECTOR ALIGNED
+         do l=1,elec_alpha_num_8
+           tmp_det(l) = slater_matrix_alpha_qmckl(l,k)
+           tmp_inv(l) = slater_matrix_alpha_inv_det_qmckl(l,k)
+         enddo
+         do k=to_do(n_to_do),to_do(2),-1
+           !DIR$ VECTOR ALWAYS
+           !DIR$ VECTOR ALIGNED
+           do l=1,elec_alpha_num_8
+             slater_matrix_alpha_qmckl(l,k) = slater_matrix_alpha_qmckl(l,k-1)
+             slater_matrix_alpha_inv_det_qmckl(l,k) = slater_matrix_alpha_inv_det_qmckl(l,k-1)
+           enddo
+         enddo
+         !DIR$ VECTOR ALWAYS
+         !DIR$ VECTOR ALIGNED
+         do l=1,elec_alpha_num_8
+           slater_matrix_alpha_qmckl(l,to_do(1)) = tmp_det(l)
+           slater_matrix_alpha_inv_det_qmckl(l,to_do(1)) = tmp_inv(l)
+         enddo
+
+       endif
+       n_to_do = 1
+     endif
+
+     ddet = 0.d0
+
+     if (n_to_do < shiftl(elec_alpha_num,1)) then
+       ! write(*,*) "(2a.3) n_to_do < 2 * elec_alpha_num"
+
+       ddet = det_alpha_value_curr_qmckl ! set ddet to the current value
+       slater_matrix_alpha_inv_det_qmckl = slater_matrix_alpha_inv_det_qmckl / ddet
+
+
+       do j = 1, n_to_do   ! for all updates do ...
+         k = to_do(j)            ! select the electron that needs an update
+         imo = mo_list_alpha_curr(k) ! select the MO for electron k
+         do i = 1, elec_alpha_num  ! run over all electrons
+           updates(i, j) = mo_value(i, imo) - slater_matrix_alpha_qmckl(i, k)
+         end do
+       end do
+
+       do j = 1, n_to_do   ! for all updates do ...
+         k = to_do(j)            ! select the electron that needs an update
+         imo = mo_list_alpha_curr(k) ! select the MO for electron k
+         do i = 1, elec_alpha_num  ! run over all electrons
+           slater_matrix_alpha_qmckl(i, k) = mo_value(i, imo) ! replacement upds applied to cols of S
+         end do
+       end do
+
+       breakdown = 1d-3
+! integer*8 :: context
+! context = qmckl_context_create()
+! rc = qmckl_sherman_morrison_smw32s(context,                 &
+       rc = qmckl_sherman_morrison_smw32s(qmckl_ctx,                 &
+           int(elec_alpha_num_8, kind=8),                            &
+           int(elec_alpha_num, kind=8),                              &
+           int(n_to_do, kind=8),                                     &
+           updates,                                                  &
+           int(to_do, kind=8),                                       &
+           breakdown,                                                &
+           slater_matrix_alpha_inv_det_qmckl,                              &
+           ddet)
+       rc = qmckl_check(qmckl_ctx, rc)
+!  rc = qmckl_context_destroy(context)
+
+       slater_matrix_alpha_inv_det_qmckl = slater_matrix_alpha_inv_det_qmckl * ddet
+       det_alpha_value_curr_qmckl = ddet
+     endif
+
+   else
+     ! write(*,*) "(2b) det_i SAME AS det_alpha_order(1). Set ddet to 0 : det_i, ddet (just before) = ", det_i, ", ", ddet
+     ddet = 0.d0
+
+   endif
+
+   ! Avoid NaN
+   if (ddet /= 0.d0) then
+     ! write(*,*) "(3a) ddet DIFF FROM zero. continue : ddet = ", ddet
+     continue
+   else
+     ! write(*,*) "(3b) ddet EQUAL TO zero. lapack time"
+     do j=1,mo_closed_num
+       !DIR$ VECTOR ALIGNED
+       !DIR$ LOOP COUNT(100)
+       do i=1,elec_alpha_num
+         slater_matrix_alpha_qmckl(i,j) = mo_value(i,j)
+         slater_matrix_alpha_inv_det_qmckl(j,i) = mo_value(i,j)
+       enddo
+     enddo
+     do k=mo_closed_num+1,elec_alpha_num
+       !DIR$ VECTOR ALIGNED
+       !DIR$ LOOP COUNT(100)
+       do i=1,elec_alpha_num
+         slater_matrix_alpha_qmckl(i,k) = mo_value(i,mo_list_alpha_curr(k))
+         slater_matrix_alpha_inv_det_qmckl(k,i) = mo_value(i,mo_list_alpha_curr(k))
+       enddo
+     enddo
+
+     ! write(*,*) "CALLING LAPACK..."
+     call invert(slater_matrix_alpha_inv_det_qmckl,elec_alpha_num_8,elec_alpha_num,ddet)
+
+   endif
+
+   call cpu_time(cpu1)
+   cpu_accumulator += cpu1 - cpu0
+
+   ASSERT (ddet /= 0.d0)
+
+   det_alpha_value_curr_qmckl = ddet
+
+END_PROVIDER
+
+
  BEGIN_PROVIDER [ double precision, det_alpha_value_curr ]
 &BEGIN_PROVIDER [ real, slater_matrix_alpha, (elec_alpha_num_8,elec_alpha_num) ]
 &BEGIN_PROVIDER [ double precision, slater_matrix_alpha_inv_det, (elec_alpha_num_8,elec_alpha_num) ]
@@ -1352,6 +1566,191 @@ END_PROVIDER
   det_alpha_value_curr = ddet
 END_PROVIDER
 
+
+ BEGIN_PROVIDER [ double precision, det_beta_value_curr_qmckl ]
+&BEGIN_PROVIDER [ real, slater_matrix_beta_qmckl, (elec_beta_num_8,elec_beta_num) ]
+&BEGIN_PROVIDER [ double precision, slater_matrix_beta_inv_det_qmckl, (elec_beta_num_8,elec_beta_num) ]
+   BEGIN_DOC
+   !  det_beta_value_curr_qmckl : Value of the current beta determinant
+   !
+   !  slater_matrix_beta_qmckl : Slater matrix for the current beta determinant.
+   !  1st index runs over electrons and
+   !  2nd index runs over MOs.
+   !  Built with 1st determinant
+   !
+   !  slater_matrix_beta_inv_det_qmckl : Inverse of the beta Slater matrix x determinant
+   END_DOC
+
+   use qmckl
+
+   double precision               :: ddet
+   integer                        :: i,j,k,imo,l
+   integer                        :: to_do(elec_alpha_num - mo_closed_num), n_to_do_old, n_to_do
+   double precision               :: tmp_inv(elec_alpha_num_8)
+   real                           :: tmp_det(elec_alpha_num_8)
+   integer, save                  :: ifirst
+
+   integer (qmckl_exit_code)      :: rc
+   integer(c_int64_t)             :: nupdates
+   real(c_double)                 :: breakdown
+   real(c_double)                 :: updates(elec_beta_num_8, elec_beta_num)
+
+   if (elec_beta_num == 0) then
+     det_beta_value_curr_qmckl = 0.d0
+     return
+   endif
+
+   if (ifirst == 0) then
+     ifirst = 1
+     slater_matrix_beta_qmckl = 0.
+     slater_matrix_beta_inv_det_qmckl = 0.d0
+   endif
+
+   PROVIDE mo_value
+
+   ! allocate(updates(elec_alpha_num_8, elec_alpha_num))
+   updates = 0.0d0 !! Needed for zero-padding / correct local energy
+
+   if (det_j /= det_beta_order(1)) then
+     n_to_do = 0 !! Number of updates to apply
+     do k=mo_closed_num+1,elec_beta_num
+       imo = mo_list_beta_curr(k) !! current MO
+       if ( imo /= mo_list_beta_prev(k) ) then
+         n_to_do += 1 !! One more update to apply
+         to_do(n_to_do) = k !! MO-list number to change
+       endif
+     enddo
+
+     ! make swaps and keep 1 update
+     if (n_to_do > 1 .and. mo_exc_beta_curr == 1) then
+
+       if (iand(n_to_do+1,1)==1) then
+         det_beta_value_curr_qmckl = -det_beta_value_curr_qmckl
+         !DIR$ VECTOR ALWAYS
+         !DIR$ VECTOR ALIGNED
+         slater_matrix_beta_inv_det_qmckl = - slater_matrix_beta_inv_det_qmckl
+       endif
+
+       if (mo_list_beta_curr(to_do(1)) == mo_list_beta_prev(to_do(1)+1)) then
+
+         !DIR$ VECTOR ALWAYS
+         !DIR$ VECTOR ALIGNED
+         do l=1,elec_beta_num_8
+           tmp_det(l) = slater_matrix_beta_qmckl(l,to_do(1))
+           tmp_inv(l) = slater_matrix_beta_inv_det_qmckl(l,to_do(1))
+         enddo
+
+         do k=to_do(1),to_do(n_to_do-1)
+           !DIR$ VECTOR ALWAYS
+           !DIR$ VECTOR ALIGNED
+           do l=1,elec_beta_num_8
+             slater_matrix_beta_qmckl(l,k) = slater_matrix_beta_qmckl(l,k+1)
+             slater_matrix_beta_inv_det_qmckl(l,k) = slater_matrix_beta_inv_det_qmckl(l,k+1)
+           enddo
+         enddo
+         k = to_do(n_to_do)
+         !DIR$ VECTOR ALWAYS
+         !DIR$ VECTOR ALIGNED
+         do l=1,elec_beta_num_8
+           slater_matrix_beta_qmckl(l,k) = tmp_det(l)
+           slater_matrix_beta_inv_det_qmckl(l,k) = tmp_inv(l)
+         enddo
+         to_do(1) = to_do(n_to_do)
+
+       else if (mo_list_beta_curr(to_do(n_to_do)) == mo_list_beta_prev(to_do(n_to_do)-1)) then
+         k = to_do(n_to_do)
+         !DIR$ VECTOR ALWAYS
+         !DIR$ VECTOR ALIGNED
+         do l=1,elec_beta_num_8
+           tmp_det(l) = slater_matrix_beta_qmckl(l,k)
+           tmp_inv(l) = slater_matrix_beta_inv_det_qmckl(l,k)
+         enddo
+         do k=to_do(n_to_do),to_do(2),-1
+           !DIR$ VECTOR ALWAYS
+           !DIR$ VECTOR ALIGNED
+           do l=1,elec_beta_num_8
+             slater_matrix_beta_qmckl(l,k) = slater_matrix_beta_qmckl(l,k-1)
+             slater_matrix_beta_inv_det_qmckl(l,k) = slater_matrix_beta_inv_det_qmckl(l,k-1)
+           enddo
+         enddo
+         !DIR$ VECTOR ALWAYS
+         !DIR$ VECTOR ALIGNED
+         do l=1,elec_beta_num_8
+           slater_matrix_beta_qmckl(l,to_do(1)) = tmp_det(l)
+           slater_matrix_beta_inv_det_qmckl(l,to_do(1)) = tmp_inv(l)
+         enddo
+
+       endif
+       n_to_do = 1
+     endif
+
+     ddet = 0.d0
+
+     if (n_to_do < shiftl(elec_beta_num,1)) then !! Why compare to double the number of electrons?
+       ddet = det_beta_value_curr_qmckl ! set ddet to the current value
+       slater_matrix_beta_inv_det_qmckl = slater_matrix_beta_inv_det_qmckl / ddet
+
+       do j = 1, n_to_do   ! do for all updates
+         k = to_do(j)            ! find back the electron we need to update
+         imo = mo_list_beta_curr(k) ! find column/row/MO for electron k
+         do i = 1, elec_beta_num  ! run over all electrons
+           updates(i, j) = mo_value(elec_alpha_num + i, imo) - slater_matrix_beta_qmckl(i, k)
+           slater_matrix_beta_qmckl(i, k) = mo_value(elec_alpha_num + i, imo)
+         end do
+       end do
+
+       breakdown = 1d-3
+! integer*8 :: context
+! context = qmckl_context_create()
+! rc = qmckl_sherman_morrison_smw32s(context,                 &
+       rc = qmckl_sherman_morrison_smw32s(qmckl_ctx,                 &
+           int(elec_beta_num_8, kind=8),                             &
+           int(elec_beta_num, kind=8),                               &
+           int(n_to_do, kind=8),                                     &
+           updates,                                                  &
+           int(to_do, kind=8),                                       &
+           breakdown,                                                &
+           slater_matrix_beta_inv_det_qmckl,                               &
+           ddet)
+       rc = qmckl_check(qmckl_ctx, rc)
+!  rc = qmckl_context_destroy(context)
+
+       slater_matrix_beta_inv_det_qmckl = slater_matrix_beta_inv_det_qmckl * ddet
+       det_beta_value_curr_qmckl = ddet
+     endif
+   else
+     ddet = 0.d0
+   endif
+
+   ! Avoid NaN
+   if (ddet /= 0.d0) then
+     continue
+   else
+     do j=1,mo_closed_num
+       !DIR$ VECTOR UNALIGNED
+       !DIR$ LOOP COUNT (100)
+       do i=1,elec_beta_num
+         slater_matrix_beta_qmckl(i,j) = mo_value(i+elec_alpha_num,j)
+         slater_matrix_beta_inv_det_qmckl(j,i) = mo_value(i+elec_alpha_num,j)
+       enddo
+     enddo
+     do k=mo_closed_num+1,elec_beta_num
+       !DIR$ VECTOR UNALIGNED
+       !DIR$ LOOP COUNT (100)
+       do i=1,elec_beta_num
+         slater_matrix_beta_qmckl(i,k) = mo_value(i+elec_alpha_num,mo_list_beta_curr(k))
+         slater_matrix_beta_inv_det_qmckl(k,i) = mo_value(i+elec_alpha_num,mo_list_beta_curr(k))
+       enddo
+     enddo
+     call invert(slater_matrix_beta_inv_det_qmckl,elec_beta_num_8,elec_beta_num,ddet)
+   endif
+   ASSERT (ddet /= 0.d0)
+
+   det_beta_value_curr_qmckl = ddet
+
+END_PROVIDER
+
+
  BEGIN_PROVIDER [ double precision, det_beta_value_curr ]
 &BEGIN_PROVIDER [ real, slater_matrix_beta, (elec_beta_num_8,elec_beta_num) ]
 &BEGIN_PROVIDER [ double precision, slater_matrix_beta_inv_det, (elec_beta_num_8,elec_beta_num) ]
@@ -1525,6 +1924,8 @@ END_PROVIDER
   det_beta_value_curr = ddet
 
 END_PROVIDER
+
+
 
  BEGIN_PROVIDER [ integer, det_alpha_num_pseudo ]
 &BEGIN_PROVIDER [ integer, det_beta_num_pseudo ]
