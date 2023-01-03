@@ -1,4 +1,4 @@
-ACLOCAL_AMFLAGS = -I m4 $(CPPFLAGS)
+ACLOCAL_AMFLAGS = -I m4 
 
 #bin_PROGRAMS = \
 #   ocaml/qmcchem
@@ -36,9 +36,13 @@ src/irpf90.make: $(IRPSOURCES)
 
 src/MAIN/qmc_create_walkers:src/MAIN/qmc
 src/MAIN/qmcchem_info:src/MAIN/qmc
+src/MAIN/vmc_test:src/MAIN/qmc
 
 src/MAIN/qmc: $(EZFIO_DIR)/lib/libezfio_irp.a src/irpf90.make
 	$(MAKE) -C src
+
+src/MAIN/vmc_test: $(EZFIO_DIR)/lib/libezfio_irp.a src/irpf90.make
+	$(MAKE) -C src MAIN/vmc_test
 
 clean_ezfio:
 	$(MAKE) -C $(EZFIO_DIR) clean

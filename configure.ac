@@ -46,8 +46,21 @@ AX_ZMQ([], [], [AC_MSG_ERROR([ZeroMQ not found]) ])
 AC_CHECK_LIB([m], [sqrt])
 AC_CHECK_LIB([z], [compress])
 AC_CHECK_LIB([zmq], [zmq_send])
-AC_CHECK_LIB([qmckl], [qmckl_context_create], [], [AC_MSG_ERROR([QMCKL not found])])
-AC_CHECK_LIB([trexio], [trexio_read_mo_num_32], [], [AC_MSG_ERROR([TREXIO not found])])
+
+AC_CHECK_LIB([qmckl], [qmckl_context_create], [], [
+PKG_CHECK_MODULES([QMCKL], [qmckl],
+  [LIBS="$LIBS $QMCKL_LIBS"
+   CFLAGS="$CFLAGS $QMCKL_CFLAGS"],
+  [AC_MSG_ERROR([QMCKL not found])])
+])
+
+AC_CHECK_LIB([trexio], [trexio_read_mo_num_32], [], [
+PKG_CHECK_MODULES([TREXIO], [trexio],
+  [LIBS="$LIBS $TREXIO_LIBS"
+   CFLAGS="$CFLAGS $TREXIO_CFLAGS"],
+ [AC_MSG_ERROR([TREXIO not found])])
+])
+
 AC_LANG_PUSH([Fortran])
 AC_CHECK_LIB([f77zmq], [f77_zmq_send], [], [AC_MSG_ERROR([f77zmq not found])])
 AC_LANG_POP()
@@ -86,15 +99,15 @@ AC_CHECK_HEADERS([qmckl_f.F90])
 
 AC_LANG([Fortran])
 
-# Check CPU featurese
+# Check CPU features
 AC_ARG_WITH(arch, [AS_HELP_STRING([--with-arch],[enable avx, avx2 or avx512])], with_arch=$withval, with_arch=avx2)
 
 AS_CASE([$FC],
   [*ifort*], [
     AS_CASE([$with_arch],
-      [avx], [ALIGN=32 ; FCFLAGS="${FCFLAGS} -xAVX"],
-      [avx2], [ALIGN=32 ; FCFLAGS="${FCFLAGS} -xCORE-AVX2"],
-      [avx512], [ALIGN=64 ; FCFLAGS="${FCFLAGS} -xCORE-AVX512"])
+      [avx], [ALIGN=32 ; FCFLAGS="${FCFLAGS} -march=corei7-avx"],
+      [avx2], [ALIGN=32 ; FCFLAGS="${FCFLAGS} -march=core-avx2"],
+      [avx512], [ALIGN=64 ; FCFLAGS="${FCFLAGS} -march=skylake-avx512"])
 ], [*gfortran*], [
 AS_CASE([$with_arch],
   [avx], [ALIGN=32 ; FCFLAGS="${FCFLAGS} -march=sandybridge -ftree-vectorize"],
@@ -118,13 +131,11 @@ ${PACKAGE_NAME} Version ${PACKAGE_VERSION}
 Prefix: '${prefix}'.
 
 CC...................: ${CC}
-CPPFLAGS.............: ${CPPFLAGS}
 CFLAGS...............: ${CFLAGS}
 FC...................: ${FC}
 FCLAGS...............: ${FCFLAGS}
-LDFLAGS:.............: ${LDFLAGS}
 LIBS.................: ${LIBS}
-CPU features.........: ${X86_FEATURE_CFLAGS}
+CPU features.........: ${with_arch}
 IRPF90...............: ${IRPF90}
 IRPF90_FLAGS.........: ${IRPF90_FLAGS}
 

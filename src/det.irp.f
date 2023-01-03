@@ -1416,6 +1416,14 @@ END_PROVIDER
   integer, save                  :: ifirst
   !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: tmp_inv, tmp_det
 
+   if (use_qmckl) then
+     slater_matrix_alpha = slater_matrix_alpha_qmckl
+     slater_matrix_alpha_inv_det = slater_matrix_alpha_inv_det_qmckl
+     det_alpha_value_curr = det_alpha_value_curr_qmckl
+     return
+   endif
+
+
   if (ifirst == 0) then
     ifirst = 1
     !DIR$ VECTOR ALIGNED
@@ -1771,6 +1779,13 @@ END_PROVIDER
   double precision               :: tmp_inv(elec_alpha_num_8)
   real                           :: tmp_det(elec_alpha_num_8)
   integer, save                  :: ifirst
+
+   if (use_qmckl) then
+     slater_matrix_beta = slater_matrix_beta_qmckl
+     slater_matrix_beta_inv_det = slater_matrix_beta_inv_det_qmckl
+     det_beta_value_curr = det_beta_value_curr_qmckl
+     return
+   endif
 
   if (elec_beta_num == 0) then
     det_beta_value_curr = 0.d0
