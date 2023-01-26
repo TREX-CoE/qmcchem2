@@ -17,8 +17,6 @@ AC_PROG_CC
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-
-AX_PROG_IRPF90
 AM_PROG_AR
 
 
@@ -30,6 +28,7 @@ AC_FC_SRCEXT(f90)
 export F77=$FC
 export FFLAGS=$FCFLAGS
 
+AX_PROG_IRPF90
 
 AC_CHECK_PROGS([QMCCHEM_MPIRUN], [srun mpiexec mpirun])
 AC_SUBST([QMCCHEM_MPIRUN])
@@ -98,6 +97,11 @@ AC_TYPE_UINT64_T
 AC_CHECK_HEADERS([qmckl_f.F90])
 
 AC_LANG([Fortran])
+
+# Add better compiler flags with ifort
+AS_CASE([$FC],
+   [*ifort*], [FCFLAGS="$FCFLAGS -ip -ftz -finline"],
+])
 
 # Check CPU features
 AC_ARG_WITH(arch, [AS_HELP_STRING([--with-arch],[enable avx, avx2 or avx512])], with_arch=$withval, with_arch=avx2)

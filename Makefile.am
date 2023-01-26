@@ -7,6 +7,17 @@ ACLOCAL_AMFLAGS = -I m4
 #   src/MAIN/qmc_create_walkers \
 #
 
+CLEANFILES = \
+ src/MAIN/qmc_create_walkers \
+ src/MAIN/qmcchem_info \
+ src/MAIN/vmc_test \
+ src/MAIN/qmc \
+ ocaml/Property.ml \
+ ocaml/ezfio.ml \
+ ocaml/qmcchem \
+ ezfio_config/properties.config 
+ 
+
 .PHONY: clean_ezfio clean_ocaml
 
 EZFIO_DIR=$(abs_srcdir)/external/ezfio
