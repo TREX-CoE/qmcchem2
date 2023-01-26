@@ -29,6 +29,8 @@ export F77=$FC
 export FFLAGS=$FCFLAGS
 
 AX_PROG_IRPF90
+AS_IF([test x"IRPF90" == x""], [IRPF90=$PWD/external/irpf90/bin/irpf90])
+
 
 AC_CHECK_PROGS([QMCCHEM_MPIRUN], [srun mpiexec mpirun])
 AC_SUBST([QMCCHEM_MPIRUN])
