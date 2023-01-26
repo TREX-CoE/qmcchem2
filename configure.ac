@@ -90,11 +90,12 @@ AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT8_T
 
-# Required by QMCkl
+# Required by QMCkl and trexio
 AC_CHECK_HEADER_STDBOOL
 AC_TYPE_INT64_T
 AC_TYPE_UINT64_T
 AC_CHECK_HEADERS([qmckl_f.F90])
+AC_CHECK_HEADERS([trexio_f.f90])
 
 AC_LANG([Fortran])
 

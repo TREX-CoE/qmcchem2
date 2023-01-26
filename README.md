@@ -14,13 +14,15 @@ Requirements
 * Python3
 * Fortran compiler, Intel Fortran recommended
 * Lapack library, Intel MKL recommended
+* [QMCkl library](https://github.com/trex-coe/qmckl)
+* [TREXIO library](https://github.com/trex-coe/trexio)
 * [ZeroMQ high performance communication library](http://www.zeromq.org)
 * [F77_ZMQ ZeroMQ Fortran interface](http://github.com/zeromq/f77_zmq/)
 * [OCaml compiler with Opam](http://github.com/ocaml)
 
 To install the required OCaml packages, run
 ```bash
-opam install cryptokit zmq sexplib ppx_sexp_conv ppx_deriving getopt
+opam install cryptokit zmq sexplib ppx_sexp_conv ppx_deriving getopt trexio
 ```
 
 If you have trouble installing OCaml, on x86 systems you can download
