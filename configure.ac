@@ -20,12 +20,12 @@ AC_PROG_MAKE_SET
 AM_PROG_AR
 PKG_PROG_PKG_CONFIG
 
-AC_CHECK_PROG([OCAML], [ocamlc], [], [no])
+AC_CHECK_PROGS([OCAML], [ocamlc], [no])
 if test "$OCAML" == "no" ; then
   AC_MSG_ERROR([OCaml compiler not found])
 fi
 
-AC_CHECK_PROG([OCAMLBUILD], [ocamlbuild], [], [no])
+AC_CHECK_PROGS([OCAMLBUILD], [ocamlbuild], [no])
 if test "$OCAMLBUILD" == "no"; then
  AC_MSG_ERROR([ocamlbuild not found])
 fi
