@@ -18,6 +18,17 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AM_PROG_AR
+PKG_PROG_PKG_CONFIG
+
+AC_CHECK_PROG([OCAML], [ocamlc], [], [no])
+if test "$OCAML" == "no" ; then
+  AC_MSG_ERROR([OCaml compiler not found])
+fi
+
+AC_CHECK_PROG([OCAMLBUILD], [ocamlbuild], [], [no])
+if test "$OCAMLBUILD" == "no"; then
+ AC_MSG_ERROR([ocamlbuild not found])
+fi
 
 
 # Fortran compiler checks
@@ -30,7 +41,6 @@ export FFLAGS=$FCFLAGS
 
 AS_IF([test x"$IRPF90" == x""], [IRPF90=$PWD/external/irpf90/bin/irpf90])
 AX_PROG_IRPF90
-
 
 AC_CHECK_PROGS([QMCCHEM_MPIRUN], [srun mpiexec mpirun])
 AC_SUBST([QMCCHEM_MPIRUN])
@@ -47,19 +57,23 @@ AC_CHECK_LIB([m], [sqrt])
 AC_CHECK_LIB([z], [compress])
 AC_CHECK_LIB([zmq], [zmq_send])
 
-AC_CHECK_LIB([qmckl], [qmckl_context_create], [], [
-PKG_CHECK_MODULES([QMCKL], [qmckl],
-  [LIBS="$LIBS $QMCKL_LIBS"
-   CFLAGS="$CFLAGS $QMCKL_CFLAGS"],
-  [AC_MSG_ERROR([QMCKL not found])])
-])
 
-AC_CHECK_LIB([trexio], [trexio_read_mo_num_32], [], [
-PKG_CHECK_MODULES([TREXIO], [trexio],
-  [LIBS="$LIBS $TREXIO_LIBS"
-   CFLAGS="$CFLAGS $TREXIO_CFLAGS"],
- [AC_MSG_ERROR([TREXIO not found])])
+
+PKG_CHECK_EXISTS([qmckl], [
+  PKG_CHECK_MODULES([QMCKL], [qmckl],
+    [LIBS="$LIBS $QMCKL_LIBS"
+     CFLAGS="$CFLAGS $QMCKL_CFLAGS"])
 ])
+AC_CHECK_LIB([qmckl], [qmckl_context_create], [],
+ [AC_MSG_ERROR([qmckl not found])])
+
+PKG_CHECK_EXISTS([trexio], [
+  PKG_CHECK_MODULES([TREXIO], [trexio],
+    [LIBS="$LIBS $TREXIO_LIBS"
+     CFLAGS="$CFLAGS $TREXIO_CFLAGS"])
+])
+AC_CHECK_LIB([trexio], [trexio_read_mo_num_32], [],
+ [AC_MSG_ERROR([TREXIO not found])])
 
 AC_LANG_PUSH([Fortran])
 AC_CHECK_LIB([f77zmq], [f77_zmq_send], [], [AC_MSG_ERROR([f77zmq not found])])
@@ -144,6 +158,8 @@ LIBS.................: ${LIBS}
 CPU features.........: ${with_arch}
 IRPF90...............: ${IRPF90}
 IRPF90_FLAGS.........: ${IRPF90_FLAGS}
+OCAML................: ${OCAML}
+OCAMLBUILD...........: ${OCAMLBUILD}
 
 Package features:
   ${ARGS}
