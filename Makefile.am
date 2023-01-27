@@ -18,7 +18,7 @@ CLEANFILES = \
  ezfio_config/properties.config 
  
 
-.PHONY: clean_ezfio clean_ocaml
+.PHONY: clean-ezfio clean-ocaml clean-irpf90
 
 EZFIO_DIR=$(abs_srcdir)/external/ezfio
 
@@ -38,9 +38,6 @@ bin_SCRIPTS = bin/qmcchem \
               bin/qmcchem_info
 
 
-clean_irpf90:
-	$(MAKE) -C src veryclean
-
 src/irpf90.make: $(IRPSOURCES)
 	$(MAKE) -C src  irpf90.make
 
@@ -54,12 +51,6 @@ src/MAIN/qmc: $(EZFIO_DIR)/lib/libezfio_irp.a src/irpf90.make
 
 src/MAIN/vmc_test: $(EZFIO_DIR)/lib/libezfio_irp.a src/irpf90.make
 	$(MAKE) -C src MAIN/vmc_test
-
-clean_ezfio:
-	$(MAKE) -C $(EZFIO_DIR) clean
-
-clean_ocaml:
-	$(MAKE) -C ocaml clean
 
 ocaml/ezfio.ml: $(EZFIO_DIR)/Ocaml/ezfio.ml
 	cp $(EZFIO_DIR)/Ocaml/ezfio.ml ocaml/ezfio.ml
@@ -88,6 +79,26 @@ $(EZFIO_DIR)/config/properties.config: ezfio_config/properties.config
 $(EZFIO_DIR)/lib/libezfio_irp.a: $(EZFIO_DIR)/config/qmc.config $(EZFIO_DIR)/config/properties.config src/irpf90.make
 	$(MAKE) -C $(EZFIO_DIR)
 
+clean-ezfio:
+	$(MAKE) -C $(EZFIO_DIR) clean
+
+clean-ocaml:
+	$(MAKE) -C ocaml clean
+
+clean-irpf90:
+	$(MAKE) -C src clean
+
+distclean-irpf90:
+	$(MAKE) -C src veryclean
+
+distclean-ezfio:
+	$(MAKE) -C $(EZFIO_DIR) veryclean
+
+distclean-ocaml:
+	$(MAKE) -C ocaml clean
+
+
+clean-local: clean-ezfio clean-ocaml clean-irpf90
 
 bin/qmcchem: ocaml/qmcchem
 	cp ocaml/qmcchem bin/qmcchem
