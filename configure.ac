@@ -43,7 +43,6 @@ AC_SUBST([QMCCHEM_NIC])
 # Checks for libraries.
 AC_LANG_PUSH(C)
 AX_ZMQ([], [], [AC_MSG_ERROR([ZeroMQ not found]) ])
-#AX_ZMQ([4.0], [], [ AC_MSG_ERROR([Please install ZeroMQ >= 4.0]) ])
 AC_CHECK_LIB([m], [sqrt])
 AC_CHECK_LIB([z], [compress])
 AC_CHECK_LIB([zmq], [zmq_send])
