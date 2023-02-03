@@ -14,7 +14,7 @@
 #
 # LICENSE
 #
-#   Copyright (c) 2021 Anthony Scemama
+#   Copyright (c) 2022 Anthony Scemama
 #
 #   This program is free software; you can redistribute it and/or modify it
 #   under the terms of the GNU General Public License as published by the
@@ -82,6 +82,10 @@ AC_DEFUN([AX_CHECK_NIC], [
             ;;
         esac
       done
+    fi
+
+    if test "$NIC.x" == ".x" ; then
+      NIC="lo"
     fi
 
   fi
