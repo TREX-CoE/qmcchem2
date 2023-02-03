@@ -25,6 +25,12 @@ if test "$OCAML" == "no" ; then
   AC_MSG_ERROR([OCaml compiler not found])
 fi
 
+AC_CHECK_PROGS([QP], [qp_run], [no])
+if test "$QP" == "no" ; then
+  AC_MSG_ERROR([Quantum Package is not installed or not sourced in the current shell])
+fi
+
+
 AC_CHECK_PROGS([OCAMLBUILD], [ocamlbuild], [no])
 if test "$OCAMLBUILD" == "no"; then
  AC_MSG_ERROR([ocamlbuild not found])
