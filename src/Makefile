@@ -4,6 +4,7 @@ OBJ=IRPF90_temp/ZMQ/f77_zmq_module.o IRPF90_temp/qmckl_module.o IRPF90_temp/trex
 
 IRPF90+=$(IRPF90_FLAGS) $(INCLUDES)
 
+LIB+=$(LDFLAGS)
 include irpf90.make
 export
 

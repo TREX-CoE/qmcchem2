@@ -161,6 +161,7 @@ CFLAGS...............: ${CFLAGS}
 FC...................: ${FC}
 FCLAGS...............: ${FCFLAGS}
 LIBS.................: ${LIBS}
+LDFLAGS..............: ${LDFLAGS}
 CPU features.........: ${with_arch}
 IRPF90...............: ${IRPF90}
 IRPF90_FLAGS.........: ${IRPF90_FLAGS}
