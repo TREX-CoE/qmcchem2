@@ -344,7 +344,7 @@ let create_ezfio_handler () =
   let lines =
     input_lines "ezfio.ml"
     (* /!\ Change when ezfio.ml changes *)
-    |> List.mapi (fun i l -> if i > 442 then Some l else None)
+    |> List.mapi (fun i l -> if i > 441 then Some l else None)
     |> List.filter (fun x -> x <> None)
     |> List.map (fun x ->
         match x with
