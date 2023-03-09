@@ -46,7 +46,7 @@ data = [ \
 ("simulation_do_run"               , "logical       " , ""                   ),
 ("simulation_use_trexio"           , "logical"           ,  ""),
 ("simulation_use_qmckl"            , "logical"           ,  ""),
-("simulation_trexio_filename"      , "character*(128)" ,  ""),
+("trexio_trexio_file"              , "character*(128)" ,  ""),
 ("pseudo_do_pseudo"         , "logical       " , ""                   ),
 ("spindeterminants_n_svd_coefs"       , "integer", ""),
 ("spindeterminants_n_svd_selected"    , "integer", ""),

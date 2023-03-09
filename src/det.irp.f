@@ -1328,20 +1328,16 @@ END_PROVIDER
        end do
 
        breakdown = 1d-3
-! integer*8 :: context
-! context = qmckl_context_create()
-! rc = qmckl_sherman_morrison_smw32s(context,                 &
-       rc = qmckl_sherman_morrison_smw32s(qmckl_ctx,                 &
-           int(elec_alpha_num_8, kind=8),                            &
-           int(elec_alpha_num, kind=8),                              &
-           int(n_to_do, kind=8),                                     &
-           updates,                                                  &
-           int(to_do, kind=8),                                       &
-           breakdown,                                                &
-           slater_matrix_alpha_inv_det_qmckl,                              &
-           ddet)
-       rc = qmckl_check(qmckl_ctx, rc)
-!  rc = qmckl_context_destroy(context)
+!       rc = qmckl_sherman_morrison_smw32s(qmckl_ctx,                 &
+!           int(elec_alpha_num_8, kind=8),                            &
+!           int(elec_alpha_num, kind=8),                              &
+!           int(n_to_do, kind=8),                                     &
+!           updates,                                                  &
+!           int(to_do, kind=8),                                       &
+!           breakdown,                                                &
+!           slater_matrix_alpha_inv_det_qmckl,                              &
+!           ddet)
+!       rc = qmckl_check(qmckl_ctx, rc)
 
        slater_matrix_alpha_inv_det_qmckl = slater_matrix_alpha_inv_det_qmckl * ddet
        det_alpha_value_curr_qmckl = ddet
@@ -1416,12 +1412,12 @@ END_PROVIDER
   integer, save                  :: ifirst
   !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: tmp_inv, tmp_det
 
-   if (use_qmckl) then
-     slater_matrix_alpha = slater_matrix_alpha_qmckl
-     slater_matrix_alpha_inv_det = slater_matrix_alpha_inv_det_qmckl
-     det_alpha_value_curr = det_alpha_value_curr_qmckl
-     return
-   endif
+!   if (use_qmckl) then
+!     slater_matrix_alpha = slater_matrix_alpha_qmckl
+!     slater_matrix_alpha_inv_det = slater_matrix_alpha_inv_det_qmckl
+!     det_alpha_value_curr = det_alpha_value_curr_qmckl
+!     return
+!   endif
 
 
   if (ifirst == 0) then
@@ -1708,20 +1704,16 @@ END_PROVIDER
        end do
 
        breakdown = 1d-3
-! integer*8 :: context
-! context = qmckl_context_create()
-! rc = qmckl_sherman_morrison_smw32s(context,                 &
-       rc = qmckl_sherman_morrison_smw32s(qmckl_ctx,                 &
-           int(elec_beta_num_8, kind=8),                             &
-           int(elec_beta_num, kind=8),                               &
-           int(n_to_do, kind=8),                                     &
-           updates,                                                  &
-           int(to_do, kind=8),                                       &
-           breakdown,                                                &
-           slater_matrix_beta_inv_det_qmckl,                               &
-           ddet)
-       rc = qmckl_check(qmckl_ctx, rc)
-!  rc = qmckl_context_destroy(context)
+!       rc = qmckl_sherman_morrison_smw32s(qmckl_ctx,                 &
+!           int(elec_beta_num_8, kind=8),                             &
+!           int(elec_beta_num, kind=8),                               &
+!           int(n_to_do, kind=8),                                     &
+!           updates,                                                  &
+!           int(to_do, kind=8),                                       &
+!           breakdown,                                                &
+!           slater_matrix_beta_inv_det_qmckl,                               &
+!           ddet)
+!       rc = qmckl_check(qmckl_ctx, rc)
 
        slater_matrix_beta_inv_det_qmckl = slater_matrix_beta_inv_det_qmckl * ddet
        det_beta_value_curr_qmckl = ddet
@@ -1780,12 +1772,12 @@ END_PROVIDER
   real                           :: tmp_det(elec_alpha_num_8)
   integer, save                  :: ifirst
 
-   if (use_qmckl) then
-     slater_matrix_beta = slater_matrix_beta_qmckl
-     slater_matrix_beta_inv_det = slater_matrix_beta_inv_det_qmckl
-     det_beta_value_curr = det_beta_value_curr_qmckl
-     return
-   endif
+!   if (use_qmckl) then
+!     slater_matrix_beta = slater_matrix_beta_qmckl
+!     slater_matrix_beta_inv_det = slater_matrix_beta_inv_det_qmckl
+!     det_beta_value_curr = det_beta_value_curr_qmckl
+!     return
+!   endif
 
   if (elec_beta_num == 0) then
     det_beta_value_curr = 0.d0

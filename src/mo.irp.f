@@ -38,17 +38,6 @@ BEGIN_PROVIDER [ real, mo_coef_input, (ao_num_8,mo_tot_num) ]
 END_PROVIDER
 
 
- BEGIN_PROVIDER [ real, mo_scale ]
-&BEGIN_PROVIDER [ real, mo_norm ]
-  implicit none
-  BEGIN_DOC
-! Scaling factor for MOs to keep the determinant in a defined domain
-  END_DOC
-  mo_scale = 1.d0/(0.4d0*log(float(elec_num+1)))
-  mo_norm = mo_scale*mo_scale
-END_PROVIDER
-
-
 BEGIN_PROVIDER [ real, mo_coef, (ao_num_8,mo_num_8) ]
   implicit none
   BEGIN_DOC
@@ -70,15 +59,6 @@ BEGIN_PROVIDER [ real, mo_coef, (ao_num_8,mo_num_8) ]
 
   ! Input MOs are not needed any more
   FREE mo_coef_input
-
-  real                           :: f
-  f = 1./mo_scale
-  do j=1,mo_num
-    !DIR$ VECTOR ALIGNED
-    do i=1,ao_num_8
-      mo_coef(i,j) *= f
-    enddo
-  enddo
 
 END_PROVIDER
 
@@ -171,7 +151,7 @@ END_PROVIDER
       end do
     else
       do i=1,elec_num
-        do j=num_present_mos,1,-1
+        do j=1,num_present_mos
           mo_value_transp (present_mos(j),i) = qmckl_mo_vgl(j,1,i)
           mo_grad_transp_x(present_mos(j),i) = qmckl_mo_vgl(j,2,i)
           mo_grad_transp_y(present_mos(j),i) = qmckl_mo_vgl(j,3,i)

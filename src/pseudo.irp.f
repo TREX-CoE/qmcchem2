@@ -134,23 +134,21 @@ BEGIN_PROVIDER [ double precision, ao_pseudo_grid, (ao_num, -pseudo_lmax:pseudo_
  call get_pseudo_ao_pseudo_grid(ao_pseudo_grid)
 END_PROVIDER
 
-BEGIN_PROVIDER [ double precision, mo_pseudo_grid, (ao_num, -pseudo_lmax:pseudo_lmax, 0:pseudo_lmax, nucl_num, pseudo_grid_size) ]
+BEGIN_PROVIDER [ double precision, mo_pseudo_grid_input, (ao_num, -pseudo_lmax:pseudo_lmax, 0:pseudo_lmax, nucl_num, pseudo_grid_size) ]
  implicit none
  BEGIN_DOC
  ! Pseudopotential grid points
  END_DOC
- call get_pseudo_mo_pseudo_grid(mo_pseudo_grid)
+ call get_pseudo_mo_pseudo_grid(mo_pseudo_grid_input)
 END_PROVIDER
 
 
-BEGIN_PROVIDER [ double precision, mo_pseudo_grid_scaled, (pseudo_non_loc_dim_8,ao_num,pseudo_grid_size) ]
+BEGIN_PROVIDER [ double precision, mo_pseudo_grid, (pseudo_non_loc_dim_8,ao_num,pseudo_grid_size) ]
  implicit none
  BEGIN_DOC
  ! Pseudopotential grid points
  END_DOC
  integer                        :: i,k,l,m,kk,n
- double precision               :: c
- c = 1.d0/mo_scale
  do n=1,pseudo_grid_size
    do i=1,ao_num
      kk = 0
@@ -158,12 +156,13 @@ BEGIN_PROVIDER [ double precision, mo_pseudo_grid_scaled, (pseudo_non_loc_dim_8,
        do l=0,pseudo_lmax
          do m=-l,l
            kk = kk+1
-           mo_pseudo_grid_scaled(kk,i,n) = c * mo_pseudo_grid(i,m,l,k,n)
+           mo_pseudo_grid(kk,i,n) = mo_pseudo_grid_input(i,m,l,k,n)
          enddo
        enddo
      enddo
    enddo
  enddo
+ FREE mo_pseudo_grid_input
 END_PROVIDER
 
 BEGIN_PROVIDER [ double precision, v_pseudo_local, (elec_num) ]
@@ -282,7 +281,7 @@ BEGIN_PROVIDER [ double precision, pseudo_mo_term, (mo_num,elec_num) ]
     dr     = pseudo_grid_rmax/dble(pseudo_grid_size)
  endif
 
- PROVIDE pseudo_ylm present_mos mo_pseudo_grid_scaled pseudo_non_loc_dim_count
+ PROVIDE pseudo_ylm present_mos mo_pseudo_grid pseudo_non_loc_dim_count
  do j=1,elec_num
    tmp = 0.d0
    kk=0
@@ -305,9 +304,9 @@ BEGIN_PROVIDER [ double precision, pseudo_mo_term, (mo_num,elec_num) ]
          i = present_mos(ii)
          !DIR$ LOOP COUNT(4)
          do l=kk+1,kk+pseudo_non_loc_dim_count(k)
-           tmp(l,i) = ( ( mo_pseudo_grid_scaled (l,i,n-1) * w1 -        &
-                          mo_pseudo_grid_scaled (l,i,n  ) * w0 ) * w2 + &
-                        mo_pseudo_grid_scaled   (l,i,n+1) * w1 * w0 )   &
+           tmp(l,i) = ( ( mo_pseudo_grid (l,i,n-1) * w1 -        &
+                          mo_pseudo_grid (l,i,n  ) * w0 ) * w2 + &
+                          mo_pseudo_grid (l,i,n+1) * w1 * w0 )   &
                       * pseudo_ylm(l,j)
          enddo
        enddo

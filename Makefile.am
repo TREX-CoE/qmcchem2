@@ -131,7 +131,7 @@ IRPSOURCES= \
   src/qmckl.irp.f \
   src/simulation.irp.f \
   src/svd.irp.f \
-  src/trexio_f.f90 \
+  src/trexio_module.F90 \
   src/trexio.irp.f \
   src/types.F \
   src/wf.irp.f \

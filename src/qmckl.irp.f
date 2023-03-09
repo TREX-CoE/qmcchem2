@@ -21,6 +21,14 @@ BEGIN_PROVIDER [ integer*8, qmckl_ctx ]
   rc = qmckl_set_electron_coord(qmckl_ctx, 'T', 1_8, buffer,  3_8*elec_num)
   call check_qmckl(rc, irp_here, qmckl_ctx)
 
+  integer :: keep(mo_tot_num), i
+  keep = 0
+  do i=1,num_present_mos
+    keep(present_mos(i)) = 1
+  enddo
+
+  rc = qmckl_mo_basis_select_mo(qmckl_ctx, keep, int(mo_tot_num,8))
+  call check_qmckl(rc, irp_here, qmckl_ctx)
 END_PROVIDER
 
 subroutine check_qmckl(rc, here, ctx)

@@ -22,7 +22,6 @@ subroutine draw_init_points
   enddo
   norm = sqrt(norm/float(elec_alpha_num))
   call rinfo( irp_here, 'Norm : ', norm )
-  call rinfo( irp_here, 'mo_scale: ' , mo_scale )
   mo_coef_transp = mo_coef_transp/norm
   
   double precision               :: qmc_ranf

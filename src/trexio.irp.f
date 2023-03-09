@@ -12,7 +12,7 @@ BEGIN_PROVIDER [ character*(128), trexio_filename ]
  BEGIN_DOC
  ! Name of the TREXIO file
  END_DOC
- call get_simulation_trexio_filename(trexio_filename)
+ call get_trexio_trexio_file(trexio_filename)
 
 END_PROVIDER
 

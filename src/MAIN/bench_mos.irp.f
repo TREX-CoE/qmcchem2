@@ -26,27 +26,27 @@ subroutine step1
     print *, ao_nucl_sort_idx(:)
     do i=1,elec_num
       do j=1, ao_num
-        print 10, j, i, 0, mo_value(j,i) !/mo_scale
+        print 10, j, i, 0, mo_value(j,i) 
       enddo
     end do
     do i=1,elec_num
       do j=1,ao_num
-        print 10, j, i, 1, mo_grad_x(j,i) *mo_scale
+        print 10, j, i, 1, mo_grad_x(j,i) 
       enddo
     end do
     do i=1,elec_num
       do j=1,ao_num
-        print 10, j, i, 2, mo_grad_y(j,i) *mo_scale
+        print 10, j, i, 2, mo_grad_y(j,i)
       enddo
     end do
     do i=1,elec_num
       do j=1,ao_num
-        print 10, j, i, 3, mo_grad_z(j,i) *mo_scale
+        print 10, j, i, 3, mo_grad_z(j,i) 
       enddo
     end do
     do i=1,elec_num
       do j=1,ao_num
-        print 10, j, i, 4, mo_lapl(j,i) *mo_scale
+        print 10, j, i, 4, mo_lapl(j,i) 
       enddo
     end do
 end
