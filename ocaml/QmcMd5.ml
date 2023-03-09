@@ -81,15 +81,8 @@ let files_to_track = [
 (** Get an MD5 ke from the content of a file. *)
 let hash_file filename =
   if Sys.file_exists filename then
-    begin
-      let ic = open_in filename in
-      let result =
-        Cryptokit.hash_channel (Cryptokit.Hash.md5 ()) ic
-        |> Cryptokit.transform_string (Cryptokit.Hexa.encode ())
-      in
-      close_in ic;
-      result
-    end
+    Digest.file filename
+    |> Digest.to_hex
   else ""
 
 
@@ -117,9 +110,8 @@ let hash () =
     in
 
     let new_md5 =
-      md5_string
-      |> Cryptokit.hash_string (Cryptokit.Hash.md5 ())
-      |> Cryptokit.transform_string (Cryptokit.Hexa.encode ())
+      Digest.string md5_string
+      |> Digest.to_hex
     in
     if (new_md5 <> old_md5) then
       begin
