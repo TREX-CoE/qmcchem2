@@ -1,4 +1,6 @@
-BEGIN_PROVIDER [ integer*8, qmckl_ctx ]
+ BEGIN_PROVIDER [ integer*8, qmckl_ctx ]
+&BEGIN_PROVIDER [ integer*8, qmckl_mo_num ]
+
   use qmckl
   implicit none
   BEGIN_DOC
@@ -7,6 +9,7 @@ BEGIN_PROVIDER [ integer*8, qmckl_ctx ]
 
   integer, save :: ifirst = 0
   integer(qmckl_exit_code) :: rc
+  integer :: keep(mo_tot_num), i
 
   if (ifirst == 0) then
     qmckl_ctx = qmckl_context_create()
@@ -14,21 +17,25 @@ BEGIN_PROVIDER [ integer*8, qmckl_ctx ]
     rc = qmckl_trexio_read(qmckl_ctx, trexio_filename, 1_8*len(trim(trexio_filename)))
     call check_qmckl(rc, irp_here, qmckl_ctx)
 
+    keep = 0
+    do i=1,num_present_mos
+      keep(present_mos(i)) = 1
+    enddo
+
+    rc = qmckl_mo_basis_select_mo(qmckl_ctx, keep, int(mo_tot_num,8))
+    call check_qmckl(rc, irp_here, qmckl_ctx)
+
+    rc = qmckl_get_mo_basis_mo_num(qmckl_ctx, qmckl_mo_num)
+    call check_qmckl(rc, irp_here, qmckl_ctx)
+
   end if
 
   double precision :: buffer(elec_num,3)
   buffer(1:elec_num,1:3) = elec_coord(1:elec_num,1:3)
+
   rc = qmckl_set_electron_coord(qmckl_ctx, 'T', 1_8, buffer,  3_8*elec_num)
   call check_qmckl(rc, irp_here, qmckl_ctx)
 
-  integer :: keep(mo_tot_num), i
-  keep = 0
-  do i=1,num_present_mos
-    keep(present_mos(i)) = 1
-  enddo
-
-  rc = qmckl_mo_basis_select_mo(qmckl_ctx, keep, int(mo_tot_num,8))
-  call check_qmckl(rc, irp_here, qmckl_ctx)
 END_PROVIDER
 
 subroutine check_qmckl(rc, here, ctx)
@@ -96,16 +103,6 @@ BEGIN_PROVIDER [ double precision, qmckl_mo_vgl, (qmckl_mo_num, 5, elec_num) ]
 END_PROVIDER
 
 
-BEGIN_PROVIDER [ integer*8, qmckl_mo_num ]
- use qmckl
- implicit none
- BEGIN_DOC
- ! Number of MOs in QMCkl
- END_DOC
- integer(qmckl_exit_code) :: rc
- rc = qmckl_get_mo_basis_mo_num(qmckl_ctx, qmckl_mo_num)
- call check_qmckl(rc, irp_here, qmckl_ctx)
 
-END_PROVIDER
 
 

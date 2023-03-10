@@ -42,6 +42,14 @@ subroutine ranf_array(isize,res)
  enddo
 end
 
+BEGIN_PROVIDER [ logical, deterministic ]
+ implicit none
+ BEGIN_DOC
+ ! Only false in qmc program
+ END_DOC
+ deterministic = .True.
+END_PROVIDER
+
 BEGIN_PROVIDER  [ integer*8, seed, (5) ]
   implicit none
   BEGIN_DOC  
@@ -53,21 +61,31 @@ BEGIN_PROVIDER  [ integer*8, seed, (5) ]
   integer*4                      :: clock(33)
   double precision               :: r
   integer*8                      :: pid8
-  read(current_PID,*) pid8
-  pid8 = iand( shiftl(pid8, 32), pid8)
-  do i=1,size(clock)
-    clock(i) = i
-  enddo
-  call system_clock(count=clock(1))
-  call random_seed(put=clock)
-  do i=1,5
-    call random_number(r)
-    seed(i) = (r-0.5d0)*huge(1_8)
-    seed(i) = ieor( seed(i), pid8)
-    do j=1,16
-      seed(i) = shiftl(seed(i),1)+1
+
+  if (deterministic) then
+    do i=1,size(clock)
+      clock(i) = i
     enddo
-  enddo
+    call random_seed(put=clock)
+
+  else
+    read(current_PID,*) pid8
+    pid8 = iand( shiftl(pid8, 32), pid8)
+    do i=1,size(clock)
+      clock(i) = i
+    enddo
+    call system_clock(count=clock(1))
+    call random_seed(put=clock)
+  endif
+
+    do i=1,5
+      call random_number(r)
+      seed(i) = (r-0.5d0)*huge(1_8)
+      seed(i) = ieor( seed(i), pid8)
+      do j=1,16
+        seed(i) = shiftl(seed(i),1)+1
+      enddo
+    enddo
 
 END_PROVIDER
 

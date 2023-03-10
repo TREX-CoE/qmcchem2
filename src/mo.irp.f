@@ -140,6 +140,7 @@ END_PROVIDER
   endif
 
   if (use_qmckl) then
+    PROVIDE qmckl_ctx
 
     if (num_present_mos == mo_num) then
       do i=1,elec_num
@@ -215,7 +216,6 @@ END_PROVIDER
 
   endif
 
-
   if (do_nucl_fitcusp) then
     real                           :: r, r2, r_inv, d, expzr, Z, Z2, a, b, c, phi, rx, ry, rz
     do i=1,elec_num
@@ -241,6 +241,7 @@ END_PROVIDER
           mo_grad_transp_y(j,i) = mo_grad_transp_y(j,i) + nucl_elec_dist_vec(2,k,i)*c
           mo_grad_transp_z(j,i) = mo_grad_transp_z(j,i) + nucl_elec_dist_vec(3,k,i)*c
         enddo
+        ! It is safe to exit because a core electron is close to only one nucleus
         exit
       enddo ! k
     enddo ! i
@@ -274,15 +275,6 @@ END_PROVIDER
     enddo
   endif
 
-  do i=1,mo_num
-    do j=1,elec_num
-        mo_value_transp(i,j)  *= mo_cusp_rescale(i)
-        mo_grad_transp_x(i,j) *= mo_cusp_rescale(i)
-        mo_grad_transp_y(i,j) *= mo_cusp_rescale(i)
-        mo_grad_transp_z(i,j) *= mo_cusp_rescale(i)
-        mo_lapl_transp(i,j)   *= mo_cusp_rescale(i)
-    enddo
-  enddo
 END_PROVIDER
 
 BEGIN_PROVIDER [ real, mo_value, (elec_num_8,mo_num) ]
@@ -584,23 +576,6 @@ BEGIN_PROVIDER [ double precision, mo_fitcusp_normalization_after, (mo_tot_num) 
 
 END_PROVIDER
 
-BEGIN_PROVIDER [ real, mo_cusp_rescale, (mo_tot_num) ]
- implicit none
- BEGIN_DOC
- ! Rescaling coefficient to normalize MOs after applying fitcusp
- END_DOC
- integer :: i
-! if (do_nucl_fitcusp) then
-!   do i=1,mo_tot_num
-!     mo_cusp_rescale(i) = 1.d0/dsqrt(1.d0 - mo_fitcusp_normalization_before(i) + mo_fitcusp_normalization_after(i))
-!   enddo
-! else
-!     mo_cusp_rescale = 1.d0
-! endif
- mo_cusp_rescale = 1.d0
-
-END_PROVIDER
-
 
  BEGIN_PROVIDER [ double precision, mo_value_at_fitcusp_radius, (mo_num_8,nucl_num) ]
 &BEGIN_PROVIDER [ double precision, mo_grad_at_fitcusp_radius, (mo_num_8,nucl_num) ]
@@ -611,19 +586,19 @@ END_PROVIDER
   END_DOC
   integer                        :: i, j, k, l
 
-  do k=1,nucl_num
-    do j=1,mo_num
-      mo_value_at_fitcusp_radius(j,k) = 0.d0
-      mo_grad_at_fitcusp_radius(j,k) = 0.d0
-      mo_lapl_at_fitcusp_radius(j,k) = 0.d0
-      !DIR$ VECTOR ALIGNED
-      do i=1,ao_num
-        mo_value_at_fitcusp_radius(j,k) = mo_value_at_fitcusp_radius(j,k) + mo_coef(i,j)*ao_value_at_fitcusp_radius(i,k)
-        mo_grad_at_fitcusp_radius(j,k)  = mo_grad_at_fitcusp_radius(j,k)  + mo_coef(i,j)*ao_grad_at_fitcusp_radius(i,k)
-        mo_lapl_at_fitcusp_radius(j,k)  = mo_lapl_at_fitcusp_radius(j,k)  + mo_coef(i,j)*ao_lapl_at_fitcusp_radius(i,k)
-      enddo
-    enddo
-  enddo
+   do k=1,nucl_num
+     do j=1,mo_num
+       mo_value_at_fitcusp_radius(j,k) = 0.d0
+       mo_grad_at_fitcusp_radius(j,k) = 0.d0
+       mo_lapl_at_fitcusp_radius(j,k) = 0.d0
+       !DIR$ VECTOR ALIGNED
+       do i=1,ao_num
+         mo_value_at_fitcusp_radius(j,k) = mo_value_at_fitcusp_radius(j,k) + mo_coef(i,j)*ao_value_at_fitcusp_radius(i,k)
+         mo_grad_at_fitcusp_radius(j,k)  = mo_grad_at_fitcusp_radius(j,k)  + mo_coef(i,j)*ao_grad_at_fitcusp_radius(i,k)
+         mo_lapl_at_fitcusp_radius(j,k)  = mo_lapl_at_fitcusp_radius(j,k)  + mo_coef(i,j)*ao_lapl_at_fitcusp_radius(i,k)
+       enddo
+     enddo
+   enddo
 
 END_PROVIDER
 
