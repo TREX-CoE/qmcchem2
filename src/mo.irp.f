@@ -31,7 +31,6 @@ BEGIN_PROVIDER [ real, mo_coef_input, (ao_num_8,mo_tot_num) ]
     do j=ao_num+1,ao_num_8
       mo_coef_input(j,i) = 0.
     enddo
-    call set_order(mo_coef_input(1,i),ao_nucl_sort_idx,ao_num)
   enddo
   deallocate(buffer)
 
@@ -49,6 +48,7 @@ BEGIN_PROVIDER [ real, mo_coef, (ao_num_8,mo_num_8) ]
     do i=1,ao_num_8
       mo_coef(i,j) = mo_coef_input(i,j)
     enddo
+    call set_order(mo_coef_input(1,i),ao_nucl_sort_idx,ao_num)
   enddo
   do j =mo_num+1,mo_num_8
     !DIR$ VECTOR ALIGNED
@@ -116,11 +116,11 @@ BEGIN_PROVIDER [ real, mo_coef_transp_present, (num_present_mos_8,ao_num_8) ]
 END_PROVIDER
 
 
- BEGIN_PROVIDER [ real, mo_value_transp, (mo_num_8,elec_num) ]
+ BEGIN_PROVIDER [ real, mo_value_transp , (mo_num_8,elec_num) ]
 &BEGIN_PROVIDER [ real, mo_grad_transp_x, (mo_num_8,elec_num) ]
 &BEGIN_PROVIDER [ real, mo_grad_transp_y, (mo_num_8,elec_num) ]
 &BEGIN_PROVIDER [ real, mo_grad_transp_z, (mo_num_8,elec_num) ]
-&BEGIN_PROVIDER [ real, mo_lapl_transp, (mo_num_8,elec_num) ]
+&BEGIN_PROVIDER [ real, mo_lapl_transp  , (mo_num_8,elec_num) ]
   implicit none
 
   BEGIN_DOC
@@ -137,30 +137,23 @@ END_PROVIDER
     PROVIDE nucl_fitcusp_param
     PROVIDE nucl_elec_dist_vec
     PROVIDE nucl_elec_dist_inv
+    mo_value_transp  = 0.
+    mo_grad_transp_x = 0.
+    mo_grad_transp_y = 0.
+    mo_grad_transp_z = 0.
+    mo_lapl_transp   = 0.
   endif
 
   if (use_qmckl) then
     PROVIDE qmckl_ctx
 
-    if (num_present_mos == mo_num) then
-      do i=1,elec_num
-        mo_value_transp(1:mo_num,i)  = qmckl_mo_vgl(1:mo_num,1,i)
-        mo_grad_transp_x(1:mo_num,i) = qmckl_mo_vgl(1:mo_num,2,i)
-        mo_grad_transp_y(1:mo_num,i) = qmckl_mo_vgl(1:mo_num,3,i)
-        mo_grad_transp_z(1:mo_num,i) = qmckl_mo_vgl(1:mo_num,4,i)
-        mo_lapl_transp(1:mo_num,i)   = qmckl_mo_vgl(1:mo_num,5,i)
-      end do
-    else
-      do i=1,elec_num
-        do j=1,num_present_mos
-          mo_value_transp (present_mos(j),i) = qmckl_mo_vgl(j,1,i)
-          mo_grad_transp_x(present_mos(j),i) = qmckl_mo_vgl(j,2,i)
-          mo_grad_transp_y(present_mos(j),i) = qmckl_mo_vgl(j,3,i)
-          mo_grad_transp_z(present_mos(j),i) = qmckl_mo_vgl(j,4,i)
-          mo_lapl_transp  (present_mos(j),i) = qmckl_mo_vgl(j,5,i)
-        end do
-      end do
-    end if
+    do i=1,elec_num
+      mo_value_transp(1:mo_num,i)  = qmckl_mo_vgl(1:mo_num,1,i)
+      mo_grad_transp_x(1:mo_num,i) = qmckl_mo_vgl(1:mo_num,2,i)
+      mo_grad_transp_y(1:mo_num,i) = qmckl_mo_vgl(1:mo_num,3,i)
+      mo_grad_transp_z(1:mo_num,i) = qmckl_mo_vgl(1:mo_num,4,i)
+      mo_lapl_transp(1:mo_num,i)   = qmckl_mo_vgl(1:mo_num,5,i)
+    end do
 
   else
 
@@ -199,18 +192,9 @@ END_PROVIDER
             mo_lapl_transp(1,i),                                       &
             ao_num)
 
-        do j=num_present_mos,1,-1
-          mo_value_transp (present_mos(j),i) = mo_value_transp (j,i)
-          mo_grad_transp_x(present_mos(j),i) = mo_grad_transp_x(j,i)
-          mo_grad_transp_y(present_mos(j),i) = mo_grad_transp_y(j,i)
-          mo_grad_transp_z(present_mos(j),i) = mo_grad_transp_z(j,i)
-          mo_lapl_transp  (present_mos(j),i) = mo_lapl_transp  (j,i)
-          if (present_mos(j) == j) then
-            exit
-          endif
-        enddo
       endif
     enddo  ! i
+
     ao_elec = 1
     SOFT_TOUCH ao_elec
 
@@ -225,35 +209,35 @@ END_PROVIDER
           cycle
         endif
         r_inv = nucl_elec_dist_inv(k,i)
-        do j=1,mo_num
-          mo_value_transp(j,i) = mo_value_transp(j,i) + nucl_fitcusp_param(1,j,k) +&
+        do j=1,num_present_mos
+          mo_value_transp(j,i) = mo_value_transp(j,i) +              &
+                   nucl_fitcusp_param(1,j,k) +                       &
               r * (nucl_fitcusp_param(2,j,k) +                       &
               r * (nucl_fitcusp_param(3,j,k) +                       &
               r *  nucl_fitcusp_param(4,j,k) ))
           mo_lapl_transp(j,i) = mo_lapl_transp(j,i) +                &
               nucl_fitcusp_param(2,j,k)*(r_inv+r_inv) +              &
-              6.*nucl_fitcusp_param(3,j,k) +                         &
-              r * 12.*nucl_fitcusp_param(4,j,k)
+                    6.*nucl_fitcusp_param(3,j,k) +                   &
+               r * 12.*nucl_fitcusp_param(4,j,k)
           c = r_inv * (nucl_fitcusp_param(2,j,k) +                   &
-              r * (2.*nucl_fitcusp_param(3,j,k) +                    &
-              r *  3.*nucl_fitcusp_param(4,j,k) ))
+               r * (2.*nucl_fitcusp_param(3,j,k) +                   &
+               r *  3.*nucl_fitcusp_param(4,j,k) ))
           mo_grad_transp_x(j,i) = mo_grad_transp_x(j,i) + nucl_elec_dist_vec(1,k,i)*c
           mo_grad_transp_y(j,i) = mo_grad_transp_y(j,i) + nucl_elec_dist_vec(2,k,i)*c
           mo_grad_transp_z(j,i) = mo_grad_transp_z(j,i) + nucl_elec_dist_vec(3,k,i)*c
         enddo
-        ! It is safe to exit because a core electron is close to only one nucleus
+        ! It is safe to exit here because a core electron is close to only one nucleus
         exit
       enddo ! k
     enddo ! i
 
   endif
 
-
   if (do_prepare) then
     real                           :: lambda, t
     ! Scale off-diagonal elements
     t = prepare_walkers_t
-    do i=1,mo_num
+    do i=1,num_present_mos
       do j=1,elec_alpha_num
         if (i /= j) then
           mo_value_transp(i,j) *= t
@@ -274,6 +258,22 @@ END_PROVIDER
       enddo
     enddo
   endif
+
+  if (num_present_mos < mo_num) then
+    do i=1,elec_num
+        do j=num_present_mos,1,-1
+          mo_value_transp (present_mos(j),i) = mo_value_transp (j,i)
+          mo_grad_transp_x(present_mos(j),i) = mo_grad_transp_x(j,i)
+          mo_grad_transp_y(present_mos(j),i) = mo_grad_transp_y(j,i)
+          mo_grad_transp_z(present_mos(j),i) = mo_grad_transp_z(j,i)
+          mo_lapl_transp  (present_mos(j),i) = mo_lapl_transp  (j,i)
+          if (present_mos(j) == j) then
+            exit
+          endif
+        enddo
+    enddo
+  endif
+
 
 END_PROVIDER
 
@@ -577,25 +577,27 @@ BEGIN_PROVIDER [ double precision, mo_fitcusp_normalization_after, (mo_tot_num) 
 END_PROVIDER
 
 
- BEGIN_PROVIDER [ double precision, mo_value_at_fitcusp_radius, (mo_num_8,nucl_num) ]
-&BEGIN_PROVIDER [ double precision, mo_grad_at_fitcusp_radius, (mo_num_8,nucl_num) ]
-&BEGIN_PROVIDER [ double precision, mo_lapl_at_fitcusp_radius, (mo_num_8,nucl_num) ]
+ BEGIN_PROVIDER [ double precision, mo_value_at_fitcusp_radius, (num_present_mos_8,nucl_num) ]
+&BEGIN_PROVIDER [ double precision, mo_grad_at_fitcusp_radius, (num_present_mos_8,nucl_num) ]
+&BEGIN_PROVIDER [ double precision, mo_lapl_at_fitcusp_radius, (num_present_mos_8,nucl_num) ]
   implicit none
   BEGIN_DOC
-! Values of the molecular orbitals without S components on atoms
+! Values of the molecular orbitals without S components on atoms.
   END_DOC
   integer                        :: i, j, k, l
 
    do k=1,nucl_num
-     do j=1,mo_num
+     do j=1,num_present_mos
        mo_value_at_fitcusp_radius(j,k) = 0.d0
        mo_grad_at_fitcusp_radius(j,k) = 0.d0
        mo_lapl_at_fitcusp_radius(j,k) = 0.d0
+     enddo
+     do i=1,ao_num
        !DIR$ VECTOR ALIGNED
-       do i=1,ao_num
-         mo_value_at_fitcusp_radius(j,k) = mo_value_at_fitcusp_radius(j,k) + mo_coef(i,j)*ao_value_at_fitcusp_radius(i,k)
-         mo_grad_at_fitcusp_radius(j,k)  = mo_grad_at_fitcusp_radius(j,k)  + mo_coef(i,j)*ao_grad_at_fitcusp_radius(i,k)
-         mo_lapl_at_fitcusp_radius(j,k)  = mo_lapl_at_fitcusp_radius(j,k)  + mo_coef(i,j)*ao_lapl_at_fitcusp_radius(i,k)
+       do j=1,num_present_mos
+         mo_value_at_fitcusp_radius(j,k) = mo_value_at_fitcusp_radius(j,k) + mo_coef_transp_present(j,i)*ao_value_at_fitcusp_radius(i,k)
+         mo_grad_at_fitcusp_radius (j,k) = mo_grad_at_fitcusp_radius (j,k) + mo_coef_transp_present(j,i)*ao_grad_at_fitcusp_radius (i,k)
+         mo_lapl_at_fitcusp_radius (j,k) = mo_lapl_at_fitcusp_radius (j,k) + mo_coef_transp_present(j,i)*ao_lapl_at_fitcusp_radius (i,k)
        enddo
      enddo
    enddo
