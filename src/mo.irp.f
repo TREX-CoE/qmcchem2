@@ -13,29 +13,43 @@
 
 END_PROVIDER
 
+! ---
 
 BEGIN_PROVIDER [ real, mo_coef_input, (ao_num_8,mo_tot_num) ]
-  implicit none
+
   BEGIN_DOC
-! Molecular orbital coefficients read from the input file
+  ! Molecular orbital coefficients read from the input file
   END_DOC
-  integer                        :: i, j
-  real,allocatable               :: buffer(:,:)
-  allocate (buffer(ao_num,mo_tot_num))
+
+  implicit none
+  integer           :: i, j
+  real, allocatable :: buffer(:,:)
+
+  allocate(buffer(ao_num,mo_tot_num))
+  buffer = 0.
 
   call get_mo_basis_mo_coef(buffer)
-  do i=1,mo_tot_num
-    do j=1,ao_num
+  !if(sgn_jast .eq. (-1.d0)) then
+  !  call get_bi_ortho_mos_mo_l_coef(buffer)
+  !else
+  !  call get_mo_basis_mo_coef(buffer)
+  !endif
+
+  do i = 1, mo_tot_num
+    do j = 1, ao_num
       mo_coef_input(j,i) = buffer(j,i)
     enddo
-    do j=ao_num+1,ao_num_8
+    do j = ao_num+1, ao_num_8
       mo_coef_input(j,i) = 0.
     enddo
+    call set_order(mo_coef_input(1,i), ao_nucl_sort_idx, ao_num)
   enddo
+
   deallocate(buffer)
 
 END_PROVIDER
 
+! ---
 
 BEGIN_PROVIDER [ real, mo_coef, (ao_num_8,mo_num_8) ]
   implicit none
@@ -48,7 +62,7 @@ BEGIN_PROVIDER [ real, mo_coef, (ao_num_8,mo_num_8) ]
     do i=1,ao_num_8
       mo_coef(i,j) = mo_coef_input(i,j)
     enddo
-    call set_order(mo_coef_input(1,i),ao_nucl_sort_idx,ao_num)
+    call set_order(mo_coef_input(1,i),ao_nucl_sort_id
   enddo
   do j =mo_num+1,mo_num_8
     !DIR$ VECTOR ALIGNED
@@ -61,6 +75,8 @@ BEGIN_PROVIDER [ real, mo_coef, (ao_num_8,mo_num_8) ]
   FREE mo_coef_input
 
 END_PROVIDER
+
+! ---
 
 
 BEGIN_PROVIDER [ real, mo_coef_transp, (mo_num_8,ao_num_8) ]
@@ -412,6 +428,19 @@ BEGIN_PROVIDER [ integer, mo_tot_num ]
     call abrt(irp_here,'Total number of MOs can''t be <0')
   endif
   call iinfo(irp_here,'mo_tot_num',mo_tot_num)
+
+END_PROVIDER
+
+! ---
+
+BEGIN_PROVIDER [ integer, n_oo ]
+
+  !if(mod(elec_num, 2) .eq. 0) then
+  if(elec_alpha_num .eq. elec_beta_num) then
+    n_oo = elec_alpha_num
+  else
+    n_oo = max(elec_alpha_num, elec_beta_num)
+  endif
 
 END_PROVIDER
 
