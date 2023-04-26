@@ -11,7 +11,7 @@ BEGIN_PROVIDER [ double precision, single_det_E_kin ]
   integer                        :: i
   single_det_E_kin = 0.d0
   do i=1,elec_num
-    single_det_E_kin -= 0.5d0*single_det_lapl(i)/single_det_value
+    single_det_E_kin -= 0.5d0*single_det_right_lapl(i)/single_det_right_value
   enddo
 
 END_PROVIDER
@@ -68,6 +68,98 @@ BEGIN_PROVIDER [ double precision, E_pot_grad, (elec_num,3) ]
 END_PROVIDER
 
 
+
+BEGIN_PROVIDER [ double precision, E_pseudo_elec, (elec_num) ]
+
+  BEGIN_DOC
+  ! Pseudo-Potential energy by electron
+  END_DOC
+
+  implicit none
+  integer :: i
+
+  do i = 1, elec_num
+    E_pseudo_elec(i) = 0.d0
+  enddo
+
+  if(do_pseudo) then
+    do i = 1, elec_num
+      E_pseudo_elec(i) = v_pseudo_local(i) + pseudo_right_non_local(i)
+    enddo
+    !if(use_svd) then
+    !  do i = 1, elec_num
+    !    E_pseudo_elec(i) = v_pseudo_local(i) + pseudo_right_non_local_SVD(i)
+    !  enddo
+    !else
+    !  do i = 1, elec_num
+    !    E_pseudo_elec(i) = v_pseudo_local(i) + pseudo_right_non_local(i)
+    !  enddo
+    !endif
+  endif
+END_PROVIDER
+
+
+
+BEGIN_PROVIDER [ double precision, E_pseudo ]
+
+  BEGIN_DOC
+  ! Total Pseudo-Potential energy
+  END_DOC
+
+  implicit none
+  integer :: i
+
+  E_pseudo = 0.d0
+  if(do_pseudo) then
+    do i = 1, elec_num
+      E_pseudo = E_pseudo + E_pseudo_elec(i)
+    enddo
+  endif
+END_PROVIDER
+
+! ---
+
+BEGIN_PROVIDER [ double precision, E_pot_erf_elec, (elec_num) ]
+
+  BEGIN_DOC
+  ! Electronic Potential energy with [ erf(r) / r ] instead of [ 1 / r ]
+  END_DOC
+
+  implicit none
+  integer          :: i, j
+  double precision :: mu, rij
+
+  !mu = mu_erf
+  mu = 10.d0
+
+  if (do_pseudo) then
+    do i = 1, elec_num
+      E_pot_erf_elec(i) = v_pseudo_local(i) + pseudo_right_non_local(i)
+    enddo
+  else
+    do i = 1, elec_num
+      E_pot_erf_elec(i) = 0.d0
+    enddo
+  endif
+
+  do i = 1, elec_num
+    !DIR$ VECTOR ALIGNED
+    !DIR$ LOOP COUNT(50)
+    do j = 1, elec_num
+      rij = mu * elec_dist(j,i)
+      E_pot_erf_elec(i) = E_pot_erf_elec(i) + 0.5d0 * derf(rij) * elec_dist_inv(j,i)
+    enddo
+    !DIR$ VECTOR ALIGNED
+    !DIR$ LOOP COUNT(50)
+    do j = 1, nucl_num
+      E_pot_erf_elec(i) = E_pot_erf_elec(i) - nucl_charge(j) * nucl_elec_dist_inv(j,i)
+    enddo
+  enddo
+
+END_PROVIDER
+
+! ---
+
 BEGIN_PROVIDER [ double precision, E_pot_elec, (elec_num) ]
   implicit none
   BEGIN_DOC
@@ -76,9 +168,20 @@ BEGIN_PROVIDER [ double precision, E_pot_elec, (elec_num) ]
 
   integer                        :: i, j
   if (do_pseudo) then
+
     do i=1,elec_num
-      E_pot_elec(i) = v_pseudo_local(i) + pseudo_non_local(i)
+      E_pot_elec(i) = v_pseudo_local(i) + pseudo_right_non_local(i)
     enddo
+    !if(use_svd) then
+    !  do i = 1, elec_num
+    !    E_pot_elec(i) = v_pseudo_local(i) + pseudo_right_non_local_SVD(i)
+    !  enddo
+    !else
+    !  do i = 1, elec_num
+    !    E_pot_elec(i) = v_pseudo_local(i) + pseudo_right_non_local(i)
+    !  enddo
+    !endif
+
   else
     do i=1,elec_num
       E_pot_elec(i) = 0.d0
@@ -141,63 +244,69 @@ BEGIN_PROVIDER [ double precision, E_pot_elec_two, (elec_num) ]
 
 END_PROVIDER
 
+! ---
 
 BEGIN_PROVIDER [ double precision, E_kin_elec, (elec_num) ]
-  implicit none
 
   BEGIN_DOC
   ! Electronic Kinetic energy : -1/2 (Lapl.Psi)/Psi
   END_DOC
 
-  integer                        :: i
-  do i=1,elec_num
-    E_kin_elec(i) = -0.5d0*psi_lapl_psi_inv(i)
+  implicit none
+  integer :: i
+
+  do i = 1, elec_num
+    E_kin_elec(i) = -0.5d0 * psi_lapl_psi_inv(i)
   enddo
 
 END_PROVIDER
 
+! ---
+
 BEGIN_PROVIDER [ double precision, dmc_zv_weight ]
- implicit none
- BEGIN_DOC
- ! Weight for Zero-variance in DMC
- END_DOC
- dmc_zv_weight = 1.d0
+
+  BEGIN_DOC
+  ! Weight for Zero-variance in DMC
+  END_DOC
+
+  implicit none
+
+  dmc_zv_weight = 1.d0
+
 END_PROVIDER
+
+! ---
 
 BEGIN_PROVIDER [ double precision, dmc_zv_weight_half ]
- implicit none
- BEGIN_DOC
- ! Weight for Zero-variance in DMC
- END_DOC
- dmc_zv_weight_half = 1.d0
+ 
+  BEGIN_DOC
+  ! Weight for Zero-variance in DMC
+  END_DOC
+
+  implicit none
+ 
+  dmc_zv_weight_half = 1.d0
+
 END_PROVIDER
 
+! ---
 
 !==========================================================================!
 ! PROPERTIES                                                              !
 !==========================================================================!
 
-BEGIN_PROVIDER [ double precision, E_ref_ave]
-  implicit none
-  BEGIN_DOC
-  ! DMC Reference energy
-  END_DOC
-  E_ref_ave = E_ref
-  E_ref_ave_min = min(E_ref_ave,E_ref_ave_min)
-  E_ref_ave_max = max(E_ref_ave,E_ref_ave_max)
-  SOFT_TOUCH E_ref_ave_min E_ref_ave_max
-END_PROVIDER
-
 BEGIN_PROVIDER [ double precision, E_nucl ]
-  implicit none
+
   BEGIN_DOC
   ! Nuclear potential energy
   END_DOC
 
+  implicit none
+  integer :: i, j
+
   E_nucl = 0.d0
-  integer                        :: i, j
-  do i=1,nucl_num
-    do j=1,i-1
+  do i = 1, nucl_num
+    do j = 1, i-1
       E_nucl += nucl_charge(i)*nucl_charge(j)/nucl_dist(j,i)
     enddo
   enddo
@@ -207,38 +316,64 @@ BEGIN_PROVIDER [ double precision, E_nucl ]
   SOFT_TOUCH E_nucl_min E_nucl_max
 END_PROVIDER
 
+! ---
 
 BEGIN_PROVIDER [ double precision, E_pot ]
-  implicit none
+
   BEGIN_DOC
   ! Electronic Potential energy
   END_DOC
 
+  implicit none
+  integer :: i
+
   E_pot = 0.d0
-  integer                        :: i, j
-  do i=1,elec_num
+  do i = 1, elec_num
     E_pot += E_pot_elec(i)
   enddo
 
-  E_pot_min = min(E_pot,E_pot_min)
-  E_pot_max = max(E_pot,E_pot_max)
+  E_pot_min = min(E_pot, E_pot_min)
+  E_pot_max = max(E_pot, E_pot_max)
   SOFT_TOUCH E_pot_min E_pot_max
 END_PROVIDER
 
+! ---
+
+BEGIN_PROVIDER [ double precision, E_pot_erf ]
+
+  BEGIN_DOC
+  ! Electronic Potential energy
+  END_DOC
+
+  implicit none
+  integer :: i
+
+  E_pot_erf = 0.d0
+  do i = 1, elec_num
+    E_pot_erf += E_pot_erf_elec(i)
+  enddo
+
+  E_pot_erf_min = min(E_pot_erf, E_pot_erf_min)
+  E_pot_erf_max = max(E_pot_erf, E_pot_erf_max)
+  SOFT_TOUCH E_pot_erf_min E_pot_erf_max
+END_PROVIDER
+
+! ---
 
 BEGIN_PROVIDER [ double precision, E_kin ]
-  implicit none
+
   BEGIN_DOC
   ! Electronic Kinetic energy : -1/2 (Lapl.Psi)/Psi
   END_DOC
 
-  E_kin = 0.d0
+  implicit none
+  integer :: i
 
-  integer                        :: i
+  E_kin = 0.d0
   !DIR$ VECTOR ALIGNED
   !DIR$ LOOP COUNT(200)
-  do i=1,elec_num
-    E_kin -= 0.5d0*psi_lapl_psi_inv(i)
+  do i = 1, elec_num
+    E_kin -= 0.5d0 * psi_lapl_psi_inv(i)
   enddo
 
   E_kin_min = min(E_kin,E_kin_min)
@@ -246,19 +381,23 @@ BEGIN_PROVIDER [ double precision, E_kin ]
   SOFT_TOUCH E_kin_min E_kin_max
 END_PROVIDER
 
+! ---
 
 BEGIN_PROVIDER  [ double precision, E_loc ]
-  implicit none
-  include '../types.F'
+
   BEGIN_DOC
   ! Local energy : E_kin + E_pot + E_nucl
   END_DOC
 
-  integer                        :: i
+  include '../types.F'
+
+  implicit none
+  integer :: i
+
   E_loc = E_nucl
   !DIR$ VECTOR ALIGNED
   !DIR$ LOOP COUNT(200)
-  do i=1,elec_num
+  do i = 1, elec_num
     E_loc += E_kin_elec(i) + E_pot_elec(i)
   enddo
 
@@ -268,11 +407,13 @@ BEGIN_PROVIDER  [ double precision, E_loc ]
 !    delta_e = E_loc-E_ref
 !    E_loc = E_ref + delta_e * dexp(-dabs(delta_e)*time_step)
 !  endif
+
   E_loc_min = min(E_loc,E_loc_min)
   E_loc_max = max(E_loc,E_loc_max)
   SOFT_TOUCH E_loc_min E_loc_max
 END_PROVIDER
 
+! ---
 
 !BEGIN_PROVIDER [ double precision, E_loc_zv, ((pdmc_n_diag+1)*2) ]
 BEGIN_PROVIDER [ double precision, E_loc_zv ]
@@ -287,3 +428,4 @@ BEGIN_PROVIDER [ double precision, E_loc_zv ]
 !  E_loc_zv(:)  = 0.d0
 
 END_PROVIDER
+
