@@ -3,7 +3,6 @@ BEGIN_SHELL [ /usr/bin/env python3 ]
 data = [ \
 ("electrons_elec_coord_pool_size"  , "integer"       , "" ),
 ("electrons_elec_coord_pool"       , "real"          , "(elec_num+1,3,elec_coord_pool_size)" ),
-("mo_basis_mo_coef"                , "real"          , "(ao_num,mo_tot_num)" ),
 ("bi_ortho_mos_mo_l_coef"          , "real"          , "(ao_num,mo_tot_num)" ),
 ("bi_ortho_mos_coef_psi_right"     , "real"          , ""                    ),
 ("bi_ortho_mos_use_lr"             , "logical"       , ""                    ),

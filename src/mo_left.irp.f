@@ -22,7 +22,6 @@ BEGIN_PROVIDER [ real, mo_left_coef_input, (ao_num_8,mo_tot_num) ]
     do j = ao_num+1, ao_num_8
       mo_left_coef_input(j,i) = 0.
     enddo
-    call set_order(mo_left_coef_input(1,i), ao_nucl_sort_idx, ao_num)
   enddo
 
   deallocate(buffer)
@@ -44,6 +43,7 @@ BEGIN_PROVIDER [ real, mo_left_coef, (ao_num_8,mo_num_8) ]
     do i = 1, ao_num_8
       mo_left_coef(i,j) = mo_left_coef_input(i,j)
     enddo
+    call set_order(mo_left_coef_input(1,i), ao_nucl_sort_idx, ao_num)
   enddo
   do j = mo_num+1, mo_num_8
     !DIR$ VECTOR ALIGNED
@@ -263,11 +263,11 @@ END_PROVIDER
   if (num_present_mos < mo_num) then
     do i=1,elec_num
       do j=num_present_mos,1,-1
-        mo_left_value_transp (presebt_mos(j),i) = mo_left_value_transp (j,i)
-        mo_left_grad_transp_x(presebt_mos(j),i) = mo_left_grad_transp_x(j,i)
-        mo_left_grad_transp_y(presebt_mos(j),i) = mo_left_grad_transp_y(j,i)
-        mo_left_grad_transp_z(presebt_mos(j),i) = mo_left_grad_transp_z(j,i)
-        mo_left_lapl_transp  (presebt_mos(j),i) = mo_left_lapl_transp  (j,i)
+        mo_left_value_transp (present_mos(j),i) = mo_left_value_transp (j,i)
+        mo_left_grad_transp_x(present_mos(j),i) = mo_left_grad_transp_x(j,i)
+        mo_left_grad_transp_y(present_mos(j),i) = mo_left_grad_transp_y(j,i)
+        mo_left_grad_transp_z(present_mos(j),i) = mo_left_grad_transp_z(j,i)
+        mo_left_lapl_transp  (present_mos(j),i) = mo_left_lapl_transp  (j,i)
         if (present_mos(j) == j) then
           exit
         endif

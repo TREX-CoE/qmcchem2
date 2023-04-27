@@ -42,7 +42,6 @@ BEGIN_PROVIDER [ real, mo_coef_input, (ao_num_8,mo_tot_num) ]
     do j = ao_num+1, ao_num_8
       mo_coef_input(j,i) = 0.
     enddo
-    call set_order(mo_coef_input(1,i), ao_nucl_sort_idx, ao_num)
   enddo
 
   deallocate(buffer)
@@ -62,7 +61,7 @@ BEGIN_PROVIDER [ real, mo_coef, (ao_num_8,mo_num_8) ]
     do i=1,ao_num_8
       mo_coef(i,j) = mo_coef_input(i,j)
     enddo
-    call set_order(mo_coef_input(1,i),ao_nucl_sort_id
+    call set_order(mo_coef_input(1,i),ao_nucl_sort_idx,ao_num)
   enddo
   do j =mo_num+1,mo_num_8
     !DIR$ VECTOR ALIGNED
