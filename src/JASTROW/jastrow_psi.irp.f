@@ -35,6 +35,7 @@ Core     ;;
 Mu       ;;
 Mu_1b    ;;
 Mu_env3  ;;
+Mu_env5  ;;
 END_TEMPLATE
 
     if (ifirst == 0) then
@@ -103,6 +104,7 @@ Core     ;;
 Mu       ;;
 Mu_1b    ;;
 Mu_env3  ;;
+Mu_env5  ;;
 END_TEMPLATE
 
     !DIR$ VECTOR ALIGNED
@@ -158,6 +160,7 @@ Core     ;;
 Mu       ;;
 Mu_1b    ;;
 Mu_env3  ;;
+Mu_env5  ;;
 END_TEMPLATE
 
     !DIR$ VECTOR ALIGNED
@@ -206,6 +209,7 @@ Core     ;;
 Mu       ;;
 Mu_1b    ;;
 Mu_env3  ;;
+Mu_env5  ;;
 END_TEMPLATE
 
   endif

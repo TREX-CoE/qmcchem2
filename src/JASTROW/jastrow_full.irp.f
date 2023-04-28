@@ -29,6 +29,7 @@ Mu      ;;
 Qmckl   ;;
 Mu_1b   ;;
 Mu_env3 ;;
+Mu_env5 ;;
 END_TEMPLATE
 
    if (ifirst == 0) then
@@ -93,6 +94,7 @@ Mu      ;;
 Qmckl   ;;
 Mu_1b   ;;
 Mu_env3 ;;
+Mu_env5 ;;
 END_TEMPLATE
    !DIR$ VECTOR ALIGNED
    !DIR$ LOOP COUNT (200)
@@ -142,11 +144,12 @@ END_PROVIDER
 !     enddo
 !   endif
 !SUBST [X]
-!Simple   ;;
-!Core     ;;
-!Mu       ;;
-!Mu_1b    ;;
-!Mu_env3  ;;
+!Simple  ;;
+!Core    ;;
+!Mu      ;;
+!Mu_1b   ;;
+!Mu_env3 ;;
+!Mu_env5 ;;
 !END_TEMPLATE
 !
 !   !DIR$ VECTOR ALIGNED
@@ -201,6 +204,7 @@ Mu      ;;
 Qmckl   ;;
 Mu_1b   ;;
 Mu_env3 ;;
+Mu_env5 ;;
 END_TEMPLATE
 
   endif
@@ -247,6 +251,7 @@ Mu      ;;
 Qmckl   ;;
 Mu_1b   ;;
 Mu_env3 ;;
+Mu_env5 ;;
 END_TEMPLATE
 
   endif

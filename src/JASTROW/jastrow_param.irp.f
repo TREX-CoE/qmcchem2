@@ -57,8 +57,10 @@ BEGIN_PROVIDER [ integer, jast_type ]
     jast_type = t_Mu_1b
   else if (buffer == types(t_Mu_env3)) then
     jast_type = t_Mu_env3
+  else if (buffer == types(t_Mu_env5)) then
+    jast_type = t_Mu_env5
   else
-    call abrt(irp_here, 'Jastrow type should be (None|Simple|Core|Mu|Mu_1b|Mu_env3)')
+    call abrt(irp_here, 'Jastrow type should be (None|Simple|Core|Mu|Mu_1b|Mu_env3|Mu_env5)')
   endif
   call cinfo(irp_here, 'jast_type',buffer)
 
@@ -92,8 +94,10 @@ BEGIN_PROVIDER [ integer, jpsi_type ]
     jpsi_type = t_Mu_1b
   else if (buffer == types(t_Mu_env3)) then
     jpsi_type = t_Mu_env3
+  else if (buffer == types(t_Mu_env5)) then
+    jpsi_type = t_Mu_env5
   else
-    call abrt(irp_here, 'jpsi type should be (None|Simple|Core|Mu|Mu_1b|Mu_env3)')
+    call abrt(irp_here, 'jpsi type should be (None|Simple|Core|Mu|Mu_1b|Mu_env3|Mu_env5)')
   endif
   call cinfo(irp_here, 'jpsi_type',buffer)
 

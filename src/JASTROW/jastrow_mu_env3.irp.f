@@ -58,7 +58,7 @@ end subroutine v1b_env3
 
 ! ---
 
-BEGIN_PROVIDER [ double precision , vi_1b, (elec_num_8) ]
+BEGIN_PROVIDER [double precision, vi_1b_env3, (elec_num_8)]
 
   implicit none
   integer          :: i, iA
@@ -76,12 +76,12 @@ BEGIN_PROVIDER [ double precision , vi_1b, (elec_num_8) ]
       !print*, a, riA, 1.d0 - dexp(-a*riA*riA), tmp
     enddo
 
-    vi_1b(i) = tmp
+    vi_1b_env3(i) = tmp
   enddo
 
 END_PROVIDER
 
-!BEGIN_PROVIDER [ double precision , vi_1b, (elec_num_8) ]
+!BEGIN_PROVIDER [double precision, vi_1b_env3, (elec_num_8)]
 !
 !  implicit none
 !  integer          :: i, ii, iA, phase, b
@@ -89,7 +89,7 @@ END_PROVIDER
 !
 !  do i = 1, elec_num
 !
-!    vi_1b(i) = 0.d0
+!    vi_1b_env3(i) = 0.d0
 !    do ii = 1, List_all_comb_b2_size
 !  
 !      phase = 0
@@ -105,7 +105,7 @@ END_PROVIDER
 !        expo  += c * riA * riA
 !      enddo
 !
-!      vi_1b(i) += (-1.d0)**dble(phase) * dexp(-expo)
+!      vi_1b_env3(i) += (-1.d0)**dble(phase) * dexp(-expo)
 !    enddo
 !  enddo
 !
@@ -113,10 +113,10 @@ END_PROVIDER
 
 ! ---
 
- BEGIN_PROVIDER [ double precision , deriv_vi_x, (elec_num_8) ]
-&BEGIN_PROVIDER [ double precision , deriv_vi_y, (elec_num_8) ]
-&BEGIN_PROVIDER [ double precision , deriv_vi_z, (elec_num_8) ]
-&BEGIN_PROVIDER [ double precision ,    lapl_vi, (elec_num_8) ]
+ BEGIN_PROVIDER [ double precision , deriv_vi_x_env3, (elec_num_8) ]
+&BEGIN_PROVIDER [ double precision , deriv_vi_y_env3, (elec_num_8) ]
+&BEGIN_PROVIDER [ double precision , deriv_vi_z_env3, (elec_num_8) ]
+&BEGIN_PROVIDER [ double precision ,    lapl_vi_env3, (elec_num_8) ]
 
   implicit none
   integer          :: i, ii, iA, phase, b
@@ -125,10 +125,10 @@ END_PROVIDER
 
   do i = 1, elec_num
 
-    deriv_vi_x(i) = 0.d0
-    deriv_vi_y(i) = 0.d0
-    deriv_vi_z(i) = 0.d0
-    lapl_vi   (i) = 0.d0
+    deriv_vi_x_env3(i) = 0.d0
+    deriv_vi_y_env3(i) = 0.d0
+    deriv_vi_z_env3(i) = 0.d0
+    lapl_vi_env3   (i) = 0.d0
     do ii = 1, List_all_comb_b2_size
   
       phase  = 0
@@ -155,10 +155,10 @@ END_PROVIDER
       enddo
       tmp = -2.d0 * (-1.d0)**dble(phase) * dexp(-expo)
 
-      deriv_vi_x(i) += tmp * coef_x 
-      deriv_vi_y(i) += tmp * coef_y 
-      deriv_vi_z(i) += tmp * coef_z 
-      lapl_vi   (i) += tmp * (3.d0 * coef - 2.d0 * (coef_x*coef_x + coef_y*coef_y + coef_z*coef_z))
+      deriv_vi_x_env3(i) += tmp * coef_x 
+      deriv_vi_y_env3(i) += tmp * coef_y 
+      deriv_vi_z_env3(i) += tmp * coef_z 
+      lapl_vi_env3   (i) += tmp * (3.d0 * coef - 2.d0 * (coef_x*coef_x + coef_y*coef_y + coef_z*coef_z))
     enddo
   enddo
 
@@ -251,21 +251,20 @@ BEGIN_PROVIDER [ double precision , jast_elec_Mu_env3_value, (elec_num_8)  ]
       rij    = elec_dist(j,i)
       mu_rij = mu_erf * rij
 
-      tmp_ij += (rij * (1.d0 - derf(mu_rij)) - mu_pi * dexp(-mu_rij*mu_rij)) * vi_1b(j)
+      tmp_ij += (rij * (1.d0 - derf(mu_rij)) - mu_pi * dexp(-mu_rij*mu_rij)) * vi_1b_env3(j)
     enddo
 
-    jast_elec_Mu_env3_value(i) = 0.25d0 * tmp_ij * vi_1b(i)
-    !print *, i, tmp_ij, vi_1b(i), jast_elec_Mu_env3_value(i)
+    jast_elec_Mu_env3_value(i) = 0.25d0 * tmp_ij * vi_1b_env3(i)
   enddo
 
 END_PROVIDER
 
 ! ---
 
- BEGIN_PROVIDER [ double precision, jast_elec_Mu_env3_grad_x, (elec_num_8) ]
-&BEGIN_PROVIDER [ double precision, jast_elec_Mu_env3_grad_y, (elec_num_8) ]
-&BEGIN_PROVIDER [ double precision, jast_elec_Mu_env3_grad_z, (elec_num_8) ]
-&BEGIN_PROVIDER [ double precision, jast_elec_Mu_env3_lapl  , (elec_num_8) ]
+ BEGIN_PROVIDER [double precision, jast_elec_Mu_env3_grad_x, (elec_num_8)]
+&BEGIN_PROVIDER [double precision, jast_elec_Mu_env3_grad_y, (elec_num_8)]
+&BEGIN_PROVIDER [double precision, jast_elec_Mu_env3_grad_z, (elec_num_8)]
+&BEGIN_PROVIDER [double precision, jast_elec_Mu_env3_lapl  , (elec_num_8)]
 
   include '../constants.F'
 
@@ -296,24 +295,24 @@ END_PROVIDER
       tmp0_ij = dexp(-mu_rij * mu_rij)
       tmp1_ij = 1.d0 - derf(mu_rij)
       tmp2_ij = tmp1_ij * elec_dist_inv(j,i)
-      tmp3_ij = -0.5d0 * tmp2_ij * vi_1b(j)
+      tmp3_ij = -0.5d0 * tmp2_ij * vi_1b_env3(j)
 
-      vj_uij        += 0.5d0 * (rij * tmp1_ij - mu_sqrtpi_inv * tmp0_ij) * vi_1b(j)
+      vj_uij        += 0.5d0 * (rij * tmp1_ij - mu_sqrtpi_inv * tmp0_ij) * vi_1b_env3(j)
       vj_derivx_uij += tmp3_ij * elec_dist_vec_x(j,i)
       vj_derivy_uij += tmp3_ij * elec_dist_vec_y(j,i)
       vj_derivz_uij += tmp3_ij * elec_dist_vec_z(j,i)
-      vj_lapl_uij   += (tmp2_ij - mu_div_sqrtpi * tmp0_ij) * vi_1b(j)
+      vj_lapl_uij   += (tmp2_ij - mu_div_sqrtpi * tmp0_ij) * vi_1b_env3(j)
     enddo
 
-    jast_elec_Mu_env3_grad_x(i) = vj_derivx_uij * vi_1b(i) + vj_uij * deriv_vi_x(i)
-    jast_elec_Mu_env3_grad_y(i) = vj_derivy_uij * vi_1b(i) + vj_uij * deriv_vi_y(i)
-    jast_elec_Mu_env3_grad_z(i) = vj_derivz_uij * vi_1b(i) + vj_uij * deriv_vi_z(i)
+    jast_elec_Mu_env3_grad_x(i) = vj_derivx_uij * vi_1b_env3(i) + vj_uij * deriv_vi_x_env3(i)
+    jast_elec_Mu_env3_grad_y(i) = vj_derivy_uij * vi_1b_env3(i) + vj_uij * deriv_vi_y_env3(i)
+    jast_elec_Mu_env3_grad_z(i) = vj_derivz_uij * vi_1b_env3(i) + vj_uij * deriv_vi_z_env3(i)
 
-    jast_elec_Mu_env3_lapl(i)   = vj_lapl_uij * vi_1b(i)                   &
-                                 + 2.d0 * ( vj_derivx_uij * deriv_vi_x(i)   &
-                                          + vj_derivy_uij * deriv_vi_y(i)   & 
-                                          + vj_derivz_uij * deriv_vi_z(i) ) &
-                                 + vj_uij * lapl_vi(i)
+    jast_elec_Mu_env3_lapl(i)   = vj_lapl_uij * vi_1b_env3(i)                   &
+                                + 2.d0 * ( vj_derivx_uij * deriv_vi_x_env3(i)   &
+                                         + vj_derivy_uij * deriv_vi_y_env3(i)   & 
+                                         + vj_derivz_uij * deriv_vi_z_env3(i) ) &
+                                + vj_uij * lapl_vi_env3(i)
   enddo
 
 END_PROVIDER

@@ -153,6 +153,11 @@ IRPSOURCES= \
   src/JASTROW/jastrow_mu.irp.f \
   src/JASTROW/jastrow_param.irp.f \
   src/JASTROW/jastrow_simple.irp.f \
+  src/JASTROW/jastrow_mu_env3.irp.f \
+  src/JASTROW/jastrow_psi.irp.f \
+  src/JASTROW/jastrow_mu_1b.irp.f \
+  src/JASTROW/jastrow_mu_env5.irp.f \
+  src/JASTROW/jastrow_qmckl.irp.f \
   src/MAIN/.gitignore \
   src/MAIN/admc.irp.f \
   src/MAIN/admc.org \
