@@ -152,8 +152,8 @@ end = struct
   let of_int x =
     if (x < 1) then
       failwith "Block time should be >=1";
-    if (x > 36000) then
-      failwith "Block time is too large (<= 36000)";
+    if (x > 100000000) then
+      failwith "Block time is too large (<= 100000000)";
     x
 
 
@@ -775,7 +775,7 @@ end
 
 module Jastrow_type : sig
 
-  type t = None | Core | Simple | Mu
+  type t = None | Core | Simple | Mu | Mu_1b | Mu_env3 | Mu_env5
   val doc : string
   val read  : unit -> t
   val write : t -> unit
@@ -784,8 +784,8 @@ module Jastrow_type : sig
 
 end = struct
 
-  type t = None | Core | Simple | Mu
-  let doc = "Type of Jastrow factor [ None | Core | Simple | Mu ]"
+  type t = None | Core | Simple | Mu | Mu_1b | Mu_env3 | Mu_env5
+  let doc = "Type of Jastrow factor [ None | Core | Simple | Mu | Mu_1b | Mu_env3 | Mu_env5 ]"
 
   let of_string s =
     match String.capitalize_ascii (String.trim  s) with
@@ -793,13 +793,19 @@ end = struct
     | "Simple" -> Simple
     | "None" -> None
     | "Mu" -> Mu
-    | _ -> failwith "Jastrow type should be [ None | Core | Simple | Mu ]"
+    | "Mu_1b" -> Mu_1b
+    | "Mu_env3" -> Mu_env3
+    | "Mu_env5" -> Mu_env5
+    | _ -> failwith "Jastrow type should be [ None | Core | Simple | Mu | Mu_1b | Mu_env3 | Mu_env5 ]"
 
 
   let to_string = function
   | Core -> "Core"
   | Simple -> "Simple"
   | Mu -> "Mu"
+  | Mu_1b -> "Mu_1b"
+  | Mu_env3 -> "Mu_env3"
+  | Mu_env5 -> "Mu_env5"
   | None -> "None"
 
 
@@ -820,6 +826,63 @@ end = struct
     in
     to_string t
     |> Ezfio.set_jastrow_jast_type
+
+
+end
+
+module Jpsi_type : sig
+
+  type t = None | Core | Simple | Mu | Mu_1b | Mu_env3 | Mu_env5
+  val doc : string
+  val read  : unit -> t
+  val write : t -> unit
+  val to_string : t -> string
+  val of_string : string -> t
+
+end = struct
+
+  type t = None | Core | Simple | Mu | Mu_1b | Mu_env3 | Mu_env5
+  let doc = "Type of Jpsi factor [ None | Core | Simple | Mu | Mu_1b | Mu_env3 | Mu_env5 ]"
+
+  let of_string s = 
+    match String.capitalize_ascii (String.trim  s) with
+    | "Core" -> Core
+    | "Simple" -> Simple
+    | "None" -> None
+    | "Mu" -> Mu
+    | "Mu_1b" -> Mu_1b
+    | "Mu_env3" -> Mu_env3
+    | "Mu_env5" -> Mu_env5
+    | _ -> failwith "Jpsi type should be [ None | Core | Simple | Mu | Mu_1b | Mu_env3 | Mu_env5 ]"
+
+
+  let to_string = function
+  | Core -> "Core"
+  | Simple -> "Simple"
+  | Mu -> "Mu"
+  | Mu_1b -> "Mu_1b"
+  | Mu_env3 -> "Mu_env3"
+  | Mu_env5 -> "Mu_env5"
+  | None -> "None"
+
+
+  let read () = 
+    let _ =
+      Lazy.force Qputils.ezfio_filename
+    in
+    if (not (Ezfio.has_jastrow_jpsi_type ())) then
+      Lazy.force Default.jastrow_jpsi_type
+      |> Ezfio.set_jastrow_jpsi_type ;
+    Ezfio.get_jastrow_jpsi_type ();
+    |> of_string
+
+
+  let write t =
+    let _ =
+      Lazy.force Qputils.ezfio_filename
+    in
+    to_string t
+    |> Ezfio.set_jastrow_jpsi_type
 
 
 end

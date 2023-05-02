@@ -1,58 +1,5 @@
-BEGIN_PROVIDER [ double precision, psi_norm ]
- implicit none
-  BEGIN_DOC
-  ! <1/J^2>
-  END_DOC
-  psi_norm = jast_value_inv*jast_value_inv
 
-  psi_norm_min = min(psi_norm_min,psi_norm)
-  psi_norm_max = max(psi_norm_max,psi_norm)
-  SOFT_TOUCH psi_norm_min psi_norm_max
-END_PROVIDER
-
-BEGIN_PROVIDER [ double precision, ci_dress, (size_ci_dress) ]
-  implicit none
-  BEGIN_DOC
-  ! < det(i)/Psi e^{-J} (E_L - E_0) >
-  !
-  ! Dimensions : det_num
-  END_DOC
-
-  integer          :: i, j, k, l
-  double precision :: T, h_psidet, dij, f, E_noJ, dE
-
-  h_psidet = -0.5d0*psidet_lapl*psidet_inv + E_pot + E_nucl
-  E_noJ = h_psidet
-  dE = (E_loc - E_noJ) * psi_value_inv * jast_value_inv
-  do k=1,det_num
-     i = det_coef_matrix_rows(k)
-     j = det_coef_matrix_columns(k)
-     f = det_alpha_value(i)*det_beta_value(j)
-     ci_dress(k) = dE * f
-  enddo
-
-END_PROVIDER
-
-BEGIN_PROVIDER [ double precision, ci_dress_mu, (size_ci_dress_mu) ]
-  BEGIN_DOC
-  ! Dimensions : det_num
-  END_DOC
-  implicit none
-  integer          :: i, j, k, l
-  double precision :: T, dij, f, E_noJ, dE
-  ! energy_mu = H_mu \Phi / \Phi
-  dE = (E_loc - energy_mu) * psi_value_inv * jast_value_inv
-  do k = 1, det_num
-     i = det_coef_matrix_rows(   k)
-     j = det_coef_matrix_columns(k)
-     f = det_alpha_value(i) * det_beta_value(j)
-     ci_dress_mu(k) = dE * f
-  enddo
-  ci_dress_mu_min = min(ci_dress_mu_min, minval(ci_dress_mu))
-  ci_dress_mu_max = max(ci_dress_mu_max, maxval(ci_dress_mu))
-  SOFT_TOUCH ci_dress_mu_min ci_dress_mu_max
-END_PROVIDER
-
+! ---
 
 BEGIN_PROVIDER [ double precision, ci_overlap_psidet, (size_ci_overlap_psidet) ]
   implicit none
@@ -67,7 +14,7 @@ BEGIN_PROVIDER [ double precision, ci_overlap_psidet, (size_ci_overlap_psidet) ]
   do k=1,det_num
     i = det_coef_matrix_rows(k)
     j = det_coef_matrix_columns(k)
-    ci_overlap_psidet(k) = det_alpha_value(i)*det_beta_value (j)*psidet_inv
+    ci_overlap_psidet(k) = det_right_alpha_value(i)*det_right_beta_value (j)*psidet_right_inv
   enddo
 
   ci_overlap_psidet_min = min(ci_overlap_psidet_min,minval(ci_overlap_psidet))
@@ -75,6 +22,7 @@ BEGIN_PROVIDER [ double precision, ci_overlap_psidet, (size_ci_overlap_psidet) ]
   SOFT_TOUCH ci_overlap_psidet_min ci_overlap_psidet_max
 END_PROVIDER
 
+! ---
 
 BEGIN_PROVIDER [ double precision, ci_h_psidet, (size_ci_h_psidet) ]
   implicit none
@@ -85,14 +33,20 @@ BEGIN_PROVIDER [ double precision, ci_h_psidet, (size_ci_h_psidet) ]
   END_DOC
 
   integer                        :: i, j, k, l
-  double precision :: T
+  double precision :: T, tmp
 
   do k=1,det_num
     i = det_coef_matrix_rows(k)
     j = det_coef_matrix_columns(k)
-    T = det_alpha_lapl_sum(i)*det_beta_value(j) + det_beta_lapl_sum(j)*det_alpha_value(i)
-    ci_h_psidet(k) = -0.5d0*T + (E_pot + E_nucl) * det_alpha_value(i)*det_beta_value (j)
-    ci_h_psidet(k) *= psi_value_inv * jast_value_inv
+    T = 0.d0
+    do l=1,elec_alpha_num
+      T += det_right_alpha_grad_lapl(4,l,i)*det_right_beta_value (j)
+    enddo
+    do l=elec_alpha_num+1,elec_num
+      T += det_right_beta_grad_lapl (4,l,j)*det_right_alpha_value(i)
+    enddo
+    ci_h_psidet(k) = -0.5d0*T + E_pot * det_right_alpha_value(i)*det_right_beta_value (j)
+    ci_h_psidet(k) *= psidet_right_inv
   enddo
 
   ci_h_psidet_min = min(ci_h_psidet_min,minval(ci_h_psidet))
@@ -100,26 +54,32 @@ BEGIN_PROVIDER [ double precision, ci_h_psidet, (size_ci_h_psidet) ]
   SOFT_TOUCH ci_h_psidet_min ci_h_psidet_max
 END_PROVIDER
 
+! ---
 
 BEGIN_PROVIDER [ double precision, ci_overlap_matrix, (size_ci_overlap_matrix) ]
-  implicit none
+
   BEGIN_DOC
   ! < det(i) | det(j) >
   !
   ! Dimensions : det_num*det_num
   END_DOC
 
-  integer                        :: i, j, k, l, m, n
+  implicit none
+  integer          :: i, j, k, l, m, n, kk
   double precision :: f
 
-  do k=1,det_num
-    i = det_coef_matrix_rows(k)
-    j = det_coef_matrix_columns(k)
-    f = det_alpha_value(i)*det_beta_value (j)*psidet_inv*psidet_inv
-    do l=1,det_num
+  do k = 1, det_num
+
+    kk = det_num * (k-1) 
+    i  = det_coef_matrix_rows(k)
+    j  = det_coef_matrix_columns(k)
+    f  = det_right_alpha_value(i) * det_right_beta_value(j) * psidet_right_inv * psidet_right_inv
+
+    do l = 1, det_num
       m = det_coef_matrix_rows(l)
       n = det_coef_matrix_columns(l)
-      ci_overlap_matrix( det_num*(k-1) + l) = det_alpha_value(m)*det_beta_value(n) * f
+
+      ci_overlap_matrix(kk+l) = det_right_alpha_value(m) * det_right_beta_value(n) * f
     enddo
   enddo
 
@@ -128,77 +88,160 @@ BEGIN_PROVIDER [ double precision, ci_overlap_matrix, (size_ci_overlap_matrix) ]
   SOFT_TOUCH ci_overlap_matrix_min ci_overlap_matrix_max
 END_PROVIDER
 
+! ---
 
 BEGIN_PROVIDER [ double precision, ci_h_matrix, (size_ci_h_matrix) ]
-  implicit none
+
   BEGIN_DOC
   ! < det(i) |H| det(j) >
   !
   ! Dimensions : det_num*det_num
   END_DOC
 
-  integer                        :: i, j, k, l, m, n, e
+  implicit none
+  integer          :: i, j, k, l, ll, m, n, e, ee
   double precision :: f, g, h, T, V, j_lapl_inv
 
   ! (Lapl J)/J
   j_lapl_inv = 0.d0
-  do e=1,elec_num
+  do e = 1, elec_num
     j_lapl_inv += jast_lapl_jast_inv(e)
   enddo
 
-  do l=1,det_num
-      m = det_coef_matrix_rows(l)
-      n = det_coef_matrix_columns(l)
-      ! Lapl D
-      T = det_alpha_lapl_sum(m) * det_beta_value (n) &
-          + det_alpha_value(m) * det_beta_lapl_sum(n)
-      if (j_lapl_inv /= 0.d0) then
-        ! D (Lapl J)/J
-        T += det_alpha_value(m) * det_beta_value(n) * j_lapl_inv
+  do l = 1, det_num
+    ll = det_num * (l-1)
+    m  = det_coef_matrix_rows(l)
+    n  = det_coef_matrix_columns(l)
 
-        ! 2 (grad D).(Grad J)/J
-        g = 0.d0
-        do e=1,elec_alpha_num
-          g += &
-            det_alpha_grad_lapl(1,e,m) * jast_grad_jast_inv_x(e) + &
-            det_alpha_grad_lapl(2,e,m) * jast_grad_jast_inv_y(e) + &
-            det_alpha_grad_lapl(3,e,m) * jast_grad_jast_inv_z(e)
-        enddo
-        h = 0.d0
-        do e=1,elec_beta_num
-          h += &
-            det_beta_grad_lapl(1,e,n) * jast_grad_jast_inv_x(elec_alpha_num+e) + &
-            det_beta_grad_lapl(2,e,n) * jast_grad_jast_inv_y(elec_alpha_num+e) + &
-            det_beta_grad_lapl(3,e,n) * jast_grad_jast_inv_z(elec_alpha_num+e)
-        enddo
-        T += 2.d0*( g * det_beta_value(n) + h * det_alpha_value(m) )
-      endif
-      g = det_alpha_value(m)*det_beta_value(n)
-      V = (E_pot + E_nucl)* g
-      if (do_pseudo) then
-        do e=1,elec_alpha_num
-          V -= pseudo_non_local(e)* g
-          V += det_alpha_pseudo(e,m) * det_beta_value(n)
-        enddo
-        do e=1,elec_beta_num
-          V -= pseudo_non_local(e)* g
-          V += det_alpha_value(m) * det_beta_pseudo(e,n)
-        enddo
-      endif
-      f = -0.5d0*T + V
-      f *= psidet_inv * psidet_inv
-      do k=1,det_num
-        i = det_coef_matrix_rows(k)
-        j = det_coef_matrix_columns(k)
-        ci_h_matrix( det_num*(l-1) + k) = f * &
-           det_alpha_value(i)*det_beta_value (j)
+    ! Lapl D 
+    T = det_right_alpha_lapl_sum(m) * det_right_beta_value (n) &
+      + det_right_beta_lapl_sum (n) * det_right_alpha_value(m) 
+
+    if (j_lapl_inv /= 0.d0) then
+
+      ! D (Lapl J)/J
+      T += det_right_alpha_value(m) * det_right_beta_value(n) * j_lapl_inv
+
+      ! 2 (grad D).(Grad J)/J
+      g = 0.d0
+      do e = 1, elec_alpha_num
+        g += det_right_alpha_grad_lapl(1,e,m) * jast_grad_jast_inv_x(e) + &
+             det_right_alpha_grad_lapl(2,e,m) * jast_grad_jast_inv_y(e) + &
+             det_right_alpha_grad_lapl(3,e,m) * jast_grad_jast_inv_z(e)
       enddo
+      h = 0.d0
+      do e = 1, elec_beta_num
+        ee = elec_alpha_num + e
+        h += det_right_beta_grad_lapl(1,e,n) * jast_grad_jast_inv_x(ee) + &
+             det_right_beta_grad_lapl(2,e,n) * jast_grad_jast_inv_y(ee) + &
+             det_right_beta_grad_lapl(3,e,n) * jast_grad_jast_inv_z(ee)
+      enddo
+      T += 2.d0*( g * det_right_beta_value(n) + h * det_right_alpha_value(m) )
+
+    endif
+
+    g = det_right_alpha_value(m) * det_right_beta_value(n)
+    V = (E_pot + E_nucl) * g
+    if (do_pseudo) then
+      do e = 1, elec_alpha_num
+        V -= pseudo_right_non_local(e) * g
+        V += det_right_alpha_pseudo(e,m) * det_right_beta_value(n)
+      enddo
+      do e = 1, elec_beta_num
+        V -= pseudo_right_non_local(elec_alpha_num+e) * g
+        !V -= pseudo_right_non_local(e) * g
+        V += det_right_alpha_value(m) * det_right_beta_pseudo(e,n)
+      enddo
+    endif 
+
+    f = -0.5d0 * T + V
+    f *= psidet_right_inv * psidet_right_inv
+
+    do k = 1, det_num
+      i = det_coef_matrix_rows(k)
+      j = det_coef_matrix_columns(k)
+      ci_h_matrix(ll + k) = f * det_right_alpha_value(i) * det_right_beta_value(j)
+    enddo
   enddo
-  ci_h_matrix_min = min(ci_h_matrix_min,minval(ci_h_matrix))
-  ci_h_matrix_max = max(ci_h_matrix_max,maxval(ci_h_matrix))
+
+  ci_h_matrix_min = min(ci_h_matrix_min, minval(ci_h_matrix))
+  ci_h_matrix_max = max(ci_h_matrix_max, maxval(ci_h_matrix))
   SOFT_TOUCH ci_h_matrix_min ci_h_matrix_max
 END_PROVIDER
 
+! ---
+
+!BEGIN_PROVIDER [ double precision, H_DJ, (size_H_DJ) ]
+!
+!  BEGIN_DOC
+!  ! H | det e^J > / [ phi e^{J} ]
+!  !
+!  ! Dimensions : det_num
+!  END_DOC
+!
+!  implicit none
+!  integer          :: l, m, n, e, ee
+!  double precision :: g, h, T, V, j_lapl_inv
+!
+!  ! (Lapl J)/J
+!  j_lapl_inv = 0.d0
+!  do e = 1, elec_num
+!    j_lapl_inv += jast_lapl_jast_inv(e)
+!  enddo
+!
+!  do l = 1, det_num
+!    m  = det_coef_matrix_rows(l)
+!    n  = det_coef_matrix_columns(l)
+!
+!    ! Lapl D 
+!    T = det_right_alpha_lapl_sum(m) * det_right_beta_value (n) &
+!      + det_right_beta_lapl_sum (n) * det_right_alpha_value(m) 
+!
+!    if (j_lapl_inv /= 0.d0) then
+!
+!      ! D (Lapl J)/J
+!      T += det_right_alpha_value(m) * det_right_beta_value(n) * j_lapl_inv
+!
+!      ! 2 (grad D).(Grad J)/J
+!      g = 0.d0
+!      do e = 1, elec_alpha_num
+!        g += det_right_alpha_grad_lapl(1,e,m) * jast_grad_jast_inv_x(e) + &
+!             det_right_alpha_grad_lapl(2,e,m) * jast_grad_jast_inv_y(e) + &
+!             det_right_alpha_grad_lapl(3,e,m) * jast_grad_jast_inv_z(e)
+!      enddo
+!      h = 0.d0
+!      do e = 1, elec_beta_num
+!        ee = elec_alpha_num + e
+!        h += det_right_beta_grad_lapl(1,e,n) * jast_grad_jast_inv_x(ee) + &
+!             det_right_beta_grad_lapl(2,e,n) * jast_grad_jast_inv_y(ee) + &
+!             det_right_beta_grad_lapl(3,e,n) * jast_grad_jast_inv_z(ee)
+!      enddo
+!      T += 2.d0*( g * det_right_beta_value(n) + h * det_right_alpha_value(m) )
+!
+!    endif
+!
+!    g = det_right_alpha_value(m) * det_right_beta_value(n)
+!    V = (E_pot + E_nucl) * g
+!    if (do_pseudo) then
+!      do e = 1, elec_alpha_num
+!        V -= pseudo_right_non_local(e) * g
+!        V += det_right_alpha_pseudo(e,m) * det_right_beta_value(n)
+!      enddo
+!      do e = 1, elec_beta_num
+!        V -= pseudo_right_non_local(elec_alpha_num+e) * g
+!        V += det_right_alpha_value(m) * det_right_beta_pseudo(e,n)
+!      enddo
+!    endif 
+!
+!    H_DJ(l) = ( -0.5d0*T + V ) * psidet_right_inv
+!  enddo
+!
+!  H_DJ_min = min(H_DJ_min, minval(H_DJ))
+!  H_DJ_max = max(H_DJ_max, maxval(H_DJ))
+!  SOFT_TOUCH H_DJ_min H_DJ_max
+!END_PROVIDER
+
+! ---
 
 BEGIN_PROVIDER [ double precision, ci_h_matrix_diag, (size_ci_h_matrix_diag) ]
   implicit none
@@ -214,13 +257,13 @@ BEGIN_PROVIDER [ double precision, ci_h_matrix_diag, (size_ci_h_matrix_diag) ]
   do l=1,det_num
       m = det_coef_matrix_rows(l)
       n = det_coef_matrix_columns(l)
-      ! Lapl D
+      ! Lapl D 
       g = 0.d0
       do e=1,elec_alpha_num
-        g += det_alpha_grad_lapl(4,e,m) * det_beta_value (n)
+        g += det_right_alpha_grad_lapl(4,e,m) * det_right_beta_value (n)
       enddo
-      do e=1,elec_beta_num
-        g += det_alpha_value(m) * det_beta_grad_lapl(4,e,n)
+      do e=elec_alpha_num+1,elec_num
+        g += det_right_alpha_value(m) * det_right_beta_grad_lapl(4,e,n)
       enddo
       T = g
       ! D (Lapl J)/J
@@ -228,39 +271,36 @@ BEGIN_PROVIDER [ double precision, ci_h_matrix_diag, (size_ci_h_matrix_diag) ]
       do e=1,elec_num
         g += jast_lapl_jast_inv(e)
       enddo
-      T += det_alpha_value(m) * det_beta_value(n) * g
+      T += det_right_alpha_value(m) * det_right_beta_value(n) * g
       ! 2 (grad D).(Grad J)/J
       g = 0.d0
       do e=1,elec_alpha_num
         g += &
-          det_alpha_grad_lapl(1,e,m) * jast_grad_jast_inv_x(e) + &
-          det_alpha_grad_lapl(2,e,m) * jast_grad_jast_inv_y(e) + &
-          det_alpha_grad_lapl(3,e,m) * jast_grad_jast_inv_z(e)
+          det_right_alpha_grad_lapl(1,e,m) * jast_grad_jast_inv_x(e) + &
+          det_right_alpha_grad_lapl(2,e,m) * jast_grad_jast_inv_y(e) + &
+          det_right_alpha_grad_lapl(3,e,m) * jast_grad_jast_inv_z(e)
       enddo
       h = 0.d0
-      do e=1,elec_beta_num
+      do e=elec_alpha_num+1,elec_num
         h += &
-          det_beta_grad_lapl(1,e,n) * jast_grad_jast_inv_x(elec_alpha_num+e) + &
-          det_beta_grad_lapl(2,e,n) * jast_grad_jast_inv_y(elec_alpha_num+e) + &
-          det_beta_grad_lapl(3,e,n) * jast_grad_jast_inv_z(elec_alpha_num+e)
+          det_right_beta_grad_lapl(1,e,n) * jast_grad_jast_inv_x(e) + &
+          det_right_beta_grad_lapl(2,e,n) * jast_grad_jast_inv_y(e) + &
+          det_right_beta_grad_lapl(3,e,n) * jast_grad_jast_inv_z(e)
       enddo
-      T += 2.d0*( g * det_beta_value(n) + h * det_alpha_value(m) )
-      g = det_alpha_value(m)*det_beta_value(n)
+      T += 2.d0*( g * det_right_beta_value(n) + h * det_right_alpha_value(m) )
+      g = det_right_alpha_value(m)*det_right_beta_value(n)
       V = E_pot* g
-      if (do_pseudo) then
-        do e=1,elec_alpha_num
-          V -= pseudo_non_local(e)* g
-          V += det_alpha_pseudo(e,m) * det_beta_value(n)
-        enddo
-        do e=1,elec_beta_num
-          V -= pseudo_non_local(e)* g
-          V += det_alpha_value(m) * det_beta_pseudo(e,n)
-        enddo
-      endif
+      do e=1,elec_alpha_num
+        V -= pseudo_right_non_local(e)* g
+        V += det_right_alpha_pseudo(e,m) * det_right_beta_value(n)
+      enddo
+      do e=elec_alpha_num+1,elec_num
+        V -= pseudo_right_non_local(e)* g
+        V += det_right_alpha_value(m) * det_right_beta_pseudo(e,n)
+      enddo
       f = -0.5d0*T + V
-      f *= psidet_inv * psidet_inv
-      ci_h_matrix_diag(l) = f * &
-           det_alpha_value(m)*det_beta_value (n)
+      f *= psidet_right_inv * psidet_right_inv
+      ci_h_matrix_diag(l) = f * det_right_alpha_value(m)*det_right_beta_value (n)
   enddo
 
   ci_h_matrix_diag_min = min(ci_h_matrix_diag_min,minval(ci_h_matrix_diag))
@@ -268,16 +308,6 @@ BEGIN_PROVIDER [ double precision, ci_h_matrix_diag, (size_ci_h_matrix_diag) ]
   SOFT_TOUCH ci_h_matrix_diag_min ci_h_matrix_diag_max
 END_PROVIDER
 
-BEGIN_PROVIDER [ double precision, ci_dress_mu_opt ]
-  BEGIN_DOC
-  ! Used for optimizing mu
-  END_DOC
-  implicit none
-  integer          :: i, j, k, l
-  double precision :: T, dij, f, E_noJ, dE
-  ci_dress_mu_opt = E_loc - energy_mu
-  ci_dress_mu_opt_min = min(ci_dress_mu_opt_min, ci_dress_mu_opt)
-  ci_dress_mu_opt_max = max(ci_dress_mu_opt_max, ci_dress_mu_opt)
-  SOFT_TOUCH ci_dress_mu_opt_min ci_dress_mu_opt_max
-END_PROVIDER
+! ---
+
 
