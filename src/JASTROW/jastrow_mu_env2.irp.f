@@ -73,7 +73,7 @@ END_PROVIDER
       dy = nucl_elec_dist_vec(2,iA,i)
       dz = nucl_elec_dist_vec(3,iA,i)
 
-      riA = dsqrt(dx*dx + dy*dy + dz*dz)
+      riA = max(1d-6, dsqrt(dx*dx + dy*dy + dz*dz))
       tmp = a * dexp(-a*riA) / riA
 
       tmpx = tmpx + tmp * dx
