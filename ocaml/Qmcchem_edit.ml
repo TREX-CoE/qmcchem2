@@ -27,6 +27,7 @@ type field =
  | Time_step
  | SRMC_projection_time
  | Jastrow_type
+ | Jpsi_type
  | Properties
 
 
@@ -71,6 +72,8 @@ let get field =
    option_to_string SRMC_projection_time.read SRMC_projection_time.to_string SRMC_projection_time.doc
  | Jastrow_type ->
    option_to_string Jastrow_type.read Jastrow_type.to_string Jastrow_type.doc
+ | Jpsi_type ->                    
+   option_to_string Jpsi_type.read Jpsi_type.to_string Jpsi_type.doc  
  | Properties   ->
    option_to_string_prop Properties.read Properties.to_string Properties.doc
 
@@ -106,7 +109,7 @@ let write_input_in_ezfio  ezfio_filename  fields =
 
 
 (** Run the edit command *)
-let run ~c ?f ?t ?l ?m ?e ?et ?s ?ts ?w ?wt ?n ?j ?p ?input ezfio_filename =
+let run ~c ?f ?t ?l ?m ?e ?et ?s ?ts ?w ?wt ?n ?j ?js ?p ?input ezfio_filename =
 
   let interactive = ref (
     if c then
@@ -134,6 +137,7 @@ let run ~c ?f ?t ?l ?m ?e ?et ?s ?ts ?w ?wt ?n ?j ?p ?input ezfio_filename =
   handle_option      Input.Ref_energy.(of_string, write) e;
   handle_option Input.Trial_wf_energy.(of_string, write) et;
   handle_option    Input.Jastrow_type.(of_string, write) j;
+  handle_option       Input.Jpsi_type.(of_string, write) js;
   handle_option      Input.Block_time.(of_string, write) l;
   handle_option          Input.Method.(of_string, write) m;
   handle_option       Input.Stop_time.(of_string, write) t;
@@ -153,7 +157,7 @@ let run ~c ?f ?t ?l ?m ?e ?et ?s ?ts ?w ?wt ?n ?j ?p ?input ezfio_filename =
       Method               ;
       Sampling             ;
       Time_step            ;
-      SRMC_projection_time  ;
+      SRMC_projection_time ;
       Ref_energy           ;
       Trial_wf_energy      ;
       Walk_num             ;
@@ -161,6 +165,7 @@ let run ~c ?f ?t ?l ?m ?e ?et ?s ?ts ?w ?wt ?n ?j ?p ?input ezfio_filename =
       Fitcusp_factor       ;
       CI_threshold         ;
       Jastrow_type         ;
+      Jpsi_type            ;
       Properties           ;
    ]
   in
@@ -234,6 +239,7 @@ let run ~c ?f ?t ?l ?m ?e ?et ?s ?ts ?w ?wt ?n ?j ?p ?input ezfio_filename =
             |  Walk_num_tot          ->  Walk_num_tot.(of_string         s  |>  write)
             |  CI_threshold          ->  CI_threshold.(of_string         s  |>  write)
             |  Jastrow_type          ->  Jastrow_type.(of_string         s  |>  write)
+            |  Jpsi_type             ->  Jpsi_type.(of_string            s  |>  write)
             |  Trial_wf_energy       ->  Trial_wf_energy.(of_string      s  |>  write)
             |  Properties            ->  Properties.(of_string           s  |>  write)
          end
@@ -355,7 +361,8 @@ let command () =
   let w = Command_line.get "walk-num" in
   let wt = Command_line.get "walk-num-tot" in
   let n = Command_line.get "norm" in
-  let j = Command_line.get "jastrow" in
+  let j  = Command_line.get "jastrow" in
+  let js = Command_line.get "jpsi" in
   let p = Command_line.get "projection-time" in
 
   let ezfio_file, input =
@@ -364,7 +371,7 @@ let command () =
     | ezfio_file :: file :: [] -> ezfio_file, (Some file)
     | _ -> (Command_line.help () ; failwith "Inconsistent command line")
   in
-  run ~c ?f ?t ?l ?m ?e ?et ?s ?ts ?w ?wt ?n ?j ?p ?input ezfio_file
+  run ~c ?f ?t ?l ?m ?e ?et ?s ?ts ?w ?wt ?n ?j ?js ?p ?input ezfio_file
 
 
 

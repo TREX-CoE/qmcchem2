@@ -114,12 +114,16 @@ bin/qmc_create_walkers: src/MAIN/qmc_create_walkers
 
 IRPSOURCES= \
   src/constants.F \
-  src/det.irp.f \
+  src/det_left.irp.f \
+  src/det_right.irp.f \
+  src/det_useful.irp.f \
+  src/prop_psidet.irp.f \
   src/electrons.irp.f \
   src/ezfio_interface.irp.f \
   src/finish.irp.f \
   src/Makefile \
   src/mo.irp.f \
+  src/mo_left.irp.f \
   src/mo_point.irp.f \
   src/nuclei.irp.f \
   src/point.irp.f \
@@ -127,6 +131,7 @@ IRPSOURCES= \
   src/properties.py \
   src/pseudo.irp.f \
   src/psi.irp.f \
+  src/Hpsi.irp.f \
   src/qmckl_module.F90 \
   src/qmckl.irp.f \
   src/simulation.irp.f \
@@ -135,6 +140,8 @@ IRPSOURCES= \
   src/trexio.irp.f \
   src/types.F \
   src/wf.irp.f \
+  src/wf_left.irp.f \
+  src/wf_param.irp.f \
   src/AO/ao.irp.f \
   src/AO/ao_axis.irp.f \
   src/AO/ao_full.irp.f \
@@ -146,6 +153,11 @@ IRPSOURCES= \
   src/JASTROW/jastrow_mu.irp.f \
   src/JASTROW/jastrow_param.irp.f \
   src/JASTROW/jastrow_simple.irp.f \
+  src/JASTROW/jastrow_mu_env3.irp.f \
+  src/JASTROW/jastrow_psi.irp.f \
+  src/JASTROW/jastrow_mu_1b.irp.f \
+  src/JASTROW/jastrow_mu_env5.irp.f \
+  src/JASTROW/jastrow_qmckl.irp.f \
   src/MAIN/.gitignore \
   src/MAIN/admc.irp.f \
   src/MAIN/admc.org \

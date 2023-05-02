@@ -57,14 +57,14 @@ END_PROVIDER
  do k=1,det_num
    i = det_coef_matrix_rows(k)
    j = det_coef_matrix_columns(k)
-   f = det_coef_matrix_values(k)*det_coef_matrix_values(k)
+   f = det_right_coef_matrix_values(k) * det_right_coef_matrix_values(k)
    det_alpha_norm(i) += f
    det_beta_norm(j)  += f
  enddo
 
 END_PROVIDER
 
- BEGIN_PROVIDER [ double precision, det_coef_matrix_values,  (det_num_input) ]
+ BEGIN_PROVIDER [ double precision, det_right_coef_matrix_values,  (det_num_input) ]
 &BEGIN_PROVIDER [ integer,          det_coef_matrix_rows,    (det_num_input) ]
 &BEGIN_PROVIDER [ integer,          det_coef_matrix_columns, (det_num_input) ]
   implicit none
@@ -76,21 +76,21 @@ END_PROVIDER
   call get_spindeterminants_psi_coef_matrix_rows(det_coef_matrix_rows)
   call get_spindeterminants_psi_coef_matrix_columns(det_coef_matrix_columns)
   call get_spindeterminants_psi_coef_matrix_values(buffer)
-  det_coef_matrix_values(:) = buffer(:,i_state)
+  det_right_coef_matrix_values(:) = buffer(:,i_state)
   deallocate(buffer)
 END_PROVIDER
 
-BEGIN_PROVIDER [ double precision, det_coef_matrix_dense, (det_alpha_num, det_beta_num) ]
+BEGIN_PROVIDER [ double precision, det_right_coef_matrix_dense, (det_alpha_num, det_beta_num) ]
  implicit none
  BEGIN_DOC
  ! Dense version of det_coef_matrix
  END_DOC
  integer :: i,j,k
- det_coef_matrix_dense = 0.d0
+ det_right_coef_matrix_dense = 0.d0
  do k=1,det_num
    i = det_coef_matrix_rows(k)
    j = det_coef_matrix_columns(k)
-   det_coef_matrix_dense(i,j) = det_coef_matrix_values(k)
+   det_right_coef_matrix_dense(i,j) = det_right_coef_matrix_values(k)
  enddo
 END_PROVIDER
 
@@ -124,7 +124,7 @@ END_PROVIDER
   do k=1,det_num_input
     i = det_coef_matrix_rows(k)
     j = det_coef_matrix_columns(k)
-    f = det_coef_matrix_values(k)*det_coef_matrix_values(k)
+    f = det_right_coef_matrix_values(k) * det_right_coef_matrix_values(k)
     d_alpha(i) += f
     d_beta (j) += f
   enddo
@@ -200,20 +200,19 @@ END_PROVIDER
     j = det_coef_matrix_columns(k)
     det_coef_matrix_rows(l)    = i_alpha(i)
     det_coef_matrix_columns(l) = i_beta(j)
-    det_coef_matrix_values(l)  = det_coef_matrix_values(k)
+    det_right_coef_matrix_values(l)  = det_right_coef_matrix_values(k)
     if ( (d_alpha(i) >= t).and.(d_beta(j) >= t) ) then
       l = l+1
-      norm += det_coef_matrix_values(k)*det_coef_matrix_values(k)
+      norm += det_right_coef_matrix_values(k) * det_right_coef_matrix_values(k)
     endif
   enddo
   det_num = l-1
   norm = 1.d0/dsqrt(norm)
   do k=1,det_num
-    det_coef_matrix_values(k) *= norm
+    det_right_coef_matrix_values(k) *= norm
   enddo
 
-  SOFT_TOUCH det_alpha_num det_beta_num det_coef_matrix_values det_coef_matrix_rows det_coef_matrix_columns
-  SOFT_TOUCH psi_det_beta psi_det_alpha
+  SOFT_TOUCH det_alpha_num det_beta_num det_right_coef_matrix_values det_coef_matrix_rows det_coef_matrix_columns psi_det_beta psi_det_alpha
 
 END_PROVIDER
 
@@ -396,4 +395,7 @@ BEGIN_PROVIDER [ integer, det_beta_order, (det_beta_num) ]
    det_beta_order(i) = i
  enddo
 END_PROVIDER
+
+! ---
+
 

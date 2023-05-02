@@ -33,6 +33,10 @@ subroutine step1
   implicit none
   print *,  'E_loc                                    : ', E_loc
   PROVIDE E_loc
+  if (calc_vec_hjsimple_m_hmu_no3b) then
+     print *, 'computing Vec_hjsimple_m_hmu_no3b'
+     PROVIDE Vec_hjsimple_m_hmu_no3b 
+  end if
 end
 
 subroutine step2(imax)
@@ -41,6 +45,10 @@ subroutine step2(imax)
   integer                        :: i
   do i=1,imax
     PROVIDE E_loc
+    if (calc_vec_hjsimple_m_hmu_no3b) then
+      PROVIDE Vec_hjsimple_m_hmu_no3b 
+    end if
+
     TOUCH elec_coord
   enddo
 end
