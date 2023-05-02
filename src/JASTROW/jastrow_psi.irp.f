@@ -30,12 +30,13 @@ BEGIN_TEMPLATE
       enddo
     endif
 SUBST [X]
-Simple   ;;
-Core     ;;
-Mu       ;;
-Mu_1b    ;;
-Mu_env3  ;;
-Mu_env5  ;;
+Simple  ;;
+Core    ;;
+Mu      ;;
+Mu_1b   ;;
+Mu_env2 ;;
+Mu_env3 ;;
+Mu_env5 ;;
 END_TEMPLATE
 
     if (ifirst == 0) then
@@ -99,12 +100,13 @@ BEGIN_TEMPLATE
       enddo
     endif
 SUBST [ X ]
-Simple   ;;
-Core     ;;
-Mu       ;;
-Mu_1b    ;;
-Mu_env3  ;;
-Mu_env5  ;;
+Simple  ;;
+Core    ;;
+Mu      ;;
+Mu_1b   ;;
+Mu_env2 ;;
+Mu_env3 ;;
+Mu_env5 ;;
 END_TEMPLATE
 
     !DIR$ VECTOR ALIGNED
@@ -155,12 +157,13 @@ BEGIN_TEMPLATE
       enddo
     endif
 SUBST [X]
-Simple   ;;
-Core     ;;
-Mu       ;;
-Mu_1b    ;;
-Mu_env3  ;;
-Mu_env5  ;;
+Simple  ;;
+Core    ;;
+Mu      ;;
+Mu_1b   ;;
+Mu_env2 ;;
+Mu_env3 ;;
+Mu_env5 ;;
 END_TEMPLATE
 
     !DIR$ VECTOR ALIGNED
@@ -204,12 +207,13 @@ BEGIN_TEMPLATE
       enddo
     endif
 SUBST [X]
-Simple   ;;
-Core     ;;
-Mu       ;;
-Mu_1b    ;;
-Mu_env3  ;;
-Mu_env5  ;;
+Simple  ;;
+Core    ;;
+Mu      ;;
+Mu_1b   ;;
+Mu_env2 ;;
+Mu_env3 ;;
+Mu_env5 ;;
 END_TEMPLATE
 
   endif

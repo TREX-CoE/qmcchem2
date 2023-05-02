@@ -28,6 +28,7 @@ Core    ;;
 Mu      ;;
 Qmckl   ;;
 Mu_1b   ;;
+Mu_env2 ;;
 Mu_env3 ;;
 Mu_env5 ;;
 END_TEMPLATE
@@ -93,6 +94,7 @@ Core    ;;
 Mu      ;;
 Qmckl   ;;
 Mu_1b   ;;
+Mu_env2 ;;
 Mu_env3 ;;
 Mu_env5 ;;
 END_TEMPLATE
@@ -148,6 +150,7 @@ END_PROVIDER
 !Core    ;;
 !Mu      ;;
 !Mu_1b   ;;
+!Mu_env2 ;;
 !Mu_env3 ;;
 !Mu_env5 ;;
 !END_TEMPLATE
@@ -203,6 +206,7 @@ Core    ;;
 Mu      ;;
 Qmckl   ;;
 Mu_1b   ;;
+Mu_env2 ;;
 Mu_env3 ;;
 Mu_env5 ;;
 END_TEMPLATE
@@ -250,6 +254,7 @@ Core    ;;
 Mu      ;;
 Qmckl   ;;
 Mu_1b   ;;
+Mu_env2 ;;
 Mu_env3 ;;
 Mu_env5 ;;
 END_TEMPLATE

@@ -15,15 +15,16 @@
       integer, parameter :: t_Core     = 24
       integer, parameter :: t_Qmckl    = 25
       integer, parameter :: t_Mu_1b    = 26
-      integer, parameter :: t_Mu_env3  = 27
-      integer, parameter :: t_Mu_env5  = 28
+      integer, parameter :: t_Mu_env2  = 27
+      integer, parameter :: t_Mu_env3  = 28
+      integer, parameter :: t_Mu_env5  = 29
 
       integer, parameter :: t_Stopped  = 0
       integer, parameter :: t_Queued   = 1
       integer, parameter :: t_Running  = 2
       integer, parameter :: t_Stopping = 3
 
-      character*(32)     :: types(29) = &
+      character*(32)     :: types(30) = &
       (/  '               ',   &
           '               ',   &
           'Brownian       ',   &
@@ -50,6 +51,7 @@
           'Core           ',   &
           'Qmckl          ',   &
           'Mu_1b          ',   &
+          'Mu_env2        ',   &
           'Mu_env3        ',   &
           'Mu_env5        ',   &
           '               '/)     
