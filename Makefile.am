@@ -113,89 +113,93 @@ bin/qmc_create_walkers: src/MAIN/qmc_create_walkers
 	cp src/MAIN/qmc_create_walkers bin/qmc_create_walkers
 
 IRPSOURCES= \
-  src/constants.F \
   src/det_left.irp.f \
-  src/det_right.irp.f \
-  src/det_useful.irp.f \
-  src/prop_psidet.irp.f \
   src/electrons.irp.f \
-  src/ezfio_interface.irp.f \
-  src/finish.irp.f \
-  src/Makefile \
-  src/mo.irp.f \
+  src/hf_density.irp.f \
   src/mo_left.irp.f \
-  src/mo_point.irp.f \
-  src/nuclei.irp.f \
   src/point.irp.f \
-  src/prepare_walkers.irp.f \
-  src/properties.py \
   src/pseudo.irp.f \
-  src/psi.irp.f \
-  src/Hpsi.irp.f \
-  src/qmckl_module.F90 \
-  src/qmckl.irp.f \
   src/simulation.irp.f \
-  src/svd.irp.f \
-  src/trexio_module.F90 \
-  src/trexio.irp.f \
-  src/types.F \
   src/wf.irp.f \
+  src/det_right.irp.f \
+  src/ezfio_interface.irp.f \
+  src/Hpsi.irp.f \
+  src/mo_point.irp.f \
+  src/prepare_walkers.irp.f \
+  src/psi.irp.f \
+  src/svd.irp.f \
   src/wf_left.irp.f \
+  src/det_useful.irp.f \
+  src/finish.irp.f \
+  src/mo.irp.f \
+  src/nuclei.irp.f \
+  src/prop_psidet.irp.f \
+  src/qmckl.irp.f \
+  src/trexio.irp.f \
   src/wf_param.irp.f \
-  src/AO/ao.irp.f \
   src/AO/ao_axis.irp.f \
   src/AO/ao_full.irp.f \
+  src/AO/ao.irp.f \
   src/AO/ao_oneD.irp.f \
   src/AO/ao_point.irp.f \
+  src/AO/ao_utils.irp.f \
+  src/JASTROW/jastrow_mur.irp.f \
+  src/JASTROW/jastrow_param.irp.f \
+  src/JASTROW/jastrow_psi.irp.f \
+  src/JASTROW/jastrow_qmckl.irp.f \
+  src/JASTROW/jastrow_simple.irp.f \
   src/JASTROW/jastrow_1b.irp.f \
   src/JASTROW/jastrow_core.irp.f \
   src/JASTROW/jastrow_full.irp.f \
-  src/JASTROW/jastrow_mu.irp.f \
-  src/JASTROW/jastrow_param.irp.f \
-  src/JASTROW/jastrow_simple.irp.f \
-  src/JASTROW/jastrow_mu_env3.irp.f \
-  src/JASTROW/jastrow_psi.irp.f \
   src/JASTROW/jastrow_mu_1b.irp.f \
-  src/JASTROW/jastrow_mu_env5.irp.f \
-  src/JASTROW/jastrow_qmckl.irp.f \
-  src/MAIN/.gitignore \
+  src/JASTROW/jastrow_muenv.irp.f \
+  src/JASTROW/jastrow_muenv_useful.irp.f \
+  src/JASTROW/jastrow_mu.irp.f \
   src/MAIN/admc.irp.f \
-  src/MAIN/admc.org \
-  src/MAIN/admc.py \
-  src/MAIN/admc_client.py \
-  src/MAIN/admc_server.py \
+  src/MAIN/SVD_info.irp.f \
+  src/MAIN/vmc_test.irp.f \
   src/MAIN/bench_aos.irp.f \
   src/MAIN/bench_mos.irp.f \
-  src/MAIN/qmc.irp.f \
-  src/MAIN/qmc_create_walkers.irp.f \
+  src/MAIN/print_he.irp.f \
+  src/MAIN/print_Jast.irp.f \
   src/MAIN/qmcchem_info.irp.f \
-  src/MAIN/vmc_test.irp.f \
-  src/PROPERTIES/properties.irp.f \
-  src/PROPERTIES/properties_ci.irp.f \
-  src/PROPERTIES/properties_energy.irp.f \
-  src/PROPERTIES/properties_general.irp.f \
+  src/MAIN/qmc_create_walkers.irp.f \
+  src/MAIN/qmc.irp.f \
   src/SAMPLING/block.irp.f \
   src/SAMPLING/brownian_step.irp.f \
   src/SAMPLING/dmc_step.irp.f \
   src/SAMPLING/fkmc_step.irp.f \
   src/SAMPLING/langevin_step.irp.f \
   src/SAMPLING/pdmc_step.irp.f \
-  src/SAMPLING/reconfigure.irp.f \
+  src/SAMPLING/reconfigure.irp.f \        
   src/SAMPLING/srmc_step.irp.f \
   src/SAMPLING/vmc_step.irp.f \
-  src/TOOLS/Util.irp.f \
+  src/PROPERTIES/properties_tc.irp.f \
+  src/PROPERTIES/properties_tc_svd.irp.f \
+  src/PROPERTIES/properties_ci.irp.f \
+  src/PROPERTIES/properties_ci_svd.irp.f \
+  src/PROPERTIES/properties_deriv_jast.irp.f \
+  src/PROPERTIES/properties_eJast.irp.f \
+  src/PROPERTIES/properties_energy.irp.f \
+  src/PROPERTIES/properties_general.irp.f \
+  src/PROPERTIES/properties_GSorthog.irp.f \
+  src/PROPERTIES/properties.irp.f \
+  src/PROPERTIES/properties_lr.irp.f \
+  src/PROPERTIES/properties_NightMelik.irp.f \
+  src/PROPERTIES/properties_oo.irp.f \
+  src/PROPERTIES/properties_tests.irp.f \
+  src/ZMQ/qmc.irp.f \
+  src/ZMQ/sockets.irp.f \
+  src/ZMQ/utils.irp.f \
+  src/ZMQ/worker.irp.f \
+  src/ZMQ/zmq_ezfio.irp.f \
   src/TOOLS/determinant.irp.f \
   src/TOOLS/info.irp.f \
   src/TOOLS/invert.irp.f \
   src/TOOLS/random.irp.f \
   src/TOOLS/sort.irp.f \
-  src/ZMQ/f77_zmq.h \
-  src/ZMQ/f77_zmq_module.f90 \
-  src/ZMQ/qmc.irp.f \
-  src/ZMQ/sockets.irp.f \
-  src/ZMQ/utils.irp.f \
-  src/ZMQ/worker.irp.f \
-  src/ZMQ/zmq_ezfio.irp.f
+  src/TOOLS/Util.irp.f 
+
 
 
 OCAMLSOURCES= \

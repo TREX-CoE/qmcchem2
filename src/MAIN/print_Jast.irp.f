@@ -37,10 +37,10 @@ program print_Jast
 !    !PROVIDE E_loc
 !    !print *,  'E_loc : ', E_loc
 !
-!    accu_tmp = dabs(jast_Mu_value - jast_Mu_env3_value)
+!    accu_tmp = dabs(jast_Mu_value - jast_Muenv_value)
 !
 !    accu_tot += accu_tmp
-!    norm     += dabs(jast_Mu_env3_value)
+!    norm     += dabs(jast_Muenv_value)
 !  enddo
 !  print *, ' accu_tot =', accu_tot
 !  print *, ' norm     =', norm
@@ -60,12 +60,12 @@ program print_Jast
 !!
 !!    accu_tmp = 0.d0
 !!    do j = 1, elec_num
-!!      accu_tmp += dabs(jast_grad_jast_inv_x(j) - jast_elec_Mu_env3_grad_x(j))
-!!      accu_tmp += dabs(jast_grad_jast_inv_y(j) - jast_elec_Mu_env3_grad_y(j))
-!!      accu_tmp += dabs(jast_grad_jast_inv_z(j) - jast_elec_Mu_env3_grad_z(j))
-!!      norm     += dabs(jast_elec_Mu_env3_grad_x(j))
-!!      norm     += dabs(jast_elec_Mu_env3_grad_y(j))
-!!      norm     += dabs(jast_elec_Mu_env3_grad_z(j))
+!!      accu_tmp += dabs(jast_grad_jast_inv_x(j) - jast_elec_Muenv_grad_x(j))
+!!      accu_tmp += dabs(jast_grad_jast_inv_y(j) - jast_elec_Muenv_grad_y(j))
+!!      accu_tmp += dabs(jast_grad_jast_inv_z(j) - jast_elec_Muenv_grad_z(j))
+!!      norm     += dabs(jast_elec_Muenv_grad_x(j))
+!!      norm     += dabs(jast_elec_Muenv_grad_y(j))
+!!      norm     += dabs(jast_elec_Muenv_grad_z(j))
 !!    enddo
 !!
 !!    accu_tot += accu_tmp
@@ -86,12 +86,12 @@ program print_Jast
 !
 !    accu_tmp = 0.d0
 !    do j = 1, elec_num
-!      accu_tmp += dabs(jast_elec_Mu_grad_x(j) - jast_elec_Mu_env3_grad_x(j))
-!      accu_tmp += dabs(jast_elec_Mu_grad_y(j) - jast_elec_Mu_env3_grad_y(j))
-!      accu_tmp += dabs(jast_elec_Mu_grad_z(j) - jast_elec_Mu_env3_grad_z(j))
-!      norm     += dabs(jast_elec_Mu_env3_grad_x(j))
-!      norm     += dabs(jast_elec_Mu_env3_grad_y(j))
-!      norm     += dabs(jast_elec_Mu_env3_grad_z(j))
+!      accu_tmp += dabs(jast_elec_Mu_grad_x(j) - jast_elec_Muenv_grad_x(j))
+!      accu_tmp += dabs(jast_elec_Mu_grad_y(j) - jast_elec_Muenv_grad_y(j))
+!      accu_tmp += dabs(jast_elec_Mu_grad_z(j) - jast_elec_Muenv_grad_z(j))
+!      norm     += dabs(jast_elec_Muenv_grad_x(j))
+!      norm     += dabs(jast_elec_Muenv_grad_y(j))
+!      norm     += dabs(jast_elec_Muenv_grad_z(j))
 !    enddo
 !
 !    accu_tot += accu_tmp
@@ -114,8 +114,8 @@ program print_Jast
 !!
 !!    accu_tmp = 0.d0
 !!    do j = 1, elec_num
-!!      accu_tmp += dabs(jast_lapl1(j) - jast_elec_Mu_env3_lapl(j))
-!!      norm     += dabs(jast_elec_Mu_env3_lapl(j))
+!!      accu_tmp += dabs(jast_lapl1(j) - jast_elec_Muenv_lapl(j))
+!!      norm     += dabs(jast_elec_Muenv_lapl(j))
 !!    enddo
 !!
 !!    accu_tot += accu_tmp
@@ -136,8 +136,8 @@ program print_Jast
 !
 !    accu_tmp = 0.d0
 !    do j = 1, elec_num
-!      accu_tmp += dabs(jast_elec_Mu_lapl(j) - jast_elec_Mu_env3_lapl(j))
-!      norm     += dabs(jast_elec_Mu_env3_lapl(j))
+!      accu_tmp += dabs(jast_elec_Mu_lapl(j) - jast_elec_Muenv_lapl(j))
+!      norm     += dabs(jast_elec_Muenv_lapl(j))
 !    enddo
 !
 !    accu_tot += accu_tmp
@@ -148,229 +148,19 @@ program print_Jast
 !  ! ---
 
 
-  PROVIDE jast_type
   print*, ' jast_type', jast_type
-  if(jast_type .eq. t_Mu_env2) then
-    call check_Mu_env2_grad()
-    call check_Mu_env2_lapl()
-  elseif(jast_type .eq. t_Mu_env3) then
-    call check_Mu_env3_grad()
-    call check_Mu_env3_lapl()
-  elseif(jast_type .eq. t_Mu_env5) then
-    call check_Mu_env5_grad()
-    call check_Mu_env5_lapl()
+  if(jast_type .eq. t_Muenv) then
+    call check_Muenv_grad()
+    call check_Muenv_lapl()
+  elseif(jast_type .eq. t_Mur) then
+    !call debug_hf_density()
+    call check_Mur_grad()
+    call check_Mur_lapl()
   endif
 
 end
 
-
-
 ! ---
-
-!subroutine check_jmu_env3_grad()
-!
-!  implicit none
-!  integer                    :: i, j, k
-!  double precision           :: accu_tmp, accu_tot, norm, thr
-!  double precision, external :: qmc_ranf
-!
-!  thr = 1d-6
-!
-!  accu_tot = 0.d0
-!  norm     = 0.d0
-!!  do i = 1, 1000
-!!
-!    do k = 1, 3
-!      do j = 1, elec_num
-!        elec_coord(j,k) += 1.5 * (0.5-qmc_ranf())
-!      enddo
-!    enddo
-!    TOUCH elec_coord
-!
-!    do j = 1, elec_num
-!
-!      accu_tmp = dabs(jast_elec_Mu_env3_grad_x(j) - jast_elec_Mu_env3_grad_x_num(j))
-!      if(accu_tmp .gt. thr) then
-!        print *, ' problem on ', j
-!        print *, ' jast_elec_Mu_env3_grad_x    ', jast_elec_Mu_env3_grad_x    (j)
-!        print *, ' jast_elec_Mu_env3_grad_x_num', jast_elec_Mu_env3_grad_x_num(j)
-!      endif
-!      accu_tot += accu_tmp
-!      norm     += dabs(jast_elec_Mu_env3_grad_x(j))
-!
-!      accu_tmp = dabs(jast_elec_Mu_env3_grad_y(j) - jast_elec_Mu_env3_grad_y_num(j))
-!      if(accu_tmp .gt. thr) then
-!        print *, ' problem on ', j
-!        print *, ' jast_elec_Mu_env3_grad_y    ', jast_elec_Mu_env3_grad_y    (j)
-!        print *, ' jast_elec_Mu_env3_grad_y_num', jast_elec_Mu_env3_grad_y_num(j)
-!      endif
-!      accu_tot += accu_tmp
-!      norm     += dabs(jast_elec_Mu_env3_grad_y(j))
-!
-!      accu_tmp = dabs(jast_elec_Mu_env3_grad_z(j) - jast_elec_Mu_env3_grad_z_num(j))
-!      if(accu_tmp .gt. thr) then
-!        print *, ' problem on ', j
-!        print *, ' jast_elec_Mu_env3_grad_z    ', jast_elec_Mu_env3_grad_z    (j)
-!        print *, ' jast_elec_Mu_env3_grad_z_num', jast_elec_Mu_env3_grad_z_num(j)
-!      endif
-!      accu_tot += accu_tmp
-!      norm     += dabs(jast_elec_Mu_env3_grad_z(j))
-!
-!    enddo
-!!  enddo
-!
-!  print *, ' accu_tot =', accu_tot
-!  print *, ' norm     =', norm
-!  print *, ' '
-!
-!end subroutine check_jmu_env3_grad
-!
-!! ---
-!
-!subroutine check_jmu_env3_lapl()
-!
-!  implicit none
-!  integer                    :: i, j, k
-!  double precision           :: accu_tmp, accu_tot, norm, thr
-!  double precision, external :: qmc_ranf
-!
-!  thr = 1d-6
-!
-!  accu_tot = 0.d0
-!  norm     = 0.d0
-!!  do i = 1, 1000
-!!
-!    do k = 1, 3
-!      do j = 1, elec_num
-!        elec_coord(j,k) += 1.5 * (0.5-qmc_ranf())
-!      enddo
-!    enddo
-!    TOUCH elec_coord
-!
-!    do j = 1, elec_num
-!
-!      accu_tmp = dabs(jast_elec_Mu_env3_lapl(j) - jast_elec_Mu_env3_lapl_num(j))
-!      if(accu_tmp .gt. thr) then
-!        print *, ' problem on ', j
-!        print *, ' jast_elec_Mu_env3_lapl    ', jast_elec_Mu_env3_lapl    (j)
-!        print *, ' jast_elec_Mu_env3_lapl_num', jast_elec_Mu_env3_lapl_num(j)
-!      endif
-!      accu_tot += accu_tmp
-!      norm     += dabs(jast_elec_Mu_env3_lapl(j))
-!
-!    enddo
-!!  enddo
-!
-!  print *, ' accu_tot =', accu_tot
-!  print *, ' norm     =', norm
-!  print *, ' '
-!
-!end subroutine check_jmu_env3_lapl
-!
-!! ---
-!
-!subroutine check_jmu_env5_grad()
-!
-!  implicit none
-!  integer                    :: i, j, k
-!  double precision           :: accu_tmp, accu_tot, norm, thr
-!  double precision, external :: qmc_ranf
-!
-!  thr = 1d-6
-!
-!  accu_tot = 0.d0
-!  norm     = 0.d0
-!!  do i = 1, 1000
-!!
-!    do k = 1, 3
-!      do j = 1, elec_num
-!        elec_coord(j,k) += 1.5 * (0.5-qmc_ranf())
-!      enddo
-!    enddo
-!    TOUCH elec_coord
-!
-!    do j = 1, elec_num
-!
-!      accu_tmp = dabs(jast_elec_Mu_env5_grad_x(j) - jast_elec_Mu_env5_grad_x_num(j))
-!      if(accu_tmp .gt. thr) then
-!        print *, ' problem on ', j
-!        print *, ' jast_elec_Mu_env5_grad_x    ', jast_elec_Mu_env5_grad_x    (j)
-!        print *, ' jast_elec_Mu_env5_grad_x_num', jast_elec_Mu_env5_grad_x_num(j)
-!      endif
-!      accu_tot += accu_tmp
-!      norm     += dabs(jast_elec_Mu_env5_grad_x(j))
-!
-!      accu_tmp = dabs(jast_elec_Mu_env5_grad_y(j) - jast_elec_Mu_env5_grad_y_num(j))
-!      if(accu_tmp .gt. thr) then
-!        print *, ' problem on ', j
-!        print *, ' jast_elec_Mu_env5_grad_y    ', jast_elec_Mu_env5_grad_y    (j)
-!        print *, ' jast_elec_Mu_env5_grad_y_num', jast_elec_Mu_env5_grad_y_num(j)
-!      endif
-!      accu_tot += accu_tmp
-!      norm     += dabs(jast_elec_Mu_env5_grad_y(j))
-!
-!      accu_tmp = dabs(jast_elec_Mu_env5_grad_z(j) - jast_elec_Mu_env5_grad_z_num(j))
-!      if(accu_tmp .gt. thr) then
-!        print *, ' problem on ', j
-!        print *, ' jast_elec_Mu_env5_grad_z    ', jast_elec_Mu_env5_grad_z    (j)
-!        print *, ' jast_elec_Mu_env5_grad_z_num', jast_elec_Mu_env5_grad_z_num(j)
-!      endif
-!      accu_tot += accu_tmp
-!      norm     += dabs(jast_elec_Mu_env5_grad_z(j))
-!
-!    enddo
-!!  enddo
-!
-!  print *, ' accu_tot =', accu_tot
-!  print *, ' norm     =', norm
-!  print *, ' '
-!
-!end subroutine check_jmu_env5_grad
-!
-!! ---
-!
-!subroutine check_jmu_env5_lapl()
-!
-!  implicit none
-!  integer                    :: i, j, k
-!  double precision           :: accu_tmp, accu_tot, norm, thr
-!  double precision, external :: qmc_ranf
-!
-!  thr = 1d-6
-!
-!  accu_tot = 0.d0
-!  norm     = 0.d0
-!!  do i = 1, 1000
-!!
-!    do k = 1, 3
-!      do j = 1, elec_num
-!        elec_coord(j,k) += 1.5 * (0.5-qmc_ranf())
-!      enddo
-!    enddo
-!    TOUCH elec_coord
-!
-!    do j = 1, elec_num
-!
-!      accu_tmp = dabs(jast_elec_Mu_env5_lapl(j) - jast_elec_Mu_env5_lapl_num(j))
-!      if(accu_tmp .gt. thr) then
-!        print *, ' problem on ', j
-!        print *, ' jast_elec_Mu_env5_lapl    ', jast_elec_Mu_env5_lapl    (j)
-!        print *, ' jast_elec_Mu_env5_lapl_num', jast_elec_Mu_env5_lapl_num(j)
-!      endif
-!      accu_tot += accu_tmp
-!      norm     += dabs(jast_elec_Mu_env5_lapl(j))
-!
-!    enddo
-!!  enddo
-!
-!  print *, ' accu_tot =', accu_tot
-!  print *, ' norm     =', norm
-!  print *, ' '
-!
-!end subroutine check_jmu_env5_lapl
-
-! ---
-
 
 BEGIN_TEMPLATE
 subroutine check_$X_grad()
@@ -471,8 +261,94 @@ subroutine check_$X_lapl()
 
 end subroutine check_$X_lapl
 SUBST [X]
-Mu_env2 ;;
-Mu_env3 ;;
-Mu_env5 ;;
+Muenv ;;
+Mur   ;;
 END_TEMPLATE
+
+
+subroutine debug_hf_density()
+
+  implicit none
+  integer                    :: mu, i, j, k
+  real                       :: r(3)
+  real                       :: ao_val1, ao_der1(3), ao_lap1
+  real                       :: ao_val2, ao_der2(3), ao_lap2
+  real                       :: accu_tmp, accu_tot, norm, thr
+  double precision, external :: qmc_ranf
+
+  print*, ' ** debug HF density **'
+
+  thr = 1e-5
+
+  accu_tot = 0.0
+  norm     = 0.0
+  do i = 1, 10
+
+    r(1) = 1.5 * (0.5-qmc_ranf())
+    r(2) = 1.5 * (0.5-qmc_ranf())
+    r(3) = 1.5 * (0.5-qmc_ranf())
+
+    do mu = 1, ao_num
+
+      call get_ao_val_der_lap(mu, r, ao_val1, ao_der1, ao_lap1)
+
+      point(1) = r(1) 
+      point(2) = r(2) 
+      point(3) = r(3) 
+      TOUCH point
+      ao_val2    = ao_value_p(mu)
+      ao_der2(1) = ao_grad_p (mu,1)
+      ao_der2(2) = ao_grad_p (mu,2)
+      ao_der2(3) = ao_grad_p (mu,3)
+      ao_lap2    = ao_lapl_p (mu)
+
+      accu_tmp = abs(ao_val2 - ao_val1)
+      if(accu_tmp .gt. thr) then
+        print *, ' problem on val on', mu
+        print *, ao_val1, ao_val2
+      endif
+      accu_tot += accu_tmp
+      norm     += abs(ao_val2)
+
+      accu_tmp = abs(ao_der2(1) - ao_der1(1))
+      if(accu_tmp .gt. thr) then
+        print *, ' problem on der_x on', mu
+        print *, ao_der1(1), ao_der2(1)
+      endif
+      accu_tot += accu_tmp
+      norm     += abs(ao_der2(1))
+
+      accu_tmp = abs(ao_der2(2) - ao_der1(2))
+      if(accu_tmp .gt. thr) then
+        print *, ' problem on der_y on', mu
+        print *, ao_der1(2), ao_der2(2)
+      endif
+      accu_tot += accu_tmp
+      norm     += abs(ao_der2(2))
+
+      accu_tmp = abs(ao_der2(3) - ao_der1(3))
+      if(accu_tmp .gt. thr) then
+        print *, ' problem on der_z on', mu
+        print *, ao_der1(3), ao_der2(3)
+      endif
+      accu_tot += accu_tmp
+      norm     += abs(ao_der2(3))
+
+      accu_tmp = abs(ao_lap2 - ao_lap1)
+      if(accu_tmp .gt. thr) then
+        print *, ' problem on lap on', mu
+        print *, ao_lap1, ao_lap2
+      endif
+      accu_tot += accu_tmp
+      norm     += abs(ao_lap2)
+
+    enddo
+  enddo
+
+  print *, ' accu_tot =', accu_tot
+  print *, ' norm     =', norm
+
+  return
+end subroutine debug_hf_density
+
 

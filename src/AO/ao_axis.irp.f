@@ -48,11 +48,11 @@ subroutine pow_l(r,a,x1,x2,x3)
 end
 
 
- BEGIN_PROVIDER [ real, ao_axis_block, (ao_block_num_8) ]
-&BEGIN_PROVIDER [ real, ao_axis_grad_block_x, (ao_block_num_8) ]
-&BEGIN_PROVIDER [ real, ao_axis_grad_block_y, (ao_block_num_8) ]
-&BEGIN_PROVIDER [ real, ao_axis_grad_block_z, (ao_block_num_8) ]
-&BEGIN_PROVIDER [ real, ao_axis_lapl_block, (ao_block_num_8) ]
+ BEGIN_PROVIDER [real, ao_axis_block,        (ao_block_num_8)]
+&BEGIN_PROVIDER [real, ao_axis_grad_block_x, (ao_block_num_8)]
+&BEGIN_PROVIDER [real, ao_axis_grad_block_y, (ao_block_num_8)]
+&BEGIN_PROVIDER [real, ao_axis_grad_block_z, (ao_block_num_8)]
+&BEGIN_PROVIDER [real, ao_axis_lapl_block,   (ao_block_num_8)]
   implicit none
   include '../types.F'
 
@@ -124,6 +124,4 @@ end
 
 
 END_PROVIDER
-
-
 
