@@ -20,8 +20,9 @@ data = [ \
 ("ao_basis_ao_coef"                , "real"          , "(ao_num,ao_prim_num_max)" ),
 ("ao_two_e_erf_ints_mu_erf"        , "real"          , ""                   ),
 ("tc_keywords_j1b_type"            , "integer"       , ""                   ),
-("tc_keywords_j1b_pen"             , "real"          , "(nucl_num)"       ),
-("tc_keywords_j1b_coeff"           , "real"          , "(nucl_num)"       ),
+("tc_keywords_j1b_pen"             , "real"          , "(nucl_num)"         ),
+("tc_keywords_j1b_coeff"           , "real"          , "(nucl_num)"         ),
+("tc_keywords_mu_r_ct"             , "real"          , ""                   ),
 ("jastrow_inv_sgn_jast"            , "logical"       , ""                   ),
 ("jastrow_jast_a_up_up"            , "real"          , ""                   ),
 ("jastrow_jast_a_up_dn"            , "real"          , ""                   ),
@@ -105,10 +106,11 @@ data_trexio = [\
 ("mo_basis_mo_coef"  , "real"    , "(ao_num,mo_tot_num)", "mo_coefficient_32"),
 ("nuclei_nucl_num"   , "integer" , ""                   , "nucleus_num_32"   ),
 ("nuclei_nucl_charge", "real"    , "(nucl_num)"         , "nucleus_charge_32"),
+("mo_basis_mo_coef_aux", "real", "(ao_num,mo_tot_num)", "mo_coefficient_32"),
 ]
 
 data_trexio_no_fail = [\
-("nucl_coord_trexio", "real"    , "(3,nucl_num)"         , "nucleus_coord_32"),
+("nucl_coord_trexio"   , "real", "(3,nucl_num)"       , "nucleus_coord_32" ),
 ]
 
 

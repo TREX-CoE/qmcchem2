@@ -775,7 +775,7 @@ end
 
 module Jastrow_type : sig
 
-  type t = None | Core | Simple | Mu | Mu_1b | Mu_env2 | Mu_env3 | Mu_env5
+  type t = None | Core | Simple | Mu | Mu_1b | Muenv | Mur
   val doc : string
   val read  : unit -> t
   val write : t -> unit
@@ -784,8 +784,8 @@ module Jastrow_type : sig
 
 end = struct
 
-  type t = None | Core | Simple | Mu | Mu_1b | Mu_env2 | Mu_env3 | Mu_env5
-  let doc = "Type of Jastrow factor [ None | Core | Simple | Mu | Mu_1b | Mu_env2 | Mu_env3 | Mu_env5 ]"
+  type t = None | Core | Simple | Mu | Mu_1b | Muenv | Mur
+  let doc = "Type of Jastrow factor [ None | Core | Simple | Mu | Mu_1b | Muenv | Mur ]"
 
   let of_string s =
     match String.capitalize_ascii (String.trim  s) with
@@ -794,10 +794,9 @@ end = struct
     | "None" -> None
     | "Mu" -> Mu
     | "Mu_1b" -> Mu_1b
-    | "Mu_env2" -> Mu_env2
-    | "Mu_env3" -> Mu_env3
-    | "Mu_env5" -> Mu_env5
-    | _ -> failwith "Jastrow type should be [ None | Core | Simple | Mu | Mu_1b | Mu_env2 | Mu_env3 | Mu_env5 ]"
+    | "Muenv" -> Muenv
+    | "Mur" -> Mur
+    | _ -> failwith "Jastrow type should be [ None | Core | Simple | Mu | Mu_1b | Muenv | Mur ]"
 
 
   let to_string = function
@@ -805,9 +804,8 @@ end = struct
   | Simple -> "Simple"
   | Mu -> "Mu"
   | Mu_1b -> "Mu_1b"
-  | Mu_env2 -> "Mu_env2"
-  | Mu_env3 -> "Mu_env3"
-  | Mu_env5 -> "Mu_env5"
+  | Muenv -> "Muenv"
+  | Mur -> "Mur"
   | None -> "None"
 
 
@@ -834,7 +832,7 @@ end
 
 module Jpsi_type : sig
 
-  type t = None | Core | Simple | Mu | Mu_1b | Mu_env2 | Mu_env3 | Mu_env5
+  type t = None | Core | Simple | Mu | Mu_1b | Muenv | Mur
   val doc : string
   val read  : unit -> t
   val write : t -> unit
@@ -843,8 +841,8 @@ module Jpsi_type : sig
 
 end = struct
 
-  type t = None | Core | Simple | Mu | Mu_1b | Mu_env2 | Mu_env3 | Mu_env5
-  let doc = "Type of Jpsi factor [ None | Core | Simple | Mu | Mu_1b | Mu_env2 | Mu_env3 | Mu_env5 ]"
+  type t = None | Core | Simple | Mu | Mu_1b | Muenv | Mur
+  let doc = "Type of Jpsi factor [ None | Core | Simple | Mu | Mu_1b | Muenv | Mur ]"
 
   let of_string s = 
     match String.capitalize_ascii (String.trim  s) with
@@ -853,10 +851,9 @@ end = struct
     | "None" -> None
     | "Mu" -> Mu
     | "Mu_1b" -> Mu_1b
-    | "Mu_env2" -> Mu_env2
-    | "Mu_env3" -> Mu_env3
-    | "Mu_env5" -> Mu_env5
-    | _ -> failwith "Jpsi type should be [ None | Core | Simple | Mu | Mu_1b | Mu_env2 | Mu_env3 | Mu_env5 ]"
+    | "Muenv" -> Muenv
+    | "Mur" -> Mur
+    | _ -> failwith "Jpsi type should be [ None | Core | Simple | Mu | Mu_1b | Muenv | Mur ]"
 
 
   let to_string = function
@@ -864,9 +861,8 @@ end = struct
   | Simple -> "Simple"
   | Mu -> "Mu"
   | Mu_1b -> "Mu_1b"
-  | Mu_env2 -> "Mu_env2"
-  | Mu_env3 -> "Mu_env3"
-  | Mu_env5 -> "Mu_env5"
+  | Muenv -> "Muenv"
+  | Mur -> "Mur"
   | None -> "None"
 
 

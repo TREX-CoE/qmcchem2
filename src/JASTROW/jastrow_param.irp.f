@@ -55,14 +55,13 @@ BEGIN_PROVIDER [ integer, jast_type ]
     jast_type = t_Mu
   else if (buffer == types(t_Mu_1b)) then
     jast_type = t_Mu_1b
-  else if (buffer == types(t_Mu_env2)) then
-    jast_type = t_Mu_env2
-  else if (buffer == types(t_Mu_env3)) then
-    jast_type = t_Mu_env3
-  else if (buffer == types(t_Mu_env5)) then
-    jast_type = t_Mu_env5
+  else if (buffer == types(t_Muenv)) then
+    jast_type = t_Muenv
+  else if (buffer == types(t_Mur)) then
+    jast_type = t_Mur
+    print*, ' do not forget to increase the block time'
   else
-    call abrt(irp_here, 'Jastrow type should be (None|Simple|Core|Mu|Mu_1b|Mu_env2|Mu_env3|Mu_env5)')
+    call abrt(irp_here, 'Jastrow type should be (None|Simple|Core|Mu|Mu_1b|Muenv|Mur)')
   endif
   call cinfo(irp_here, 'jast_type',buffer)
 
@@ -94,14 +93,13 @@ BEGIN_PROVIDER [ integer, jpsi_type ]
     jpsi_type = t_Mu
   else if (buffer == types(t_Mu_1b)) then
     jpsi_type = t_Mu_1b
-  else if (buffer == types(t_Mu_env2)) then
-    jpsi_type = t_Mu_env2
-  else if (buffer == types(t_Mu_env3)) then
-    jpsi_type = t_Mu_env3
-  else if (buffer == types(t_Mu_env5)) then
-    jpsi_type = t_Mu_env5
+  else if (buffer == types(t_Muenv)) then
+    jpsi_type = t_Muenv
+  else if (buffer == types(t_Mur)) then
+    jpsi_type = t_Mur
+    print*, ' do not forget to increase the block time'
   else
-    call abrt(irp_here, 'jpsi type should be (None|Simple|Core|Mu|Mu_1b|Mu_env2|Mu_env3|Mu_env5)')
+    call abrt(irp_here, 'jpsi type should be (None|Simple|Core|Mu|Mu_1b|Muenv|Mur)')
   endif
   call cinfo(irp_here, 'jpsi_type',buffer)
 
@@ -109,60 +107,83 @@ END_PROVIDER
 
 ! ---
 
-BEGIN_PROVIDER [ real, jast_a_up_up ]
-  implicit none
+BEGIN_PROVIDER [real, jast_a_up_up]
+
   BEGIN_DOC
-! a_{up up} parameters of the Jastrow
+  ! a_{up up} parameters of the Jastrow
   END_DOC
-  include '../types.F'
+
+  implicit none
+
   jast_a_up_up = 0.5
   call get_jastrow_jast_a_up_up(jast_a_up_up)
 
 END_PROVIDER
 
-BEGIN_PROVIDER [ real, jast_a_up_dn ]
-  implicit none
+BEGIN_PROVIDER [real, jast_a_up_dn]
+
   BEGIN_DOC
-! a_{up dn} parameters of the Jastrow
+  ! a_{up dn} parameters of the Jastrow
   END_DOC
-  include '../types.F'
+
+  implicit none
+
   jast_a_up_dn = 0.5
   call get_jastrow_jast_a_up_dn(jast_a_up_dn)
 
 END_PROVIDER
 
-BEGIN_PROVIDER [ real, jast_b_up_up ]
-  implicit none
+BEGIN_PROVIDER [real, jast_b_up_up]
+
   BEGIN_DOC
-! b_{up up} parameters of the Jastrow
+  ! b_{up up} parameters of the Jastrow
   END_DOC
-  include '../types.F'
+
+  implicit none
+
   jast_b_up_up = 1.
   call get_jastrow_jast_b_up_up(jast_b_up_up)
 
 END_PROVIDER
 
-BEGIN_PROVIDER [ real, jast_b_up_dn ]
-  implicit none
+BEGIN_PROVIDER [real, jast_b_up_dn]
+
   BEGIN_DOC
-! b_{up dn} parameters of the Jastrow
+  ! b_{up dn} parameters of the Jastrow
   END_DOC
-  include '../types.F'
+
+  implicit none
+
   jast_b_up_dn = 1.
   call get_jastrow_jast_b_up_dn(jast_b_up_dn)
 
 END_PROVIDER
 
-BEGIN_PROVIDER [ real, mu_erf ]
-  implicit none
+BEGIN_PROVIDER [real, mu_erf]
+
   BEGIN_DOC
   ! mu parameter
   END_DOC
-  include '../types.F'
+
+  implicit none
+
   mu_erf = 0.5
   call get_ao_two_e_erf_ints_mu_erf(mu_erf)
+
 END_PROVIDER
 
+BEGIN_PROVIDER [real, mu_r_ct]
+
+  BEGIN_DOC
+  ! mu_r_ct parameter
+  END_DOC
+
+  implicit none
+
+  mu_r_ct = 0.6203504908994001
+  call get_tc_keywords_mu_r_ct(mu_r_ct)
+
+END_PROVIDER
 
 ! ---
 
