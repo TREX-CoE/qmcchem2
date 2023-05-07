@@ -77,7 +77,7 @@ subroutine j_elec_env(r, j1b)
   double precision, intent(in)  :: r(3)
   double precision, intent(out) :: j1b
   integer                       :: iA
-  double precision              :: a, riA
+  double precision              :: a, riA, r2
   double precision              :: dx, dy, dz
 
   PROVIDE j1b_type
@@ -108,8 +108,18 @@ subroutine j_elec_env(r, j1b)
       j1b = j1b * (1.d0 - dexp(-a*riA*riA))
     enddo
 
-  ! TODO
-  !elseif((j1b_type .eq. 4) .or. (j1b_type .eq. 104)) then
+  elseif((j1b_type .eq. 4) .or. (j1b_type .eq. 104)) then
+
+    j1b = 1.d0
+    !DIR$ LOOP COUNT (100)
+    do iA = 1, nucl_num
+      a   = j1b_pen(iA)
+      dx  = r(1) - nucl_coord(iA,1)
+      dy  = r(2) - nucl_coord(iA,2)
+      dz  = r(3) - nucl_coord(iA,3)
+      r2  = dx*dx + dy*dy + dz*dz
+      j1b = j1b - dexp(-a*r2)
+    enddo
 
   elseif((j1b_type .eq. 5) .or. (j1b_type .eq. 105)) then
 
@@ -120,8 +130,8 @@ subroutine j_elec_env(r, j1b)
       dx  = r(1) - nucl_coord(iA,1)
       dy  = r(2) - nucl_coord(iA,2)
       dz  = r(3) - nucl_coord(iA,3)
-      riA = dsqrt(dx*dx + dy*dy + dz*dz)
-      j1b = j1b - dexp(-a*riA*riA*riA*riA)
+      r2  = dx*dx + dy*dy + dz*dz
+      j1b = j1b - dexp(-a*r2*r2)
     enddo
 
   else
