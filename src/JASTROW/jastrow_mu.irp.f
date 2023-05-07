@@ -77,7 +77,7 @@ END_PROVIDER
     do j = 1, elec_num
       if(i==j) cycle
       rij = elec_dist(j,i)
-      tmp = 0.5d0 * ( derf(mu * rij) - 1.d0 ) 
+      tmp = 0.5d0 * (derf(mu * rij) - 1.d0) 
 
       xx  = elec_dist_inv(j,i) * elec_dist_vec_x(j,i)
       yy  = elec_dist_inv(j,i) * elec_dist_vec_y(j,i)

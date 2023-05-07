@@ -15,8 +15,8 @@
       integer, parameter :: t_Core     = 24
       integer, parameter :: t_Qmckl    = 25
       integer, parameter :: t_Mu_1b    = 26
-      integer, parameter :: t_Mu_env3  = 27
-      integer, parameter :: t_Mu_env5  = 28
+      integer, parameter :: t_Muenv    = 27
+      integer, parameter :: t_Mur      = 28
 
       integer, parameter :: t_Stopped  = 0
       integer, parameter :: t_Queued   = 1
@@ -50,7 +50,7 @@
           'Core           ',   &
           'Qmckl          ',   &
           'Mu_1b          ',   &
-          'Mu_env3        ',   &
-          'Mu_env5        ',   &
+          'Muenv          ',   &
+          'Mur            ',   &
           '               '/)     
 
