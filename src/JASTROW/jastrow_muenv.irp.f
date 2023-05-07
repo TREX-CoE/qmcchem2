@@ -312,7 +312,7 @@ END_PROVIDER
         tmpx = tmpx + tmp * dx
         tmpy = tmpy + tmp * dy
         tmpz = tmpz + tmp * dz
-        tmpl = tmpl + tmp * (3.d0 - arg)
+        tmpl = tmpl + tmp * (3.d0 - 2.d0 * arg)
       enddo
       deriv_vi_x_env(i) = 2.d0 * tmpx
       deriv_vi_y_env(i) = 2.d0 * tmpy
