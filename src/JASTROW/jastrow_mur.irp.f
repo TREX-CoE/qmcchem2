@@ -112,6 +112,8 @@ subroutine j_elec_mur(r1, r2, je_val, je_der, je_lap)
   je_der(3) = tmp * dz
   je_lap    = 2.d0 * tmp - (mur_val + 2.d0*(mur_der(1)*dx + mur_der(2)*dy + mur_der(3)*dz)) * dexp(-mur_tmp*mur_tmp) / dsqpi
 
+  ! NB
+  ! no need to dabs because mur_val should be positive
   if(mur_val .gt. 1d-7) then
     tmp            = 0.5d0 * dexp(-mur_tmp*mur_tmp) / (dsqpi*mur_val*mur_val)
     mur_der_square = mur_der(1) * mur_der(1) + mur_der(2) * mur_der(2) + mur_der(3) * mur_der(3)
@@ -141,7 +143,7 @@ subroutine mur_val_der_lap_r1(r1, r2, mur_val, mur_der, mur_lap)
   double precision, intent(out) :: mur_val, mur_der(3), mur_lap
   double precision              :: r(3)
   double precision              :: rho_val, rho_der(3), rho_lap, rho_der_square
-  double precision              :: tmp
+  double precision              :: tmp, tmp1, tmp2
   double precision              :: r12, dx, dy, dz
 
   !dx         = r1(1) - r2(1)
@@ -158,6 +160,8 @@ subroutine mur_val_der_lap_r1(r1, r2, mur_val, mur_der, mur_lap)
   PROVIDE j1b_type
 
   if(j1b_type .eq. 200) then
+
+    ! mu[rho(r)] = mu_r_ct \sqrt(rho(r)) + mu_erf \exp(-rho(r))
 
     PROVIDE mu_r_ct mu_erf
 
@@ -177,12 +181,37 @@ subroutine mur_val_der_lap_r1(r1, r2, mur_val, mur_der, mur_lap)
     rho_der_square  = rho_der(1) * rho_der(1) + rho_der(2) * rho_der(2) + rho_der(3) * rho_der(3)
     mur_lap         = 0.5d0 * tmp * (rho_lap - rho_der_square)
 
+    ! NB
+    ! no need to dabs because rho_val should be positive
     if(rho_val .lt. 1d-8) return
     tmp        = 0.25d0 * mu_r_ct / dsqrt(rho_val)
     mur_der(1) = mur_der(1) + tmp * rho_der(1)
     mur_der(2) = mur_der(2) + tmp * rho_der(2)
     mur_der(3) = mur_der(3) + tmp * rho_der(3)
     mur_lap    = mur_lap + 0.5d0 * tmp * (rho_lap - 0.5d0 * rho_der_square / rho_val)
+
+  elseif(j1b_type .eq. 201) then
+
+    ! mu[rho(r)] = mu_r_ct rho(r) + mu_erf \exp(-rho(r))
+
+    PROVIDE mu_r_ct mu_erf
+
+    r(1) = 0.5d0 * (r1(1) + r2(1))
+    r(2) = 0.5d0 * (r1(2) + r2(2))
+    r(3) = 0.5d0 * (r1(3) + r2(3))
+
+    call rho_hf_val_der_lap(r, rho_val, rho_der, rho_lap)
+
+    mur_val = mu_r_ct * rho_val + mu_erf * dexp(-rho_val)
+  
+    tmp1       = mu_erf * dexp(-rho_val)
+    tmp2       = 0.5d0 * (mu_r_ct - tmp1)
+    mur_der(1) = tmp2 * rho_der(1)
+    mur_der(2) = tmp2 * rho_der(2)
+    mur_der(3) = tmp2 * rho_der(3)
+
+    rho_der_square  = rho_der(1) * rho_der(1) + rho_der(2) * rho_der(2) + rho_der(3) * rho_der(3)
+    mur_lap         = 0.25d0 * (mu_r_ct * rho_lap + tmp1 * (rho_der_square - rho_lap))
 
   else
  
