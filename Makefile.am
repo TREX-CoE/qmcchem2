@@ -171,7 +171,7 @@ IRPSOURCES= \
   src/SAMPLING/fkmc_step.irp.f \
   src/SAMPLING/langevin_step.irp.f \
   src/SAMPLING/pdmc_step.irp.f \
-  src/SAMPLING/reconfigure.irp.f \        
+  src/SAMPLING/reconfigure.irp.f \
   src/SAMPLING/srmc_step.irp.f \
   src/SAMPLING/vmc_step.irp.f \
   src/PROPERTIES/properties_tc.irp.f \
