@@ -14,11 +14,7 @@ BEGIN_PROVIDER [ double precision , jast_elec_Qmckl_value, (elec_num_8)  ]
 
   double precision :: tmp
 
-!  rc = qmckl_get_jastrow_factor_ee(qmckl_ctx, tmp)
-!  if (rc /= QMCKL_SUCCESS) stop -1
-!
-!  tmp = dlog(tmp)/dble(elec_num)
-!  jast_elec_Qmckl_value(1:elec_num) = tmp
+  jast_elec_Qmckl_value(1:elec_num) = qmckl_jast_value / dble(elec_num)
 
 END_PROVIDER
 
@@ -33,9 +29,9 @@ END_PROVIDER
  integer :: i
 
  do i=1,elec_num
-  jast_elec_Qmckl_grad_x(i) = 0.d0
-  jast_elec_Qmckl_grad_y(i) = 0.d0
-  jast_elec_Qmckl_grad_z(i) = 0.d0
+  jast_elec_Qmckl_grad_x(i) = qmckl_jast_grad_lapl(i,1)
+  jast_elec_Qmckl_grad_y(i) = qmckl_jast_grad_lapl(i,3)
+  jast_elec_Qmckl_grad_z(i) = qmckl_jast_grad_lapl(i,3)
  enddo
 
 END_PROVIDER
@@ -49,7 +45,7 @@ BEGIN_PROVIDER [ double precision , jast_elec_Qmckl_lapl, (elec_num_8) ]
  integer :: i
 
  do i=1,elec_num
-  jast_elec_Qmckl_lapl(i) = 0.d0
+  jast_elec_Qmckl_lapl(i) = qmckl_jast_grad_lapl(i,4)
  enddo
 
 END_PROVIDER

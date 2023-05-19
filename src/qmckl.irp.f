@@ -125,6 +125,30 @@ BEGIN_PROVIDER [ double precision, qmckl_mo_value, (qmckl_mo_num, elec_num) ]
 END_PROVIDER
 
 
+BEGIN_PROVIDER [ double precision, qmckl_jast_value ]
+ use qmckl
+ implicit none
+ BEGIN_DOC
+ ! Jastrow factor from QMCkl
+ END_DOC
+ integer(qmckl_exit_code) :: rc
+ rc = qmckl_get_jastrow_champ_value(qmckl_ctx, qmckl_get_jast_value, 1)
+ call check_qmckl(rc, irp_here, qmckl_ctx)
+
+END_PROVIDER
+
+BEGIN_PROVIDER [ double precision, qmckl_jast_grad_lapl, (elec_num,4) ]
+ use qmckl
+ implicit none
+ BEGIN_DOC
+ ! Jastrow factor from QMCkl
+ END_DOC
+ integer(qmckl_exit_code) :: rc
+ rc = qmckl_get_jastrow_champ_gl(qmckl_ctx, qmckl_jast_grad_lapl, 4_8*elec_num)
+ call check_qmckl(rc, irp_here, qmckl_ctx)
+
+END_PROVIDER
+
 
 
 
