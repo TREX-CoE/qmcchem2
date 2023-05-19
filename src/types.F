@@ -14,13 +14,16 @@
       integer, parameter :: t_Mu       = 23
       integer, parameter :: t_Core     = 24
       integer, parameter :: t_Qmckl    = 25
+      integer, parameter :: t_Mu_1b    = 26
+      integer, parameter :: t_Muenv    = 27
+      integer, parameter :: t_Mur      = 28
 
       integer, parameter :: t_Stopped  = 0
       integer, parameter :: t_Queued   = 1
       integer, parameter :: t_Running  = 2
       integer, parameter :: t_Stopping = 3
 
-      character*(32)     :: types(26) = &
+      character*(32)     :: types(29) = &
       (/  '               ',   &
           '               ',   &
           'Brownian       ',   &
@@ -46,5 +49,8 @@
           'Mu             ',   &
           'Core           ',   &
           'Qmckl          ',   &
-          '               '/)
+          'Mu_1b          ',   &
+          'Muenv          ',   &
+          'Mur            ',   &
+          '               '/)     
 

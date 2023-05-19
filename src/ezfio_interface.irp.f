@@ -3,6 +3,10 @@ BEGIN_SHELL [ /usr/bin/env python3 ]
 data = [ \
 ("electrons_elec_coord_pool_size"  , "integer"       , "" ),
 ("electrons_elec_coord_pool"       , "real"          , "(elec_num+1,3,elec_coord_pool_size)" ),
+("bi_ortho_mos_mo_l_coef"          , "real"          , "(ao_num,mo_tot_num)" ),
+("bi_ortho_mos_coef_psi_right"     , "real"          , ""                    ),
+("bi_ortho_mos_use_lr"             , "logical"       , ""                    ),
+("bi_ortho_mos_coef_psi_left"      , "real"          , ""                    ),
 ("electrons_elec_fitcusp_radius"   , "real"          , ""                      ),
 ("electrons_elec_alpha_num"        , "integer"       , ""                      ),
 ("electrons_elec_beta_num"         , "integer"       , ""                      ),
@@ -14,7 +18,12 @@ data = [ \
 ("ao_basis_ao_power"               , "integer"       , "(ao_num,3)"            ),
 ("ao_basis_ao_expo"                , "real"          , "(ao_num,ao_prim_num_max)" ),
 ("ao_basis_ao_coef"                , "real"          , "(ao_num,ao_prim_num_max)" ),
-("jastrow_mu_erf"                  , "real"          , ""                   ),
+("ao_two_e_erf_ints_mu_erf"        , "real"          , ""                   ),
+("tc_keywords_j1b_type"            , "integer"       , ""                   ),
+("tc_keywords_j1b_pen"             , "real"          , "(nucl_num)"         ),
+("tc_keywords_j1b_coeff"           , "real"          , "(nucl_num)"         ),
+("tc_keywords_mu_r_ct"             , "real"          , ""                   ),
+("jastrow_inv_sgn_jast"            , "logical"       , ""                   ),
 ("jastrow_jast_a_up_up"            , "real"          , ""                   ),
 ("jastrow_jast_a_up_dn"            , "real"          , ""                   ),
 ("jastrow_jast_b_up_up"            , "real"          , ""                   ),
@@ -27,7 +36,8 @@ data = [ \
 ("jastrow_jast_core_a2"            , "real"          , "(nucl_num)"          ),
 ("jastrow_jast_core_b1"            , "real"          , "(nucl_num)"          ),
 ("jastrow_jast_core_b2"            , "real"          , "(nucl_num)"          ),
-("jastrow_jast_type"               , "character*(32)", ""                      ),
+("jastrow_jast_type"               , "character*(32)", ""                    ),
+("jastrow_jpsi_type"               , "character*(32)", ""                    ),
 ("simulation_stop_time"            , "integer"       , ""                      ),
 ("simulation_equilibration"        , "logical"       , ""                      ),
 ("simulation_block_time"           , "integer"       , ""                      ),
@@ -47,13 +57,19 @@ data = [ \
 ("simulation_use_trexio"           , "logical"           ,  ""),
 ("simulation_use_qmckl"            , "logical"           ,  ""),
 ("trexio_trexio_file"              , "character*(128)" ,  ""),
-("pseudo_do_pseudo"         , "logical       " , ""                   ),
-("spindeterminants_n_svd_coefs"       , "integer", ""),
-("spindeterminants_n_svd_selected"    , "integer", ""),
-("spindeterminants_n_svd_toselect"    , "integer", ""),
-("spindeterminants_psi_svd_alpha", "double precision", "(det_alpha_num,n_svd_coefs_full,n_states)"),
-("spindeterminants_psi_svd_beta" , "double precision", "(det_beta_num,n_svd_coefs_full,n_states)"),
-("spindeterminants_psi_svd_coefs", "double precision", "(n_svd_coefs_full,n_states)"),
+("pseudo_do_pseudo"                , "logical       " , ""                   ),
+("spindeterminants_n_svd_alpha"    , "integer"        , ""                   ),
+("spindeterminants_n_svd_beta"     , "integer"        , ""                   ),
+("spindeterminants_n_svd_coefs"    , "integer"        , ""                   ),
+("spindeterminants_psi_svd_alpha"  , "double precision", "(det_alpha_num,n_svd_alpha,n_states)"),
+("spindeterminants_psi_svd_beta"   , "double precision", "(det_beta_num,n_svd_beta,n_states)"),
+("spindeterminants_psi_svd_coefs"  , "double precision", "(n_svd_coefs,n_states)"),
+("dmc_dress_la"                    , "integer"        , ""                   ),
+("dmc_dress_lb"                    , "integer"        , ""                   ),
+("dmc_dress_ld"                    , "integer"        , ""                   ),
+("dmc_dress_lla"                   , "integer"        , ""                   ),
+("dmc_dress_llb"                   , "integer"        , ""                   ),
+("dmc_dress_lld"                   , "integer"        , ""                   ),
 ]
 
 data_no_set = [\
@@ -82,10 +98,7 @@ data_no_set = [\
 ("spindeterminants_psi_coef_matrix_rows"     ,  "integer"           ,  "(det_num_input)"),
 ("spindeterminants_psi_coef_matrix_columns"  ,  "integer"           ,  "(det_num_input)"),
 ("spindeterminants_psi_coef_matrix_values"   ,  "double precision"  ,  "(det_num_input,N_states)"),
-("jastrow_jast_1b_type"            , "integer"       , ""                    ),
-("jastrow_jast_1btanh_pen"         , "real"          , "(nucl_num)"          ),
-("jastrow_jast_1berf_pen"          , "real"          , "(nucl_num)"          ),
-("jastrow_jast_1bgauss_pen"        , "real"          , "(nucl_num)"          ),
+("spindeterminants_psi_left_coef_matrix_values",  "double precision"  ,  "(det_num_input,N_states)"),
 ]
 
 data_trexio = [\
@@ -93,10 +106,11 @@ data_trexio = [\
 ("mo_basis_mo_coef"  , "real"    , "(ao_num,mo_tot_num)", "mo_coefficient_32"),
 ("nuclei_nucl_num"   , "integer" , ""                   , "nucleus_num_32"   ),
 ("nuclei_nucl_charge", "real"    , "(nucl_num)"         , "nucleus_charge_32"),
+("mo_basis_mo_coef_aux", "real", "(ao_num,mo_tot_num)", "mo_coefficient_32"),
 ]
 
 data_trexio_no_fail = [\
-("nucl_coord_trexio", "real"    , "(3,nucl_num)"         , "nucleus_coord_32"),
+("nucl_coord_trexio"   , "real", "(3,nucl_num)"       , "nucleus_coord_32" ),
 ]
 
 

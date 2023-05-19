@@ -164,14 +164,14 @@ subroutine run_prepare_walkers
     print *, 'Starting walker ', iwalk 
     
     do istep=1,1000
-      if (psidet_value == 0.d0) then
+      if (psidet_right_value == 0.d0) then
         exit
       endif
       prepare_walkers_t = float(istep)/1000.
       TOUCH prepare_walkers_t
-      rcond = log(abs(dble(psidet_value)))
+      rcond = log(abs(dble(psidet_right_value)))
       real                           :: factor
-      rcond = log(abs(dble(psidet_value)))
+      rcond = log(abs(dble(psidet_right_value)))
       integer                        :: icount
       icount = 0
       do while ( (rcond > 10.d0) .or. (rcond < -10.d0) )
@@ -192,7 +192,7 @@ subroutine run_prepare_walkers
         enddo
         TOUCH mo_coef_transp
         
-        rcond = log(abs(dble(psidet_value)))
+        rcond = log(abs(dble(psidet_right_value)))
       enddo
       double precision               :: p,q
       logical                        :: accepted
