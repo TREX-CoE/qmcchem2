@@ -59,6 +59,8 @@ END_PROVIDER
       write(message,'(A,I6,A)') 'Contraction ',i,' should be centered on a nucleus in the range'//trim(range)
       call abrt(irp_here,message)
     endif
+  enddo
+  do i=1,ao_num_8
     ao_nucl_sort_idx(i) = i
   enddo
 

@@ -25,8 +25,17 @@
     rc = qmckl_mo_basis_select_mo(qmckl_ctx, keep, int(mo_tot_num,8))
     call check_qmckl(rc, irp_here, qmckl_ctx)
 
+    if (do_nucl_fitcusp) then
+      rc = qmckl_set_mo_basis_r_cusp(qmckl_ctx, dble(nucl_fitcusp_radius(:)), int(nucl_num,8))
+      call check_qmckl(rc, irp_here, qmckl_ctx)
+    endif
+
     rc = qmckl_get_mo_basis_mo_num(qmckl_ctx, qmckl_mo_num)
     call check_qmckl(rc, irp_here, qmckl_ctx)
+
+    if (qmckl_mo_num /= num_present_mos) then
+      stop 'qmckl_mo_num /= num_present_mos'
+    endif
 
   end if
 
@@ -98,6 +107,19 @@ BEGIN_PROVIDER [ double precision, qmckl_mo_vgl, (qmckl_mo_num, 5, elec_num) ]
  END_DOC
  integer(qmckl_exit_code) :: rc
  rc = qmckl_get_mo_basis_mo_vgl_inplace(qmckl_ctx, qmckl_mo_vgl, walk_num*elec_num*qmckl_mo_num*5_8)
+ call check_qmckl(rc, irp_here, qmckl_ctx)
+
+END_PROVIDER
+
+
+BEGIN_PROVIDER [ double precision, qmckl_mo_value, (qmckl_mo_num, elec_num) ]
+ use qmckl
+ implicit none
+ BEGIN_DOC
+ ! MO value, gradients, Laplacian from QMCkl
+ END_DOC
+ integer(qmckl_exit_code) :: rc
+ rc = qmckl_get_mo_basis_mo_value_inplace(qmckl_ctx, qmckl_mo_value, walk_num*elec_num*qmckl_mo_num)
  call check_qmckl(rc, irp_here, qmckl_ctx)
 
 END_PROVIDER

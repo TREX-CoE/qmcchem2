@@ -133,29 +133,29 @@ END_PROVIDER
 
   PROVIDE primitives_reduced
 
-  if (do_nucl_fitcusp) then
-    PROVIDE nucl_fitcusp_param
-    PROVIDE nucl_elec_dist_vec
-    PROVIDE nucl_elec_dist_inv
-    mo_value_transp  = 0.
-    mo_grad_transp_x = 0.
-    mo_grad_transp_y = 0.
-    mo_grad_transp_z = 0.
-    mo_lapl_transp   = 0.
-  endif
-
   if (use_qmckl) then
     PROVIDE qmckl_ctx
 
     do i=1,elec_num
-      mo_value_transp(1:mo_num,i)  = qmckl_mo_vgl(1:mo_num,1,i)
-      mo_grad_transp_x(1:mo_num,i) = qmckl_mo_vgl(1:mo_num,2,i)
-      mo_grad_transp_y(1:mo_num,i) = qmckl_mo_vgl(1:mo_num,3,i)
-      mo_grad_transp_z(1:mo_num,i) = qmckl_mo_vgl(1:mo_num,4,i)
-      mo_lapl_transp(1:mo_num,i)   = qmckl_mo_vgl(1:mo_num,5,i)
+      mo_value_transp (1:num_present_mos,i) = qmckl_mo_vgl(1:num_present_mos,1,i)
+      mo_grad_transp_x(1:num_present_mos,i) = qmckl_mo_vgl(1:num_present_mos,2,i)
+      mo_grad_transp_y(1:num_present_mos,i) = qmckl_mo_vgl(1:num_present_mos,3,i)
+      mo_grad_transp_z(1:num_present_mos,i) = qmckl_mo_vgl(1:num_present_mos,4,i)
+      mo_lapl_transp  (1:num_present_mos,i) = qmckl_mo_vgl(1:num_present_mos,5,i)
     end do
 
   else
+
+    if (do_nucl_fitcusp) then
+      PROVIDE nucl_fitcusp_param
+      PROVIDE nucl_elec_dist_vec
+      PROVIDE nucl_elec_dist_inv
+      mo_value_transp  = 0.
+      mo_grad_transp_x = 0.
+      mo_grad_transp_y = 0.
+      mo_grad_transp_z = 0.
+      mo_lapl_transp   = 0.
+    endif
 
     do i=1,elec_num
       if (i>1) then
@@ -198,38 +198,38 @@ END_PROVIDER
     ao_elec = 1
     SOFT_TOUCH ao_elec
 
-  endif
+    if (do_nucl_fitcusp) then
+      real                           :: r, r_inv, c
+      do i=1,elec_num
+        do k=1,nucl_num
+          r = nucl_elec_dist(k,i)
+          if (r > nucl_fitcusp_radius(k)) then
+            cycle
+          endif
+          r_inv = nucl_elec_dist_inv(k,i)
+          do j=1,num_present_mos
+            mo_value_transp(j,i) = mo_value_transp(j,i) +              &
+                     nucl_fitcusp_param(1,j,k) +                       &
+                r * (nucl_fitcusp_param(2,j,k) +                       &
+                r * (nucl_fitcusp_param(3,j,k) +                       &
+                r *  nucl_fitcusp_param(4,j,k) ))
+            mo_lapl_transp(j,i) = mo_lapl_transp(j,i) +                &
+                nucl_fitcusp_param(2,j,k)*(r_inv+r_inv) +              &
+                      6.*nucl_fitcusp_param(3,j,k) +                   &
+                 r * 12.*nucl_fitcusp_param(4,j,k)
+            c = r_inv * (nucl_fitcusp_param(2,j,k) +                   &
+                 r * (2.*nucl_fitcusp_param(3,j,k) +                   &
+                 r *  3.*nucl_fitcusp_param(4,j,k) ))
+            mo_grad_transp_x(j,i) = mo_grad_transp_x(j,i) + nucl_elec_dist_vec(1,k,i)*c
+            mo_grad_transp_y(j,i) = mo_grad_transp_y(j,i) + nucl_elec_dist_vec(2,k,i)*c
+            mo_grad_transp_z(j,i) = mo_grad_transp_z(j,i) + nucl_elec_dist_vec(3,k,i)*c
+          enddo
+          ! It is safe to exit here because a core electron is close to only one nucleus
+          exit
+        enddo ! k
+      enddo ! i
 
-  if (do_nucl_fitcusp) then
-    real                           :: r, r2, r_inv, d, expzr, Z, Z2, a, b, c, phi, rx, ry, rz
-    do i=1,elec_num
-      do k=1,nucl_num
-        r = nucl_elec_dist(k,i)
-        if (r > nucl_fitcusp_radius(k)) then
-          cycle
-        endif
-        r_inv = nucl_elec_dist_inv(k,i)
-        do j=1,num_present_mos
-          mo_value_transp(j,i) = mo_value_transp(j,i) +              &
-                   nucl_fitcusp_param(1,j,k) +                       &
-              r * (nucl_fitcusp_param(2,j,k) +                       &
-              r * (nucl_fitcusp_param(3,j,k) +                       &
-              r *  nucl_fitcusp_param(4,j,k) ))
-          mo_lapl_transp(j,i) = mo_lapl_transp(j,i) +                &
-              nucl_fitcusp_param(2,j,k)*(r_inv+r_inv) +              &
-                    6.*nucl_fitcusp_param(3,j,k) +                   &
-               r * 12.*nucl_fitcusp_param(4,j,k)
-          c = r_inv * (nucl_fitcusp_param(2,j,k) +                   &
-               r * (2.*nucl_fitcusp_param(3,j,k) +                   &
-               r *  3.*nucl_fitcusp_param(4,j,k) ))
-          mo_grad_transp_x(j,i) = mo_grad_transp_x(j,i) + nucl_elec_dist_vec(1,k,i)*c
-          mo_grad_transp_y(j,i) = mo_grad_transp_y(j,i) + nucl_elec_dist_vec(2,k,i)*c
-          mo_grad_transp_z(j,i) = mo_grad_transp_z(j,i) + nucl_elec_dist_vec(3,k,i)*c
-        enddo
-        ! It is safe to exit here because a core electron is close to only one nucleus
-        exit
-      enddo ! k
-    enddo ! i
+    endif
 
   endif
 
@@ -471,7 +471,7 @@ END_PROVIDER
 &BEGIN_PROVIDER [ double precision, ao_lapl_at_fitcusp_radius, (ao_num_8,nucl_num) ]
   implicit none
   BEGIN_DOC
-! Values of the atomic orbitals without S components on atoms
+! Values of the atomic orbitals with only S components on atoms
   END_DOC
 
   integer                        :: i, j, k
@@ -638,6 +638,7 @@ BEGIN_PROVIDER [ real, nucl_fitcusp_param, (4,mo_num,nucl_num) ]
 
     enddo
   enddo
+
 END_PROVIDER
 
 
