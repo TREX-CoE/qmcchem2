@@ -14,6 +14,7 @@ qmcchemrc
 scripts/properties.py
 src/IRPF90_man/
 src/IRPF90_temp/
+src/*.mod
 src/__pycache__/
 src/irpf90.make
 src/irpf90_entities

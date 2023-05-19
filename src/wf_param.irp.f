@@ -18,8 +18,8 @@
     call get_bi_ortho_mos_coef_psi_right(coef_psi_right)
     call get_bi_ortho_mos_coef_psi_left (coef_psi_left )
   else
-    coef_psi_right = 0.d0
-    coef_psi_left  = 0.d0
+    coef_psi_right = 0.
+    coef_psi_left  = 0.
   endif
 
 END_PROVIDER

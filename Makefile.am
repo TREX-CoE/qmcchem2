@@ -47,10 +47,10 @@ src/MAIN/qmcchem_info:src/MAIN/qmc
 src/MAIN/vmc_test:src/MAIN/qmc
 
 src/MAIN/qmc: $(EZFIO_DIR)/lib/libezfio_irp.a src/irpf90.make
-	$(MAKE) -C src
+	cd src ; $(MAKE) all
 
 src/MAIN/vmc_test: $(EZFIO_DIR)/lib/libezfio_irp.a src/irpf90.make
-	$(MAKE) -C src MAIN/vmc_test
+	cd src ; $(MAKE) MAIN/vmc_test
 
 ocaml/ezfio.ml: $(EZFIO_DIR)/Ocaml/ezfio.ml
 	cp $(EZFIO_DIR)/Ocaml/ezfio.ml ocaml/ezfio.ml
@@ -63,7 +63,7 @@ ocaml/Property.ml: src/PROPERTIES/properties_general.irp.f \
          $(srcdir)/scripts/create_properties_python.py"
 
 ocaml/qmcchem: ocaml/Property.ml ocaml/ezfio.ml $(OCAMLSOURCES)
-	$(MAKE) -C ocaml
+	cd ocaml ; $(MAKE)
 
 ezfio_config/properties.config: src/irpf90.make
 	python3 scripts/create_properties_ezfio.py
@@ -77,7 +77,7 @@ $(EZFIO_DIR)/config/properties.config: ezfio_config/properties.config
 	cp $(srcdir)/ezfio_config/properties.config $(EZFIO_DIR)/config/properties.config
 
 $(EZFIO_DIR)/lib/libezfio_irp.a: $(EZFIO_DIR)/config/qmc.config $(EZFIO_DIR)/config/properties.config src/irpf90.make
-	$(MAKE) -C $(EZFIO_DIR)
+	cd $(EZFIO_DIR) ; $(MAKE)
 
 clean-ezfio:
 	$(MAKE) -C $(EZFIO_DIR) clean
@@ -97,6 +97,7 @@ distclean-ezfio:
 distclean-ocaml:
 	$(MAKE) -C ocaml clean
 
+distclean: distclean-irpf90 distclean-ezfio distclean-ocaml
 
 clean-local: clean-ezfio clean-ocaml clean-irpf90
 
@@ -171,7 +172,7 @@ IRPSOURCES= \
   src/SAMPLING/fkmc_step.irp.f \
   src/SAMPLING/langevin_step.irp.f \
   src/SAMPLING/pdmc_step.irp.f \
-  src/SAMPLING/reconfigure.irp.f \        
+  src/SAMPLING/reconfigure.irp.f \
   src/SAMPLING/srmc_step.irp.f \
   src/SAMPLING/vmc_step.irp.f \
   src/PROPERTIES/properties_tc.irp.f \
