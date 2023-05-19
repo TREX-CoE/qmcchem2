@@ -6,7 +6,7 @@ IRPF90_FLAGS ?= --align=32
 IRPF90+=$(IRPF90_FLAGS) $(INCLUDES)
 
 default:
-	make -C ../ src/MAIN/qmc
+	cd .. ; make src/MAIN/qmc
 
 LIB+=$(LDFLAGS)
 include irpf90.make
