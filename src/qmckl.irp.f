@@ -132,7 +132,9 @@ BEGIN_PROVIDER [ double precision, qmckl_jast_value ]
  ! Jastrow factor from QMCkl
  END_DOC
  integer(qmckl_exit_code) :: rc
- rc = qmckl_get_jastrow_champ_value(qmckl_ctx, qmckl_get_jast_value, 1)
+ double precision :: v(1)
+ rc = qmckl_get_jastrow_champ_value(qmckl_ctx, v, 1)
+ qmckl_jast_value = v(1)
  call check_qmckl(rc, irp_here, qmckl_ctx)
 
 END_PROVIDER
