@@ -106,6 +106,23 @@ END_PROVIDER
 
 ! ---
 
+BEGIN_PROVIDER [ double precision, Eloc_mJpsi ]
+
+  BEGIN_DOC
+  ! Eloc_mJpsi = H ( Phi * e^{-Jpsi} ) / ( Phi * e^{-Jpsi} ) 
+  END_DOC
+
+  implicit none
+
+  Eloc_mJpsi = Eloc_noJ + deltaE_mJpsi
+
+  Eloc_mJpsi_min = min(Eloc_mJpsi_min, Eloc_mJpsi)
+  Eloc_mJpsi_max = max(Eloc_mJpsi_max, Eloc_mJpsi)
+  SOFT_TOUCH Eloc_mJpsi_min Eloc_mJpsi_max
+END_PROVIDER
+
+! ---
+
 BEGIN_PROVIDER [ double precision, Eloc_Jmu1b_lr ]
 
   BEGIN_DOC
@@ -160,6 +177,24 @@ BEGIN_PROVIDER [ double precision, deltaE_Jpsi ]
   deltaE_Jpsi_min = min(deltaE_Jpsi_min, deltaE_Jpsi)
   deltaE_Jpsi_max = max(deltaE_Jpsi_max, deltaE_Jpsi)
   SOFT_TOUCH deltaE_Jpsi_min deltaE_Jpsi_max
+END_PROVIDER
+
+! ---
+
+BEGIN_PROVIDER [ double precision, deltaE_mJpsi ]
+
+  BEGIN_DOC
+  ! deltaE_mJpsi = H ( Phi * e^{-Jpsi} ) / ( Phi * e^{-Jpsi} ) 
+  !              - H ( Phi ) / Phi 
+  END_DOC
+
+  implicit none
+
+  deltaE_mJpsi = - deltaE_Jpsi_lapl - deltaE_Jpsi_nonh + deltaE_Jpsi_grad
+
+  deltaE_mJpsi_min = min(deltaE_mJpsi_min, deltaE_mJpsi)
+  deltaE_mJpsi_max = max(deltaE_mJpsi_max, deltaE_mJpsi)
+  SOFT_TOUCH deltaE_mJpsi_min deltaE_mJpsi_max
 END_PROVIDER
 
 ! ---

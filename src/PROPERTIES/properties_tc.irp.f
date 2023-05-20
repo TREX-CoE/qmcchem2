@@ -353,3 +353,34 @@ END_PROVIDER
 
 ! -------------------------------------------------------------------------------------------------
 
+! ---
+
+! -------------------------------------------------------------------------------------------------
+
+BEGIN_PROVIDER [ double precision, vartc_H ]
+
+  BEGIN_DOC
+  !
+  ! < phi e^-J | H^2 | phi e^+J > = Eloc_mJpsi x Eloc_Jpsi
+  !
+  !  with :
+  ! Eloc_Jpsi  = H (\Phi e^{+J}) / (\Phi e^{+J})
+  ! Eloc_mJpsi = H (\Phi e^{-J}) / (\Phi e^{-J})
+  !
+  ! should be sampled with phi^2
+  END_DOC
+
+  implicit none
+
+  vartc_H = Eloc_mJpsi * Eloc_Jpsi
+
+  vartc_H_min = min(vartc_H_min, vartc_H)
+  vartc_H_max = max(vartc_H_max, vartc_H)
+  SOFT_TOUCH vartc_H_min vartc_H_max
+
+END_PROVIDER
+
+! -------------------------------------------------------------------------------------------------
+
+! ---
+
