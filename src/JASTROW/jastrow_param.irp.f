@@ -42,8 +42,8 @@ BEGIN_PROVIDER [ integer, jast_type ]
   implicit none
   character*(32) :: buffer
 
-  buffer = types(t_Simple)
-  jast_type = t_Core
+  buffer = types(t_None)
+  jast_type = t_None
   call get_jastrow_jast_type(buffer)
   if (buffer == types(t_Simple)) then
     jast_type = t_Simple
