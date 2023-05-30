@@ -5,6 +5,7 @@ program vmc_test
   if (do_prepare) then
     stop 'No walkers'
   endif
+  print *, jast_value
   print *,  'E_loc = ', E_loc
   call step2
   call ezfio_finish

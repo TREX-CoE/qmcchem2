@@ -147,7 +147,6 @@ IRPSOURCES= \
   src/JASTROW/jastrow_mur.irp.f \
   src/JASTROW/jastrow_param.irp.f \
   src/JASTROW/jastrow_psi.irp.f \
-  src/JASTROW/jastrow_qmckl.irp.f \
   src/JASTROW/jastrow_simple.irp.f \
   src/JASTROW/jastrow_1b.irp.f \
   src/JASTROW/jastrow_core.irp.f \
@@ -156,6 +155,7 @@ IRPSOURCES= \
   src/JASTROW/jastrow_muenv.irp.f \
   src/JASTROW/jastrow_muenv_useful.irp.f \
   src/JASTROW/jastrow_mu.irp.f \
+  src/JASTROW/jastrow_qmckl.irp.f \
   src/MAIN/admc.irp.f \
   src/MAIN/SVD_info.irp.f \
   src/MAIN/vmc_test.irp.f \

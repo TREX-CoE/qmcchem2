@@ -57,11 +57,13 @@ BEGIN_PROVIDER [ integer, jast_type ]
     jast_type = t_Mu_1b
   else if (buffer == types(t_Muenv)) then
     jast_type = t_Muenv
+  else if (buffer == types(t_Qmckl)) then
+    jast_type = t_Qmckl
   else if (buffer == types(t_Mur)) then
     jast_type = t_Mur
     print*, ' do not forget to increase the block time'
   else
-    call abrt(irp_here, 'Jastrow type should be (None|Simple|Core|Mu|Mu_1b|Muenv|Mur)')
+    call abrt(irp_here, 'Jastrow type should be (None|Simple|Qmckl|Core|Mu|Mu_1b|Muenv|Mur)')
   endif
   call cinfo(irp_here, 'jast_type',buffer)
 

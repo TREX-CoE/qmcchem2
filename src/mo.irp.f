@@ -253,8 +253,8 @@ END_PROVIDER
     real                           :: lambda, t
     ! Scale off-diagonal elements
     t = prepare_walkers_t
-    do i=1,num_present_mos
-      do j=1,elec_alpha_num
+    do j=1,elec_alpha_num
+      do i=1,num_present_mos
         if (i /= j) then
           mo_value_transp(i,j) *= t
           mo_grad_transp_x(i,j) *= t
@@ -263,7 +263,9 @@ END_PROVIDER
           mo_lapl_transp(i,j) *= t
         endif
       enddo
-      do j=1,elec_beta_num
+    enddo
+    do j=1,elec_beta_num
+      do i=1,num_present_mos
         if (i /= j) then
           mo_value_transp(i,j+elec_alpha_num) *= t
           mo_grad_transp_x(i,j+elec_alpha_num) *= t
