@@ -97,7 +97,7 @@ distclean-ezfio:
 distclean-ocaml:
 	$(MAKE) -C ocaml clean
 
-distclean: distclean-irpf90 distclean-ezfio distclean-ocaml
+distclean-local: distclean-irpf90 distclean-ezfio distclean-ocaml
 
 clean-local: clean-ezfio clean-ocaml clean-irpf90
 
