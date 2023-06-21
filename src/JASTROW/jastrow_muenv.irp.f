@@ -186,7 +186,7 @@ BEGIN_PROVIDER [double precision, vi_1b_env, (elec_num_8)]
       do iA = 1, nucl_num
         a   = j1b_pen(iA)
         riA = nucl_elec_dist(iA,i)
-        tmp = tmp - dexp(-a*riA*riA)
+        tmp = tmp - j1b_pen_coef(iA) * dexp(-a*riA*riA)
       enddo
       vi_1b_env(i) = tmp
     enddo
@@ -308,7 +308,7 @@ END_PROVIDER
         dz  = nucl_elec_dist_vec(3,iA,i)
         riA = nucl_elec_dist(iA,i)
         arg = a * riA * riA
-        tmp = a * dexp(-arg)
+        tmp = a * j1b_pen_coef(iA) * dexp(-arg)
         tmpx = tmpx + tmp * dx
         tmpy = tmpy + tmp * dy
         tmpz = tmpz + tmp * dz

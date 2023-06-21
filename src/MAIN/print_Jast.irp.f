@@ -15,7 +15,7 @@ program print_Jast
 
   print *, ' jastrow mu     ', mu_erf
   print *, ' jastrow 1b type', j1b_type
-  print *, ' jastrow 1b     ', j1b_pen, j1b_coeff
+  print *, ' jastrow 1b     ', j1b_pen, j1b_pen_coef, j1b_coeff
   print *, ' sign of jastrow', sgn_jast
 
   print *, ' jastrow value:'
