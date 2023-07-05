@@ -3,4 +3,4 @@
 export srcdir="."
 git submodule init
 git submodule update
-autoreconf -f -i -Wall --no-recursive
+autoreconf -i -Wall --no-recursive
