@@ -30,20 +30,19 @@ BEGIN_TEMPLATE
       enddo
     endif
 SUBST [X]
-Simple ;;
-Qmckl  ;;
 Core   ;;
 Mu     ;;
 Mu_1b  ;;
 Muenv  ;;
 Mur    ;;
+Qmckl  ;;
+Simple ;;
 END_TEMPLATE
 
     if (ifirst == 0) then
       dshift = argexpo
       ifirst = 1
     endif
-    !argexpo -= dshift
 
     jpsi_value = dexp(argexpo)
 
@@ -100,13 +99,13 @@ BEGIN_TEMPLATE
       enddo
     endif
 SUBST [ X ]
-Simple ;;
-Qmckl  ;;
 Core   ;;
 Mu     ;;
 Mu_1b  ;;
 Muenv  ;;
 Mur    ;;
+Qmckl  ;;
+Simple ;;
 END_TEMPLATE
 
     !DIR$ VECTOR ALIGNED
@@ -157,13 +156,13 @@ BEGIN_TEMPLATE
       enddo
     endif
 SUBST [X]
-Simple ;;
-Qmckl  ;;
 Core   ;;
 Mu     ;;
 Mu_1b  ;;
 Muenv  ;;
 Mur    ;;
+Qmckl  ;;
+Simple ;;
 END_TEMPLATE
 
     !DIR$ VECTOR ALIGNED
@@ -207,15 +206,16 @@ BEGIN_TEMPLATE
       enddo
     endif
 SUBST [X]
-Simple ;;
-Qmckl  ;;
 Core   ;;
 Mu     ;;
 Mu_1b  ;;
 Muenv  ;;
 Mur    ;;
+Qmckl  ;;
+Simple ;;
 END_TEMPLATE
 
+!   print *, jast_elec_Jpsi_lapl(1) , jast_elec_Qmckl_lapl(1)
   endif
 
 END_PROVIDER

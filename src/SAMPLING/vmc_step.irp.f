@@ -1,3 +1,4 @@
+ use qmckl
 ! Providers of *_vmc_block_walk
 !==============================
 BEGIN_SHELL [ /usr/bin/env python3 ]
@@ -69,6 +70,7 @@ END_SHELL
        elec_coord(i,l) = elec_coord_full(i,l,i_walk)
       enddo
      enddo
+     call update_qmckl_coord()
      TOUCH elec_coord
    endif
 

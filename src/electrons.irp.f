@@ -1,3 +1,5 @@
+use qmckl
+
 BEGIN_PROVIDER [ double precision, xbrown, (elec_num_8,3) ]
   BEGIN_DOC
   ! Brownian step. Built in Brownian_step subroutine.
@@ -20,7 +22,7 @@ END_PROVIDER
     call abrt(irp_here,'Number of alpha electrons should be > 0')
   endif
   elec_alpha_num_8 = mod_align(elec_alpha_num)
-  
+
 END_PROVIDER
 
 
@@ -38,7 +40,7 @@ END_PROVIDER
     call abrt(irp_here,'Number of beta electrons should be >= 0')
   endif
   elec_beta_num_8 = mod_align(elec_beta_num)
-  
+
 END_PROVIDER
 
 
@@ -55,7 +57,7 @@ END_PROVIDER
   ASSERT ( elec_num > 0 )
   elec_num_8 = mod_align(elec_num)
   elec_num_1_8 = mod_align(elec_num+1)
-  
+
 END_PROVIDER
 
 
@@ -70,7 +72,7 @@ BEGIN_PROVIDER   [ real, elec_coord_full, (elec_num+1,3,walk_num) ]
   integer                        :: i,k
   real, allocatable              :: buffer2(:,:,:)
   if ( is_worker ) then
-    
+
     call get_elec_coord_full(elec_coord_full,size(elec_coord_full,1))
 
   else
@@ -91,7 +93,12 @@ BEGIN_PROVIDER   [ real, elec_coord_full, (elec_num+1,3,walk_num) ]
     endif
 
   endif
-  
+  double precision :: buffer(elec_num,3)
+  integer(qmckl_exit_code) :: rc
+  buffer(1:elec_num,1:3) = elec_coord_full(1:elec_num,1:3,1)
+  rc = qmckl_set_electron_coord(qmckl_ctx, 'T', 1_8, buffer,  3_8*elec_num)
+  call check_qmckl(rc, irp_here, qmckl_ctx)
+
 END_PROVIDER
 
 BEGIN_PROVIDER [ integer, elec_coord_pool_size ]
@@ -119,6 +126,13 @@ BEGIN_PROVIDER  [ real, elec_coord, (elec_num_1_8,3) ]
       elec_coord(i,k) = elec_coord_full(i,k,walk_i)
     enddo
   enddo
+
+  double precision :: buffer(elec_num,3)
+  integer(qmckl_exit_code) :: rc
+  buffer(1:elec_num,1:3) = elec_coord(1:elec_num,1:3)
+  rc = qmckl_set_electron_coord(qmckl_ctx, 'T', 1_8, buffer,  3_8*elec_num)
+  call check_qmckl(rc, irp_here, qmckl_ctx)
+
 END_PROVIDER
 
 
@@ -134,7 +148,7 @@ BEGIN_PROVIDER [ real, elec_coord_transp, (8,elec_num)
     ifirst = 1
     elec_coord_transp = 0.
   endif
-  
+
   !DIR$ VECTOR ALIGNED
   !DIR$ LOOP COUNT (200)
   do i=1,elec_num
@@ -155,7 +169,7 @@ END_PROVIDER
   ! Electron-electron distances
   END_DOC
   integer                        :: ie1, ie2, l
-  
+
   integer, save                  :: ifirst = 0
   if (ifirst == 0) then
     ifirst = 1
@@ -168,7 +182,7 @@ END_PROVIDER
     !DIR$ VECTOR ALIGNED
     elec_dist_vec_z = 0.
   endif
-  
+
   do ie2 = 1,elec_num
     real                           :: x, y, z
     real                           :: x2, y2, z2
@@ -186,7 +200,7 @@ END_PROVIDER
           elec_dist_vec_z(ie1,ie2)*elec_dist_vec_z(ie1,ie2) )
     enddo
   enddo
-  
+
 END_PROVIDER
 
 
@@ -199,7 +213,7 @@ END_PROVIDER
   END_DOC
   integer                        :: i,j,l
   integer, save                  :: ifirst = 0
-  
+
   if (ifirst == 0) then
     ifirst = 1
     !DIR$ VECTOR ALIGNED
@@ -207,7 +221,7 @@ END_PROVIDER
     !DIR$ VECTOR ALIGNED
     nucl_elec_dist_vec = 0.
   endif
-  
+
   do i = 1,elec_num
     !DIR$ VECTOR ALIGNED
     !DIR$ LOOP COUNT (100)
@@ -217,7 +231,7 @@ END_PROVIDER
       nucl_elec_dist_vec(3,j,i) = elec_coord_transp(3,i) - nucl_coord(j,3)
     enddo
   enddo
-  
+
   do i = 1,elec_num
     !DIR$ VECTOR ALIGNED
     !DIR$ LOOP COUNT (100)
@@ -236,14 +250,14 @@ END_PROVIDER
 
 
 BEGIN_PROVIDER [ integer, elec_num_2, (2) ]
-  
+
   BEGIN_DOC
   ! Number of alpha and beta electrons in an array
   END_DOC
-  
+
   elec_num_2(1) = elec_alpha_num
   elec_num_2(2) = elec_beta_num
-  
+
 END_PROVIDER
 
 

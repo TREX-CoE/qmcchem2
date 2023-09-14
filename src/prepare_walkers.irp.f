@@ -1,4 +1,5 @@
 subroutine draw_init_points
+  use qmckl
   implicit none
   BEGIN_DOC
 ! Place randomly electron around nuclei
@@ -6,11 +7,11 @@ subroutine draw_init_points
   integer                        :: iwalk
   logical, allocatable           :: do_elec(:)
   integer                        :: acc_num
-  
+
   real, allocatable              :: xmin(:,:)
-  
+
   integer                        :: i, j, k, l, kk
-  
+
   real                           :: norm
   allocate (do_elec(elec_num), xmin(3,elec_num))
   xmin = -huge(1.)
@@ -23,7 +24,7 @@ subroutine draw_init_points
   norm = sqrt(norm/float(elec_alpha_num))
   call rinfo( irp_here, 'Norm : ', norm )
   mo_coef_transp = mo_coef_transp/norm
-  
+
   double precision               :: qmc_ranf
   real                           :: mo_max
   do i=1,elec_alpha_num
@@ -40,7 +41,7 @@ subroutine draw_init_points
     xmin(2,i) = nucl_coord(l,2)
     xmin(3,i) = nucl_coord(l,3)
   enddo
-  
+
   call iinfo(irp_here, 'Det num = ', det_num )
   do k=1,elec_beta_num
     i = k+elec_alpha_num
@@ -57,10 +58,10 @@ subroutine draw_init_points
     xmin(2,i) = nucl_coord(l,2)
     xmin(3,i) = nucl_coord(l,3)
   enddo
-  
+
   call rinfo( irp_here, 'time step =', time_step )
   do iwalk=1,walk_num
-    print *, 'Generating initial positions for walker', iwalk 
+    print *, 'Generating initial positions for walker', iwalk
     acc_num = 0
     do_elec = .True.
     integer :: iter
@@ -79,10 +80,11 @@ subroutine draw_init_points
             enddo
           endif
         enddo
+        call update_qmckl_coord()
         TOUCH elec_coord
         re_compute = minval(nucl_elec_dist(1:nucl_num,1:elec_num))
       enddo
-      
+
       do i=1,elec_alpha_num
         if (do_elec(i)) then
           if ( mo_value_transp(i,i)**2 >= qmc_ranf()) then
@@ -91,7 +93,7 @@ subroutine draw_init_points
           endif
         endif
       enddo
-      
+
       do i=1,elec_beta_num
         if (do_elec(i+elec_alpha_num)) then
           if ( mo_value_transp(i,i+elec_alpha_num)**2 >= qmc_ranf()) then
@@ -100,9 +102,9 @@ subroutine draw_init_points
           endif
         endif
       enddo
-      
+
     enddo
-    
+
     do l=1,3
       do i=1,elec_num+1
         elec_coord_full(i,l,iwalk) = elec_coord(i,l)
@@ -113,9 +115,10 @@ subroutine draw_init_points
     call ezfio_set_electrons_elec_coord_pool_size(walk_num)
     call ezfio_set_electrons_elec_coord_pool(elec_coord_full)
   endif
+  call update_qmckl_coord()
   SOFT_TOUCH elec_coord elec_coord_full
   deallocate (do_elec, xmin)
-  
+
 end
 
 
@@ -127,15 +130,16 @@ subroutine run_prepare_walkers
   include 'types.F'
   integer                        :: istep, iwalk
   integer                        :: i,j, l
-  
+
   do iwalk=1,walk_num
     do l=1,3
       do i=1,elec_num+1
         elec_coord(i,l) = elec_coord_full(i,l,iwalk)
       enddo
     enddo
+    call update_qmckl_coord()
     TOUCH elec_coord
-    
+
     double precision               :: qmc_ranf, rcond, lambda
     rcond = 100.d0
     lambda = 1.d0
@@ -161,8 +165,8 @@ subroutine run_prepare_walkers
       enddo
     enddo
     TOUCH mo_coef_transp
-    print *, 'Starting walker ', iwalk 
-    
+    print *, 'Starting walker ', iwalk
+
     do istep=1,1000
       if (psidet_right_value == 0.d0) then
         exit
@@ -191,7 +195,7 @@ subroutine run_prepare_walkers
           enddo
         enddo
         TOUCH mo_coef_transp
-        
+
         rcond = log(abs(dble(psidet_right_value)))
       enddo
       double precision               :: p,q
@@ -216,6 +220,6 @@ subroutine run_prepare_walkers
     enddo
     TOUCH elec_coord_full
   enddo
-  
+
 end
 

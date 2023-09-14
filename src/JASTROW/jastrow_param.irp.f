@@ -98,7 +98,7 @@ BEGIN_PROVIDER [ integer, jpsi_type ]
   else if (buffer == types(t_Muenv)) then
     jpsi_type = t_Muenv
   else if (buffer == types(t_Qmckl)) then
-    jast_type = t_Qmckl
+    jpsi_type = t_Qmckl
   else if (buffer == types(t_Mur)) then
     jpsi_type = t_Mur
     print*, ' do not forget to increase the block time'

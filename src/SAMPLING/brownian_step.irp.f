@@ -108,6 +108,7 @@ subroutine brownian_step(p,q,accepted,delta_x)
     elec_coord(i,3) = xold_z(i) + xdiff_z(i)
   enddo
 
+  call update_qmckl_coord()
   TOUCH elec_coord
   
   !DIR$ VECTOR ALIGNED
@@ -184,6 +185,7 @@ subroutine brownian_step(p,q,accepted,delta_x)
     psi_grad_psi_inv_z = bold0_z
     psi_value = psiold
     rejected_num += 1.
+    call update_qmckl_coord()
     SOFT_TOUCH elec_coord psi_grad_psi_inv_x psi_grad_psi_inv_y psi_grad_psi_inv_z psi_value 
   endif
 

@@ -37,8 +37,6 @@ END_TEMPLATE
        dshift = argexpo
        ifirst = 1
      endif
-     dshift = 0.d0
-     argexpo -= dshift
 
      jast_value = dexp(sgn_jast*argexpo)
  endif

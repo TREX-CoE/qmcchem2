@@ -7,7 +7,8 @@ program vmc_test
   endif
   print *, jast_value
   print *,  'E_loc = ', E_loc
-  print *, transpose(elec_coord(1:elec_num,1:3))
+  print *,  'Eloc_Jpsi = ', eloc_jpsi
+!  print *, transpose(elec_coord(1:elec_num,1:3))
   call step2
   call ezfio_finish
 end
@@ -16,20 +17,26 @@ subroutine step2
   implicit none
   real :: accep_rate
   integer, parameter :: NMAX=1000
-  double precision :: E(NMAX), ave, err, w
+  double precision :: E(NMAX), EJ(NMAX), ave, err, w
   integer :: i
   w = 0.d0
   do i=1,NMAX
     E(i) = E_loc_block_walk
-    w += block_weight   
+    EJ(i) = Eloc_Jpsi_block_walk
+    w += block_weight
     TOUCH elec_coord
-  
+
     ave = sum(E(1:i))/dble(i)
     err = dsqrt(sum( (E(1:i)-ave)**2 ) / dble(i*i-i))
-   
+
+    print *, E_loc - Eloc_Jpsi
     print *,  '---'
     print *,  '<E_loc> = ', ave, '+/-', real(err)
     print *,  '<E_loc_2> = ', E_loc_2_block_walk
+    ave = sum(EJ(1:i))/dble(i)
+    err = dsqrt(sum( (EJ(1:i)-ave)**2 ) / dble(i*i-i))
+    print *,  '<E_loc_Jpsi> = ', ave, '+/-', real(err)
+    print *,  '<E_loc_Jpsi2> = ', Eloc_Jpsi_2_block_walk
     print *,  'w = ', w
     print *,  'Accept', accep_rate()
   end do

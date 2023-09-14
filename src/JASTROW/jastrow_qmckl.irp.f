@@ -13,6 +13,7 @@ BEGIN_PROVIDER [ double precision , jast_elec_Qmckl_value, (elec_num_8)  ]
  integer(qmckl_exit_code) :: rc
  integer :: i
  double precision :: v(1)
+ PROVIDE elec_coord
 
  rc = qmckl_get_jastrow_champ_factor_ee(qmckl_ctx, v, 1_8)
  call check_qmckl(rc, irp_here, qmckl_ctx)
@@ -22,7 +23,7 @@ BEGIN_PROVIDER [ double precision , jast_elec_Qmckl_value, (elec_num_8)  ]
    jast_elec_Qmckl_value(i) = v(1)
  enddo
 
- rc = qmckl_get_jastrow_champ_factor_en(qmckl_ctx, v, nucl_num*1_8)
+ rc = qmckl_get_jastrow_champ_factor_en(qmckl_ctx, v, 1_8)
  call check_qmckl(rc, irp_here, qmckl_ctx)
 
  v(1) = v(1)/dble(elec_num)
@@ -30,14 +31,13 @@ BEGIN_PROVIDER [ double precision , jast_elec_Qmckl_value, (elec_num_8)  ]
    jast_elec_Qmckl_value(i) += v(1)
  enddo
 
- rc = qmckl_get_jastrow_champ_factor_een(qmckl_ctx, v, nucl_num*1_8)
+ rc = qmckl_get_jastrow_champ_factor_een(qmckl_ctx, v, 1_8)
  call check_qmckl(rc, irp_here, qmckl_ctx)
 
  v(1) = v(1)/dble(elec_num)
  do i=1,elec_num
    jast_elec_Qmckl_value(i) += v(1)
  enddo
-
 
 END_PROVIDER
 
@@ -54,6 +54,7 @@ END_PROVIDER
  integer(qmckl_exit_code) :: rc
  double precision, allocatable :: buffer(:,:)
  integer :: i
+ PROVIDE elec_coord
 
  allocate(buffer(elec_num,4))
 
