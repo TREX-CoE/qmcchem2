@@ -7,6 +7,7 @@ program vmc_test
   endif
   print *, jast_value
   print *,  'E_loc = ', E_loc
+  print *, transpose(elec_coord(1:elec_num,1:3))
   call step2
   call ezfio_finish
 end

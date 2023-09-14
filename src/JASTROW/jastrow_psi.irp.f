@@ -31,6 +31,7 @@ BEGIN_TEMPLATE
     endif
 SUBST [X]
 Simple ;;
+Qmckl  ;;
 Core   ;;
 Mu     ;;
 Mu_1b  ;;
@@ -100,6 +101,7 @@ BEGIN_TEMPLATE
     endif
 SUBST [ X ]
 Simple ;;
+Qmckl  ;;
 Core   ;;
 Mu     ;;
 Mu_1b  ;;
@@ -156,6 +158,7 @@ BEGIN_TEMPLATE
     endif
 SUBST [X]
 Simple ;;
+Qmckl  ;;
 Core   ;;
 Mu     ;;
 Mu_1b  ;;
@@ -205,6 +208,7 @@ BEGIN_TEMPLATE
     endif
 SUBST [X]
 Simple ;;
+Qmckl  ;;
 Core   ;;
 Mu     ;;
 Mu_1b  ;;

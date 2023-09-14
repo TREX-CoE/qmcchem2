@@ -97,11 +97,13 @@ BEGIN_PROVIDER [ integer, jpsi_type ]
     jpsi_type = t_Mu_1b
   else if (buffer == types(t_Muenv)) then
     jpsi_type = t_Muenv
+  else if (buffer == types(t_Qmckl)) then
+    jast_type = t_Qmckl
   else if (buffer == types(t_Mur)) then
     jpsi_type = t_Mur
     print*, ' do not forget to increase the block time'
   else
-    call abrt(irp_here, 'jpsi type should be (None|Simple|Core|Mu|Mu_1b|Muenv|Mur)')
+    call abrt(irp_here, 'jpsi type should be (None|Simple|Qmckl|Core|Mu|Mu_1b|Muenv|Mur)')
   endif
   call cinfo(irp_here, 'jpsi_type',buffer)
 
