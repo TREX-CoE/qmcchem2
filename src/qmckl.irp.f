@@ -6,6 +6,7 @@
   BEGIN_DOC
   ! Context for the QMCKL library
   END_DOC
+  include 'types.F'
 
   integer, save :: ifirst = 0
   integer(qmckl_exit_code) :: rc
