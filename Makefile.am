@@ -176,19 +176,11 @@ IRPSOURCES= \
   src/SAMPLING/srmc_step.irp.f \
   src/SAMPLING/vmc_step.irp.f \
   src/PROPERTIES/properties_tc.irp.f \
-  src/PROPERTIES/properties_tc_svd.irp.f \
   src/PROPERTIES/properties_ci.irp.f \
-  src/PROPERTIES/properties_ci_svd.irp.f \
-  src/PROPERTIES/properties_deriv_jast.irp.f \
   src/PROPERTIES/properties_eJast.irp.f \
   src/PROPERTIES/properties_energy.irp.f \
   src/PROPERTIES/properties_general.irp.f \
-  src/PROPERTIES/properties_GSorthog.irp.f \
   src/PROPERTIES/properties.irp.f \
-  src/PROPERTIES/properties_lr.irp.f \
-  src/PROPERTIES/properties_NightMelik.irp.f \
-  src/PROPERTIES/properties_oo.irp.f \
-  src/PROPERTIES/properties_tests.irp.f \
   src/ZMQ/qmc.irp.f \
   src/ZMQ/sockets.irp.f \
   src/ZMQ/utils.irp.f \
