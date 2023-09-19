@@ -39,66 +39,39 @@
     endif
 
     ! Jastrow parameters
-    if (jast_type == t_Qmckl) then
-       rc =  qmckl_set_jastrow_champ_type_nucl_num     (qmckl_ctx, 2_8)
+    if (jast_type == t_Qmckl .or. jpsi_type == t_Qmckl) then
+       rc =  qmckl_set_jastrow_champ_type_nucl_num(qmckl_ctx, 1_8*jast_qmckl_type_nucl_num)
        call check_qmckl(rc, irp_here, qmckl_ctx)
 
-       rc =  qmckl_set_jastrow_champ_type_nucl_vector  (qmckl_ctx, (/0_8,1_8,1_8/), 1_8*nucl_num)
+       rc =  qmckl_set_jastrow_champ_type_nucl_vector(qmckl_ctx, 1_8*jast_qmckl_type_nucl_vector-1_8, 1_8*nucl_num)
        call check_qmckl(rc, irp_here, qmckl_ctx)
 
-       rc =  qmckl_set_jastrow_champ_rescale_factor_ee (qmckl_ctx, 0.6d0)
+       rc =  qmckl_set_jastrow_champ_rescale_factor_ee(qmckl_ctx, jast_qmckl_rescale_ee)
        call check_qmckl(rc, irp_here, qmckl_ctx)
 
-       rc =  qmckl_set_jastrow_champ_rescale_factor_en (qmckl_ctx, (/0.6d0, 0.6d0 /), 2_8 )
+       rc =  qmckl_set_jastrow_champ_rescale_factor_en(qmckl_ctx, jast_qmckl_rescale_en, 1_8*jast_qmckl_type_nucl_num)
        call check_qmckl(rc, irp_here, qmckl_ctx)
 
-       rc =  qmckl_set_jastrow_champ_aord_num          (qmckl_ctx, 5_8)
+       rc =  qmckl_set_jastrow_champ_aord_num(qmckl_ctx, jast_qmckl_aord_num*1_8)
        call check_qmckl(rc, irp_here, qmckl_ctx)
 
-       rc =  qmckl_set_jastrow_champ_bord_num          (qmckl_ctx, 5_8)
+       rc =  qmckl_set_jastrow_champ_a_vector(qmckl_ctx, jast_qmckl_a_vector, 1_8*size(jast_qmckl_a_vector))
        call check_qmckl(rc, irp_here, qmckl_ctx)
 
-       rc =  qmckl_set_jastrow_champ_cord_num          (qmckl_ctx, 0_8)
+       rc =  qmckl_set_jastrow_champ_bord_num(qmckl_ctx, jast_qmckl_bord_num*1_8)
        call check_qmckl(rc, irp_here, qmckl_ctx)
 
-!      double precision :: a_vector(12) = dble(&
-!               (/ 0.00000000,  0.00000000, -0.71168405, -0.44415699, -0.13865109,  0.07002267 , &
-!                  0.00000000,  0.00000000, -0.11379992,  0.04542846,  0.01696997, -0.01809299 /) )
-!    
-!      double precision :: b_vector(6) = dble(&
-!               (/  0.00000000,  0.65603311,  0.14581988,  0.03138163,  0.00153156, -0.00447302 /) )
-!    
-!      double precision :: c_vector(46) = &
-!               (/ 1.06384279d0, -1.44303973d0, -0.92409833d0,  0.11845356d0, -0.02980776d0, &
-!                  1.07048863d0,  0.06009623d0, -0.01854872d0, -0.00915398d0,  0.01324198d0, &
-!                 -0.00504959d0, -0.01202497d0, -0.00531644d0,  0.15101629d0, -0.00723831d0, &
-!                 -0.00384182d0, -0.00295036d0, -0.00114583d0,  0.00158107d0, -0.00078107d0, &
-!                 -0.00080000d0, -0.14140576d0, -0.00237271d0, -0.03006706d0,  0.01537009d0, &
-!                 -0.02327226d0,  0.16502789d0, -0.01458259d0, -0.09946065d0,  0.00850029d0, &
-!                 -0.02969361d0, -0.01159547d0,  0.00516313d0,  0.00405247d0, -0.02200886d0, &
-!                  0.03376709d0,  0.01277767d0, -0.01523013d0, -0.00739224d0, -0.00463953d0, &
-!                  0.00003174d0, -0.01421128d0,  0.00808140d0,  0.00612988d0, -0.00610632d0, &
-!                  0.01926215d0 /)
-
-       double precision :: a_vector(12) = dble(&
-                (/ 0.00000000 , 0.00000000, -0.45105821, -0.23519218, -0.03825391,  0.10072866, &
-                   0.00000000 , 0.00000000, -0.06930592, -0.02909224, -0.00134650,  0.01477242 /) )
-     
-       double precision :: b_vector(6) = dble(&
-                (/  0.00000000,  0.00000000,  0.29217862, -0.00450671, -0.02925982, -0.01381532 /) )
-     
-       double precision :: c_vector(46)
-       c_vector = 0.d0
-
-
-       rc =  qmckl_set_jastrow_champ_a_vector(qmckl_ctx, a_vector, 12_8)
+       rc =  qmckl_set_jastrow_champ_b_vector(qmckl_ctx, jast_qmckl_b_vector, 1_8*size(jast_qmckl_b_vector))
        call check_qmckl(rc, irp_here, qmckl_ctx)
 
-       rc =  qmckl_set_jastrow_champ_b_vector(qmckl_ctx, b_vector, 6_8)
+
+       rc =  qmckl_set_jastrow_champ_cord_num(qmckl_ctx, jast_qmckl_cord_num*1_8)
        call check_qmckl(rc, irp_here, qmckl_ctx)
 
-!       rc =  qmckl_set_jastrow_champ_c_vector(qmckl_ctx, c_vector, 46_8)
-!       call check_qmckl(rc, irp_here, qmckl_ctx)
+       if (jast_qmckl_cord_num > 0) then
+         rc =  qmckl_set_jastrow_champ_c_vector(qmckl_ctx, jast_qmckl_c_vector, 1_8*jast_qmckl_c_vector_size)
+         call check_qmckl(rc, irp_here, qmckl_ctx)
+       endif
     end if
 
   end if

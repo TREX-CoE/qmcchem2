@@ -1,6 +1,161 @@
 ! QMCkl Jastrow
 ! --------------
 
+BEGIN_PROVIDER [ integer, jast_qmckl_type_nucl_num ]
+ implicit none
+ BEGIN_DOC
+ ! Number of different nuclei types in QMCkl jastrow
+ END_DOC
+
+ jast_qmckl_type_nucl_num = -1
+ call get_jastrow_jast_qmckl_type_nucl_num(jast_qmckl_type_nucl_num)
+ if (jast_qmckl_type_nucl_num <= 0) then
+    call abrt(irp_here, 'jast_qmckl_type_nucl_num <= 0')
+ endif
+
+END_PROVIDER
+
+BEGIN_PROVIDER [ integer, jast_qmckl_type_nucl_vector, (nucl_num) ]
+ implicit none
+ BEGIN_DOC
+ ! Nucleus type in QMCkl jastrow
+ END_DOC
+
+ jast_qmckl_type_nucl_vector = -1
+ call get_jastrow_jast_qmckl_type_nucl_vector(jast_qmckl_type_nucl_vector)
+
+ integer                        :: i
+ do i=1,nucl_num
+   if (jast_qmckl_type_nucl_vector(i) <= 0) then
+     call abrt(irp_here,'jast_qmckl_type_nucl_vector(i) <= 0')
+   endif
+ enddo
+
+END_PROVIDER
+
+BEGIN_PROVIDER [ double precision, jast_qmckl_rescale_ee ]
+ implicit none
+ BEGIN_DOC
+ ! Rescaling factor for electron-electron in QMCkl Jastrow
+ END_DOC
+
+ jast_qmckl_rescale_ee = 0.d0
+ call get_jastrow_jast_qmckl_rescale_ee(jast_qmckl_rescale_ee)
+ if (jast_qmckl_rescale_ee <= 0.d0) then
+    call abrt(irp_here, 'jast_qmckl_rescale_ee <= 0.d0')
+ endif
+
+END_PROVIDER
+
+BEGIN_PROVIDER [ double precision, jast_qmckl_rescale_en, (jast_qmckl_type_nucl_num) ]
+ implicit none
+ BEGIN_DOC
+ ! Rescaling factor for electron-nucleus in QMCkl Jastrow
+ END_DOC
+
+ jast_qmckl_rescale_en = 0.d0
+ call get_jastrow_jast_qmckl_rescale_en(jast_qmckl_rescale_en)
+
+ integer                        :: i
+ do i=1,jast_qmckl_type_nucl_num
+   if (jast_qmckl_rescale_en(i) <= 0.d0) then
+     call abrt(irp_here,'jast_qmckl_rescale_en(i) <= 0.d0')
+   endif
+ enddo
+
+END_PROVIDER
+
+BEGIN_PROVIDER [ integer, jast_qmckl_aord_num ]
+ implicit none
+ BEGIN_DOC
+ ! Order of polynomials in e-n parameters of QMCkl jastrow
+ END_DOC
+
+ jast_qmckl_aord_num = 0
+ call get_jastrow_jast_qmckl_aord_num(jast_qmckl_aord_num)
+ if (jast_qmckl_aord_num < 0) then
+    call abrt(irp_here, 'jast_qmckl_aord_num < 0')
+ endif
+
+END_PROVIDER
+
+BEGIN_PROVIDER [ integer, jast_qmckl_bord_num ]
+ implicit none
+ BEGIN_DOC
+ ! Order of polynomials in e-e parameters of QMCkl jastrow
+ END_DOC
+
+ jast_qmckl_bord_num = 0
+ call get_jastrow_jast_qmckl_bord_num(jast_qmckl_bord_num)
+ if (jast_qmckl_bord_num < 0) then
+    call abrt(irp_here, 'jast_qmckl_bord_num < 0')
+ endif
+
+END_PROVIDER
+
+BEGIN_PROVIDER [ integer, jast_qmckl_cord_num ]
+ implicit none
+ BEGIN_DOC
+ ! Order of polynomials in e-e-n parameters of QMCkl jastrow
+ END_DOC
+
+ jast_qmckl_cord_num = 0
+ call get_jastrow_jast_qmckl_cord_num(jast_qmckl_cord_num)
+ if (jast_qmckl_cord_num < 0) then
+    call abrt(irp_here, 'jast_qmckl_cord_num < 0')
+ endif
+
+END_PROVIDER
+
+
+
+BEGIN_PROVIDER [ integer, jast_qmckl_c_vector_size ]
+ implicit none
+ BEGIN_DOC
+ ! Number of electron-electron-nucleus parameters in QMCkl Jastrow
+ END_DOC
+
+ jast_qmckl_c_vector_size = 1
+ call get_jastrow_jast_qmckl_c_vector_size(jast_qmckl_c_vector_size)
+
+END_PROVIDER
+
+
+BEGIN_PROVIDER [ double precision, jast_qmckl_a_vector, (jast_qmckl_type_nucl_num*(jast_qmckl_aord_num+1))]
+ implicit none
+ BEGIN_DOC
+ ! electron-nucleus parameters in QMCkl Jastrow
+ END_DOC
+
+ jast_qmckl_a_vector = 0.d0
+ call get_jastrow_jast_qmckl_a_vector(jast_qmckl_a_vector)
+
+END_PROVIDER
+
+
+BEGIN_PROVIDER [ double precision, jast_qmckl_b_vector, (jast_qmckl_bord_num+1)]
+ implicit none
+ BEGIN_DOC
+ ! electron-electron parameters in QMCkl Jastrow
+ END_DOC
+
+ jast_qmckl_b_vector = 0.d0
+ call get_jastrow_jast_qmckl_b_vector(jast_qmckl_b_vector)
+
+END_PROVIDER
+
+
+BEGIN_PROVIDER [ double precision, jast_qmckl_c_vector, (jast_qmckl_c_vector_size)]
+ implicit none
+ BEGIN_DOC
+ ! electron-electron-nucleus parameters in QMCkl Jastrow
+ END_DOC
+
+ jast_qmckl_c_vector = 0.d0
+ call get_jastrow_jast_qmckl_c_vector(jast_qmckl_c_vector)
+
+END_PROVIDER
+
 ! ---
 
 BEGIN_PROVIDER [ double precision , jast_elec_Qmckl_value, (elec_num_8)  ]
