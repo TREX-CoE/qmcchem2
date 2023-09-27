@@ -40,6 +40,10 @@
 
     ! Jastrow parameters
     if (jast_type == t_Qmckl .or. jpsi_type == t_Qmckl) then
+
+       rc =  qmckl_set_jastrow_champ_spin_independent(qmckl_ctx, 1)
+       call check_qmckl(rc, irp_here, qmckl_ctx)
+
        rc =  qmckl_set_jastrow_champ_type_nucl_num(qmckl_ctx, 1_8*jast_qmckl_type_nucl_num)
        call check_qmckl(rc, irp_here, qmckl_ctx)
 
@@ -72,6 +76,7 @@
          rc =  qmckl_set_jastrow_champ_c_vector(qmckl_ctx, jast_qmckl_c_vector, 1_8*jast_qmckl_c_vector_size)
          call check_qmckl(rc, irp_here, qmckl_ctx)
        endif
+
     end if
 
   end if
@@ -84,11 +89,9 @@ subroutine check_qmckl(rc, here, ctx)
   integer(qmckl_exit_code), intent(inout) :: rc
   character*(*), intent(in) :: here
   integer(qmckl_context), intent(in) :: ctx
-  character*(128) :: msg
   if (rc == QMCKL_SUCCESS) return
   print *, here
   rc = qmckl_check(ctx, rc)
-  print *, msg
   stop -1
 end
 
