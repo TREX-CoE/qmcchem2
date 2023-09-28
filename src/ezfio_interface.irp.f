@@ -21,6 +21,7 @@ data = [ \
 ("ao_two_e_erf_ints_mu_erf"        , "real"          , ""                   ),
 ("tc_keywords_j1b_type"            , "integer"       , ""                   ),
 ("tc_keywords_j1b_pen"             , "real"          , "(nucl_num)"         ),
+("tc_keywords_j1b_pen_coef"        , "real"          , "(nucl_num)"         ),
 ("tc_keywords_j1b_coeff"           , "real"          , "(nucl_num)"         ),
 ("tc_keywords_mu_r_ct"             , "real"          , ""                   ),
 ("jastrow_inv_sgn_jast"            , "logical"       , ""                   ),

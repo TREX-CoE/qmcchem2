@@ -178,8 +178,18 @@ BEGIN_PROVIDER [double precision, vi_1b_env, (elec_num_8)]
     !  enddo
     !enddo
 
-  ! TODO
-  !elseif((j1b_type .eq. 4) .or. (j1b_type .eq. 104)) then
+  elseif((j1b_type .eq. 4) .or. (j1b_type .eq. 104)) then
+
+    do i = 1, elec_num
+      tmp = 1.d0
+      !DIR$ LOOP COUNT (100)
+      do iA = 1, nucl_num
+        a   = j1b_pen(iA)
+        riA = nucl_elec_dist(iA,i)
+        tmp = tmp - j1b_pen_coef(iA) * dexp(-a*riA*riA)
+      enddo
+      vi_1b_env(i) = tmp
+    enddo
 
   elseif((j1b_type .eq. 5) .or. (j1b_type .eq. 105)) then
 
@@ -215,6 +225,7 @@ END_PROVIDER
   double precision :: a, riA, dx, dy, dz, r2, r4
   double precision :: tmp, tmpx, tmpy, tmpz, tmpl
   double precision :: expo, coef, coef_x, coef_y, coef_z, c
+  double precision :: arg
 
   PROVIDE j1b_type
 
@@ -281,8 +292,33 @@ END_PROVIDER
       enddo
     enddo
 
-  ! TODO
-  !elseif((j1b_type .eq. 4) .or. (j1b_type .eq. 104)) then
+  elseif((j1b_type .eq. 4) .or. (j1b_type .eq. 104)) then
+
+    do i = 1, elec_num
+      tmpx = 0.d0
+      tmpy = 0.d0
+      tmpz = 0.d0
+      tmpl = 0.d0
+      !DIR$ LOOP COUNT (100)
+      do iA = 1, nucl_num
+        a   = j1b_pen(iA)
+        ! xi - xA = nucl_elec_dist_vec(1,iA,i)
+        dx  = nucl_elec_dist_vec(1,iA,i)
+        dy  = nucl_elec_dist_vec(2,iA,i)
+        dz  = nucl_elec_dist_vec(3,iA,i)
+        riA = nucl_elec_dist(iA,i)
+        arg = a * riA * riA
+        tmp = a * j1b_pen_coef(iA) * dexp(-arg)
+        tmpx = tmpx + tmp * dx
+        tmpy = tmpy + tmp * dy
+        tmpz = tmpz + tmp * dz
+        tmpl = tmpl + tmp * (3.d0 - 2.d0 * arg)
+      enddo
+      deriv_vi_x_env(i) = 2.d0 * tmpx
+      deriv_vi_y_env(i) = 2.d0 * tmpy
+      deriv_vi_z_env(i) = 2.d0 * tmpz
+      lapl_vi_env   (i) = 2.d0 * tmpl
+    enddo
 
   elseif((j1b_type .eq. 5) .or. (j1b_type .eq. 105)) then
 
