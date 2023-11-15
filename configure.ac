@@ -126,7 +126,8 @@ AS_CASE([$FC],
 ])
 
 # Check CPU features
-AC_ARG_WITH(arch, [AS_HELP_STRING([--with-arch],[enable avx, avx2 or avx512])], with_arch=$withval, with_arch=avx2)
+AC_ARG_WITH(arch, [AS_HELP_STRING([--with-arch],[enable avx, avx2 or avx512])], with_arch=$withval, with_arch=unknown)
+ALIGN=32
 
 AS_CASE([$FC],
   [*ifort*], [
