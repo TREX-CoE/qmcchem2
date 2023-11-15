@@ -1061,11 +1061,14 @@ subroutine get_excitation_degree_spin(key1,key2,degree,Nint)
   integer(8), intent(in)  :: key2(Nint)
   integer, intent(out)           :: degree
 
-  integer(8)              :: xorvec(32)
+  integer(8)              :: xorvec(256)
   integer                        :: l
 
+  if (Nint > 256) then
+    print *, 'in det_useful.irp.f, get_excitation_degree_spin, Nint too lage'
+    stop 1
+  endif
   ASSERT (Nint > 0)
-  ASSERT (Nint <= 32)
 
   select case (Nint)
 

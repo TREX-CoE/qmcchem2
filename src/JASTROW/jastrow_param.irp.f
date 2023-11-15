@@ -205,6 +205,13 @@ BEGIN_PROVIDER [ real, j1b_pen, (nucl_num) ]
   call get_tc_keywords_j1b_pen(j1b_pen)
 END_PROVIDER
 
+BEGIN_PROVIDER [ real, j1b_pen_coef, (nucl_num) ]
+  implicit none
+  include '../types.F'
+  j1b_pen_coef(:) = 1.0
+  call get_tc_keywords_j1b_pen_coef(j1b_pen_coef)
+END_PROVIDER
+
 BEGIN_PROVIDER [ double precision, j1b_coeff, (nucl_num) ]
   implicit none
   include '../types.F'

@@ -53,7 +53,6 @@ BEGIN_PROVIDER [ logical, do_equilibration ]
    if (.not.do_prepare) then
      call get_simulation_equilibration(do_equilibration)
    endif
-   call iinfo(irp_here,'equilibration', do_equilibration)
    
 END_PROVIDER
 
