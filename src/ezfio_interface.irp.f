@@ -51,6 +51,7 @@ data = [ \
 ("jastrow_jast_type"               , "character*(32)", ""                    ),
 ("jastrow_jpsi_type"               , "character*(32)", ""                    ),
 ("simulation_stop_time"            , "integer"       , ""                      ),
+("simulation_precision"            , "integer"       , ""                      ),
 ("simulation_equilibration"        , "logical"       , ""                      ),
 ("simulation_block_time"           , "integer"       , ""                      ),
 ("simulation_time_step"            , "real"          , ""                      ),

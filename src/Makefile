@@ -17,5 +17,5 @@ irpf90.make: $(filter-out IRPF90_temp/%, $(wildcard */*.irp.f)) $(wildcard *.irp
 	$(IRPF90)
 
 IRPF90_temp/irp_touches.irp.o: IRPF90_temp/irp_touches.irp.F90
-	$(FC) -O2 -c -g  IRPF90_temp/irp_touches.irp.F90 -o IRPF90_temp/irp_touches.irp.o
+	$(FC) -O0 -c -g  IRPF90_temp/irp_touches.irp.F90 -o IRPF90_temp/irp_touches.irp.o
 

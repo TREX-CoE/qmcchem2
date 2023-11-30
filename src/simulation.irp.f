@@ -100,6 +100,24 @@ BEGIN_PROVIDER [ integer, stop_time ]
 END_PROVIDER
 
  
+BEGIN_PROVIDER [ integer, precision_bits ]
+   implicit none
+   BEGIN_DOC
+   ! Termination condition of the run
+   END_DOC
+   precision_bits = 53
+   call get_simulation_precision(precision_bits)
+   call iinfo(irp_here,'precision',precision_bits)
+   
+   if (precision_bits<= 1) then
+     call abrt(irp_here,'Precision should be > 1')
+   endif
+   if (precision_bits> 53) then
+     call abrt(irp_here,'Precision should be <= 53')
+   endif
+END_PROVIDER
+
+ 
  BEGIN_PROVIDER [ real, time_step ]
 &BEGIN_PROVIDER [ real, time_step_inv ]
 &BEGIN_PROVIDER [ double precision, dtime_step ]
