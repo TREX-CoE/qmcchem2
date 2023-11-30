@@ -13,10 +13,14 @@
   integer :: keep(mo_tot_num), i
 
   if (ifirst == 0) then
-    qmckl_ctx = qmckl_context_create()
     ifirst = 1
+
+    qmckl_ctx = qmckl_context_create()
+    
     rc = qmckl_trexio_read(qmckl_ctx, trexio_filename, 1_8*len(trim(trexio_filename)))
     call check_qmckl(rc, irp_here, qmckl_ctx)
+
+    rc = qmckl_set_numprec_precision(qmckl_ctx, precision_bits)
 
     keep = 0
     do i=1,num_present_mos
