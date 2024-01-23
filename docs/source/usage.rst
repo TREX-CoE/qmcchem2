@@ -13,7 +13,7 @@ Preparing the System with Quantum Package
 
 1. **Create the EZFIO Database**
 
-   Begin by creating an `xyz` file with the nuclear coordinates of the system. For a water molecule:
+   Begin by creating an ``xyz`` file with the nuclear coordinates of the system. For a water molecule:
 
    .. code-block:: bash
 
@@ -63,7 +63,7 @@ Performing FN-DMC Calculation with QMC=Chem
 
 2. **Understanding the ``qmcchem`` Command**
 
-   The `qmcchem` command is central to operations in QMC=Chem. Running it without arguments displays a help message:
+   The ``qmcchem`` command is central to operations in QMC=Chem. Running it without arguments displays a help message:
 
    .. code-block:: none
 

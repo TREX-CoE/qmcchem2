@@ -40,7 +40,7 @@ while working with QMC=Chem, along with solutions and advice for each scenario.
 
    **Solution**: If I/O is a bottleneck, consider increasing the block time so that computing a block takes at least twice as long as communicating results. This adjustment can help balance computation and I/O operations, improving overall efficiency.
 
-5. **Slow `qmcchem result` Command**
+5. **Slow ``qmcchem result`` Command**
 
    **Issue**: The ``qmcchem result`` command takes a long time to execute.
 

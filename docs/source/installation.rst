@@ -50,19 +50,19 @@ To compile QMC=Chem, execute the following commands:
     ./autogen.sh
     ./configure && make
 
-After compilation, it's necessary to set up the environment for QMC=Chem. The environment variables are specified in the `qmcchemrc` file:
+After compilation, it's necessary to set up the environment for QMC=Chem. The environment variables are specified in the ``qmcchemrc`` file:
 
 .. code-block:: bash
 
     source qmcchemrc
 
-Set the `QMCCHEM_NIC` environment variable to the appropriate network interface, typically `ib0` on HPC systems.
-If needed, set `QMCCHEM_IO=b` to store the results in binary format to accelerate post-processing.
+Set the ``QMCCHEM_NIC`` environment variable to the appropriate network interface, typically ``ib0`` on HPC systems.
+If needed, set ``QMCCHEM_IO=b`` to store the results in binary format to accelerate post-processing.
 
 Tuning for HPC Systems
 ----------------------
 
-For optimal performance, the Intel compiler is recommended. If using gfortran version 12 or higher, add the `-fallow-argument-mismatch` option.
+For optimal performance, the Intel compiler is recommended. If using gfortran version 12 or higher, add the ``-fallow-argument-mismatch`` option.
 
 Example configurations:
 
@@ -81,7 +81,7 @@ Example configurations:
 File Preparation
 ----------------
 
-To prepare files for QMC=Chem, the `save_for_qmcchem` plugin must be installed in Quantum Package:
+To prepare files for QMC=Chem, the ``save_for_qmcchem`` plugin must be installed in Quantum Package:
 
 .. code-block:: bash
 
