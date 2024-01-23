@@ -1,4 +1,4 @@
-![QMC=Chem logo](https://github.com/trex-coe/qmcchem2/raw/master/doc/QmcChemLogo.png)
+![QMC=Chem logo](https://github.com/trex-coe/qmcchem2/raw/master/docs/QmcChemLogo.png)
 
 This repository contains version 2 of QMC=Chem.
 Version 1 is available on [GitLab](https://gitlab.com/scemama/qmcchem).
