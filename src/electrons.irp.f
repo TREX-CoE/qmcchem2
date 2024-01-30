@@ -61,7 +61,6 @@ END_PROVIDER
 END_PROVIDER
 
 
-
 BEGIN_PROVIDER   [ real, elec_coord_full, (elec_num+1,3,walk_num) ]
   implicit none
   BEGIN_DOC
@@ -69,8 +68,11 @@ BEGIN_PROVIDER   [ real, elec_coord_full, (elec_num+1,3,walk_num) ]
   ! Component (elec_num+1,1,walk_num) contains the length realized by the walker.
   ! Initialized in init_walkers
   END_DOC
+  integer :: ifirst_elec_coord_full
+  common /common_elec_coord_full/ ifirst_elec_coord_full 
   integer                        :: i,k
   real, allocatable              :: buffer2(:,:,:)
+  PROVIDE elec_coord_pool_size
   if ( is_worker ) then
 
     call get_elec_coord_full(elec_coord_full,size(elec_coord_full,1))
@@ -78,16 +80,19 @@ BEGIN_PROVIDER   [ real, elec_coord_full, (elec_num+1,3,walk_num) ]
   else
 
     if (.not.do_prepare) then
-      allocate ( buffer2(elec_num+1,3,elec_coord_pool_size) )
-      call get_electrons_elec_coord_pool(buffer2)
-      do k=1,walk_num
-        do i=1,elec_num+1
-          elec_coord_full(i,1,k) = buffer2(i,1,k)
-          elec_coord_full(i,2,k) = buffer2(i,2,k)
-          elec_coord_full(i,3,k) = buffer2(i,3,k)
+      if (ifirst_elec_coord_full == 0) then
+        allocate ( buffer2(elec_num+1,3,elec_coord_pool_size) )
+        call get_electrons_elec_coord_pool(buffer2)
+        do k=1,walk_num
+          do i=1,elec_num+1
+            elec_coord_full(i,1,k) = buffer2(i,1,k)
+            elec_coord_full(i,2,k) = buffer2(i,2,k)
+            elec_coord_full(i,3,k) = buffer2(i,3,k)
+          enddo
         enddo
-      enddo
-      deallocate ( buffer2 )
+        deallocate ( buffer2 )
+        ifirst_elec_coord_full=1
+      endif
     else
       elec_coord_full = 0.
     endif
