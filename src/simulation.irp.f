@@ -105,7 +105,7 @@ BEGIN_PROVIDER [ integer, precision_bits ]
    BEGIN_DOC
    ! Termination condition of the run
    END_DOC
-   precision_bits = 53
+   precision_bits = 24
    call get_simulation_precision(precision_bits)
    call iinfo(irp_here,'precision',precision_bits)
    
