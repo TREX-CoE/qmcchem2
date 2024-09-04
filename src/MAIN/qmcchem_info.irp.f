@@ -11,6 +11,8 @@ program qmcchem_info
   else
     imax = 100
   endif
+  print *,  'Using qmckl                              : ', use_qmckl
+  print *,  'Precision                                : ', precision_bits
   print *,  'Number of determinants                   : ', det_num
   print *,  'Number of unique alpha/beta determinants : ', det_alpha_num, det_beta_num
   if (use_svd) then

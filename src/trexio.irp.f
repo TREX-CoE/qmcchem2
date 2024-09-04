@@ -23,10 +23,18 @@ BEGIN_PROVIDER [ integer*8, trexio_file ]
  ! File handle for TREXIO
  END_DOC
  integer :: rc
- trexio_file = trexio_open(trim(trexio_filename), 'r', TREXIO_AUTO, rc)
- if (rc /= TREXIO_SUCCESS) then
-   print *, irp_here
-   print *, 'Unable to open TREXIO file ', trexio_filename
+ if (use_trexio) then
+
+   trexio_file = trexio_open(trim(trexio_filename), 'r', TREXIO_AUTO, rc)
+   if (rc /= TREXIO_SUCCESS) then
+     print *, irp_here
+     print *, 'Unable to open TREXIO file ', trexio_filename
+   endif
+
+ else
+
+   trexio_file = 0
+
  endif
 
 END_PROVIDER

@@ -12,11 +12,17 @@
   integer(qmckl_exit_code) :: rc
   integer :: keep(mo_tot_num), i
 
+
   if (ifirst == 0) then
     ifirst = 1
+    if (.not.use_qmckl) then
+      qmckl_ctx = 0
+      qmckl_mo_num = 0
+      return
+    endif
 
     qmckl_ctx = qmckl_context_create()
-    
+
     rc = qmckl_trexio_read(qmckl_ctx, trexio_filename, 1_8*len(trim(trexio_filename)))
     call check_qmckl(rc, irp_here, qmckl_ctx)
 
