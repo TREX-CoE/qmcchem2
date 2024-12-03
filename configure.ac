@@ -136,11 +136,13 @@ AS_CASE([$FC],
       [avx2], [ALIGN=32 ; FCFLAGS="${FCFLAGS} -march=core-avx2"],
       [avx512], [ALIGN=64 ; FCFLAGS="${FCFLAGS} -march=skylake-avx512"])
 ], [*gfortran*], [
+FCFLAGS="${FCFLAGS} -fallow-argument-mismatch"
 AS_CASE([$with_arch],
   [avx], [ALIGN=32 ; FCFLAGS="${FCFLAGS} -march=sandybridge -ftree-vectorize"],
   [avx2], [ALIGN=32 ; FCFLAGS="${FCFLAGS} -march=haswell -ftree-vectorize"],
   [avx512], [ALIGN=64 ; FCFLAGS="${FCFLAGS} -march=skylake-avx512 -ftree-vectorize"])
 ])
+
 
 AS_IF([test "x.$ALIGN" != "x."], [IRPF90_FLAGS="--align=$ALIGN"],[IRPF90_FLAGS="--align=32"])
 AC_SUBST([IRPF90_FLAGS])
