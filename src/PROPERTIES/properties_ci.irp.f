@@ -32,21 +32,30 @@ BEGIN_PROVIDER [ double precision, ci_h_psidet, (size_ci_h_psidet) ]
   ! Dimensions : det_num
   END_DOC
 
-  integer                        :: i, j, k, l
-  double precision :: T, tmp
+  integer                        :: i, j, k, l, e
+  double precision :: T, tmp, V, g, f
 
   do k=1,det_num
     i = det_coef_matrix_rows(k)
     j = det_coef_matrix_columns(k)
-    T = 0.d0
-    do l=1,elec_alpha_num
-      T += det_right_alpha_grad_lapl(4,l,i)*det_right_beta_value (j)
-    enddo
-    do l=elec_alpha_num+1,elec_num
-      T += det_right_beta_grad_lapl (4,l,j)*det_right_alpha_value(i)
-    enddo
-    ci_h_psidet(k) = -0.5d0*T + E_pot * det_right_alpha_value(i)*det_right_beta_value (j)
-    ci_h_psidet(k) *= psidet_right_inv
+    T = det_right_alpha_lapl_sum(i) * det_right_beta_value (j) &
+      + det_right_beta_lapl_sum (j) * det_right_alpha_value(i) 
+    g = det_right_alpha_value(i) * det_right_beta_value(j)
+    V = (E_pot + E_nucl) * g
+    if (do_pseudo) then
+      do e = 1, elec_alpha_num
+        V -= pseudo_right_non_local(e) * g
+        V += det_right_alpha_pseudo(e,i) * det_right_beta_value(j)
+      enddo
+      do e = 1, elec_beta_num
+        V -= pseudo_right_non_local(elec_alpha_num+e) * g
+        V += det_right_alpha_value(i) * det_right_beta_pseudo(e,j)
+      enddo
+    endif 
+
+    f = -0.5d0 * T + V
+    f *= psidet_right_inv * psidet_right_inv
+    ci_h_psidet(k) = f
   enddo
 
   ci_h_psidet_min = min(ci_h_psidet_min,minval(ci_h_psidet))
