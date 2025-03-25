@@ -295,7 +295,7 @@ let command () =
         doc="Print a table for the convergence of a property" ;
         arg=With_arg "<string>"; };
 
-      { short='t' ; long="weight_max" ; opt=Optional ;
+      { short='w' ; long="weight_max" ; opt=Optional ;
         doc="Keep only weights below w/100*max_weight" ;
         arg=With_arg "<string>"; };
 

@@ -268,15 +268,20 @@ BEGIN_PROVIDER [ double precision, pseudo_mo_term, (mo_num,elec_num) ]
 ! \sum < Ylm | MO > x Ylm(r) x V_nl(r)
  END_DOC
  integer :: ii,i,j,l,m,k,n,kk
- double precision :: r, w0, w1, w2, ndr
- double precision :: tmp(pseudo_non_loc_dim_8,mo_num)
+ double precision :: r, ndr, w0, w1, w2
+ double precision, allocatable, save :: tmp(:,:), w12(:), w02(:), w10(:)
  double precision, save :: dr_inv, dr
  !DIR$ ATTRIBUTES ALIGN : $IRP_ALIGN :: tmp
  integer, save                  :: ifirst = 0
 
+
  if (ifirst == 0) then
     pseudo_mo_term = 0.d0
     ifirst = 1
+    allocate(tmp(pseudo_non_loc_dim_8,mo_num))
+    allocate(w12(pseudo_non_loc_dim))
+    allocate(w02(pseudo_non_loc_dim))
+    allocate(w10(pseudo_non_loc_dim))
     dr_inv = dble(pseudo_grid_size)/pseudo_grid_rmax
     dr     = pseudo_grid_rmax/dble(pseudo_grid_size)
  endif
@@ -299,15 +304,23 @@ BEGIN_PROVIDER [ double precision, pseudo_mo_term, (mo_num,elec_num) ]
        w0 = -(r-ndr+dr)*dr_inv
        w1 = -(r-ndr)*dr_inv*0.5d0
        w2 = -(r-ndr-dr)*dr_inv
+       do l=kk+1,kk+pseudo_non_loc_dim_count(k)
+         w12(l) = w1*w2*pseudo_ylm(l,j)
+         w02(l) = w0*w2*pseudo_ylm(l,j)
+         w10(l) = w1*w0*pseudo_ylm(l,j)
+       enddo
 
        do ii=1,num_present_mos
          i = present_mos(ii)
          !DIR$ LOOP COUNT(4)
          do l=kk+1,kk+pseudo_non_loc_dim_count(k)
-           tmp(l,i) = ( ( mo_pseudo_grid (l,i,n-1) * w1 -        &
-                          mo_pseudo_grid (l,i,n  ) * w0 ) * w2 + &
-                          mo_pseudo_grid (l,i,n+1) * w1 * w0 )   &
-                      * pseudo_ylm(l,j)
+!           tmp(l,i) = ( ( mo_pseudo_grid (l,i,n-1) * w1 -        &
+!                          mo_pseudo_grid (l,i,n  ) * w0 ) * w2 + &
+!                          mo_pseudo_grid (l,i,n+1) * w1 * w0 )   &
+!                      * pseudo_ylm(l,j)
+           tmp(l,i) = mo_pseudo_grid (l,i,n-1) * w12(l) - &
+                      mo_pseudo_grid (l,i,n  ) * w02(l) + &
+                      mo_pseudo_grid (l,i,n+1) * w10(l)
          enddo
        enddo
      endif
