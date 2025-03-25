@@ -1,10 +1,10 @@
 open Qptypes
 
 (** Display a table that can be plotted by gnuplot *)
-let display_table ~clean ~range property =
+let display_table ~clean ~range ~filter_func property =
   let p =
     Property.of_string property
-    |> Random_variable.of_raw_data ~range ~clean
+    |> Random_variable.of_raw_data ~range ~clean ~filter_func
   in
   let  conv = Random_variable.convergence p
   and rconv = Random_variable.rev_convergence p
@@ -21,15 +21,15 @@ let display_table ~clean ~range property =
 
 
 (** Display a convergence plot of the requested property *)
-let display_plot ~clean ~range property =
+let display_plot ~clean ~range ~filter_func property =
   print_string ("display_plot "^property^".\n")
 
 
 (** Display a convergence table of the error *)
-let display_err_convergence ~clean ~range property =
+let display_err_convergence ~clean ~range ~filter_func property =
   let p =
     Property.of_string property
-    |> Random_variable.of_raw_data ~range ~clean
+    |> Random_variable.of_raw_data ~range ~clean ~filter_func
   in
   let rec aux n p =
       match Random_variable.ave_error p with
@@ -52,10 +52,10 @@ let display_err_convergence ~clean ~range property =
 
 
 (** Display the centered cumulants of a property *)
-let display_cumulants ~clean ~range property =
+let display_cumulants ~clean ~range ~filter_func property =
   let p =
     Property.of_string property
-    |> Random_variable.of_raw_data ~range ~clean
+    |> Random_variable.of_raw_data ~range ~clean ~filter_func
   in
   let cum =
     Random_variable.centered_cumulants p
@@ -73,10 +73,10 @@ let display_cumulants ~clean ~range property =
 
 
 (** Display a table for the autocovariance of the property *)
-let display_autocovariance ~clean ~range property =
+let display_autocovariance ~clean ~range ~filter_func property =
   let p =
     Property.of_string property
-    |> Random_variable.of_raw_data ~range ~clean
+    |> Random_variable.of_raw_data ~range ~clean ~filter_func
   in
   Random_variable.autocovariance p
   |> List.iteri (fun i x ->
@@ -84,10 +84,10 @@ let display_autocovariance ~clean ~range property =
 
 
 (** Display a histogram of the property *)
-let display_histogram ~clean ~range property =
+let display_histogram ~clean ~range ~filter_func property =
   let p =
     Property.of_string property
-    |> Random_variable.of_raw_data ~range ~clean
+    |> Random_variable.of_raw_data ~range ~clean ~filter_func
   in
   let histo =
     Random_variable.histogram p
@@ -132,7 +132,7 @@ let display_histogram ~clean ~range property =
 
 
 (** Display a summary of all the computed quantities *)
-let display_summary ~clean ~range =
+let display_summary ~clean ~range ~filter_func =
 
   let properties =
     Lazy.force Block.properties
@@ -143,11 +143,11 @@ let display_summary ~clean ~range =
       | Accep
       | Wall
       | Cpu -> begin
-        let p = Random_variable.of_raw_data ~range ~clean property in
+        let p = Random_variable.of_raw_data ~range ~clean ~filter_func property in
         Printf.printf "%s%!" (Random_variable.to_string p)
         end
       | _ -> begin
-        let p = Random_variable.of_raw_data ~range ~clean property in
+        let p = Random_variable.of_raw_data ~range ~clean ~filter_func property in
         Printf.printf "%s%!" (Random_variable.to_string p);
         Printf.printf " (%d)%!" (List.length p.Random_variable.data)
         end
@@ -158,14 +158,14 @@ let display_summary ~clean ~range =
 
 
   let cpu =
-    Random_variable.of_raw_data ~range ~clean:None Property.Cpu
+    Random_variable.of_raw_data ~range ~clean:None ~filter_func:None Property.Cpu
     |> Random_variable.sum
   and wall =
-    Random_variable.of_raw_data ~range ~clean:None Property.Wall
+    Random_variable.of_raw_data ~range ~clean:None ~filter_func:None Property.Wall
     |> Random_variable.max_value_per_compute_node
     |> Random_variable.sum
   and total_weight =
-    Random_variable.of_raw_data ~range ~clean Property.E_loc
+    Random_variable.of_raw_data ~range ~clean ~filter_func Property.E_loc
     |> Random_variable.total_weight
   in
 
@@ -177,7 +177,7 @@ let display_summary ~clean ~range =
 
 
 
-let run ?a ?c ?e ?h ?t ?p ?rmin ?rmax ?clean ezfio_file =
+let run ?a ?c ?e ?h ?t ?p ?rmin ?rmax ?wmax ?clean ezfio_file =
 
   Qputils.set_ezfio_filename ezfio_file;
 
@@ -193,6 +193,12 @@ let run ?a ?c ?e ?h ?t ?p ?rmin ?rmax ?clean ezfio_file =
       | Some x when (float_of_string x < 0.)   -> failwith "rmax should be >= 0"
       | Some x when (float_of_string x > 100.) -> failwith "rmax should be <= 100"
       | Some x -> float_of_string x
+  and wmax =
+      match wmax with
+      | None -> None
+      | Some x when (float_of_string x < 0.)   -> failwith "wmax should be >= 0"
+      | Some x when (float_of_string x > 100.) -> failwith "wmax should be <= 100"
+      | Some x -> Some (float_of_string x)
   and clean =
       match clean with
       | Some x -> Some (float_of_string x)
@@ -214,9 +220,27 @@ let run ?a ?c ?e ?h ?t ?p ?rmin ?rmax ?clean ezfio_file =
     ]
   in
 
+  let filter_func: (Block.t list -> Block.t list) option =
+    (* Filter out blocks with too large weights *)
+    let result =
+      match wmax with
+      | None -> None
+      | Some wmax -> Some (fun data ->
+          let max_weight =
+            List.fold_left (fun accu x ->
+              let w = Weight.to_float x.Block.weight in
+              if w > accu then w else accu
+              ) 0.  data
+          in
+          let w = wmax *. 0.01 *. max_weight in
+          List.filter (fun x -> Weight.to_float x.Block.weight < w) data
+      )
+    in result
+  in
+
   List.iter (fun (x,func) ->
       match x with
-      | Some property -> func ~clean ~range property
+      | Some property -> func ~clean ~range ~filter_func property
       | None -> ()
     ) l;
 
@@ -226,7 +250,7 @@ let run ?a ?c ?e ?h ?t ?p ?rmin ?rmax ?clean ezfio_file =
       | (Some _,_) -> false
      ) true l
     ) then
-    display_summary ~range ~clean
+    display_summary ~range ~clean ~filter_func
 
 
 let command () =
@@ -271,6 +295,10 @@ let command () =
         doc="Print a table for the convergence of a property" ;
         arg=With_arg "<string>"; };
 
+      { short='t' ; long="weight_max" ; opt=Optional ;
+        doc="Keep only weights below w/100*max_weight" ;
+        arg=With_arg "<string>"; };
+
       anonymous "EZFIO_DIR" Mandatory "EZFIO directory";
     ]
 
@@ -285,6 +313,7 @@ let command () =
   let p = Command_line.get "plot" in
   let rmin = Command_line.get "rmin" in
   let rmax = Command_line.get "rmax" in
+  let wmax = Command_line.get "wmax" in
   let clean = Command_line.get "clean" in
 
   let ezfio_file =
@@ -292,7 +321,7 @@ let command () =
     | ezfio_file :: [] -> ezfio_file
     | _ -> (Command_line.help () ; failwith "Inconsistent command line")
   in
-  run ?a ?c ?e ?h ?t ?p ?rmin ?rmax ?clean ezfio_file
+  run ?a ?c ?e ?h ?t ?p ?rmin ?rmax ?wmax ?clean ezfio_file
 
 
 

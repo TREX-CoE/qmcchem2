@@ -323,12 +323,20 @@ let centered_cumulants { property ; data } =
 
 
 (** Build from raw data. Range values are given in percent. *)
-let of_raw_data ?(locked=true) ~range ~clean property =
+let of_raw_data ?(locked=true) ~filter_func ?(range=(0.,100.)) ~clean property =
+
     let raw_data =
+
       let data =
-         Block.raw_data ~locked ()
-         |> List.filter (fun x -> x.Block.property = property)
+        let result = 
+          Block.raw_data ~locked ()
+          |> List.filter (fun x -> x.Block.property = property)
+        in
+        match filter_func with
+        | None -> result
+        | Some func -> func result
       in
+
       match clean with
       | None -> data
       | Some clean ->
@@ -895,13 +903,13 @@ let compress_files () =
       match p with
         | Property.Cpu
         | Property.Accep ->
-          of_raw_data ~locked:false ~range:(0.,100.) ~clean:None p
+          of_raw_data ~locked:false ~clean:None ~filter_func:None p
             |> merge_per_compute_node
         | Property.Wall  ->
-          of_raw_data ~locked:false ~range:(0.,100.) ~clean:None p
+          of_raw_data ~locked:false ~clean:None ~filter_func:None p
             |> max_value_per_compute_node
         | _     ->
-          of_raw_data ~locked:false ~range:(0.,100.) ~clean:None p
+          of_raw_data ~locked:false ~clean:None ~filter_func:None p
             (*
             |> merge_per_compute_node_and_block_id
             *)
