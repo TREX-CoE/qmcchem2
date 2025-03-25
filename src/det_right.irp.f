@@ -1295,7 +1295,7 @@ BEGIN_PROVIDER  [ double precision, det_right_alpha_grad_lapl_curr, (4,elec_alph
     do i = 1, elec_alpha_num
         !DIR$ VECTOR ALIGNED
       do k = 1, 4
-        det_right_alpha_grad_lapl_curr(k,i) = det_right_alpha_grad_lapl_curr(k,i) & 
+        det_right_alpha_grad_lapl_curr(k,i) = det_right_alpha_grad_lapl_curr(k,i) &
                                            + mo_grad_lapl_alpha(k,i,imo) * slater_matrix_right_alpha_inv_det(i,j)
       enddo
     enddo

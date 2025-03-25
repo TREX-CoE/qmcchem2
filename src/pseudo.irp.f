@@ -199,7 +199,7 @@ BEGIN_PROVIDER [ double precision, v_pseudo_local, (elec_num) ]
          case default
            rn = r**pseudo_n_k(i,k)
        end select
-       v_pseudo_local(l) += pseudo_v_k(i,k) * exp(-alpha) * rn
+       v_pseudo_local(l) = v_pseudo_local(l) + pseudo_v_k(i,k) * dexp(-alpha) * rn
      enddo
    enddo
  enddo
@@ -292,7 +292,7 @@ BEGIN_PROVIDER [ double precision, pseudo_mo_term, (mo_num,elec_num) ]
    kk=0
    do k=1,nucl_num
      r = nucl_elec_dist(k,j)
-     n = 1 + int(0.5+r*dr_inv)
+     n = 1 + int(0.5d0+r*dr_inv)
      if (n<=pseudo_grid_size) then
        if (n == pseudo_grid_size) then
          n = n-1
@@ -314,10 +314,6 @@ BEGIN_PROVIDER [ double precision, pseudo_mo_term, (mo_num,elec_num) ]
          i = present_mos(ii)
          !DIR$ LOOP COUNT(4)
          do l=kk+1,kk+pseudo_non_loc_dim_count(k)
-!           tmp(l,i) = ( ( mo_pseudo_grid (l,i,n-1) * w1 -        &
-!                          mo_pseudo_grid (l,i,n  ) * w0 ) * w2 + &
-!                          mo_pseudo_grid (l,i,n+1) * w1 * w0 )   &
-!                      * pseudo_ylm(l,j)
            tmp(l,i) = mo_pseudo_grid (l,i,n-1) * w12(l) - &
                       mo_pseudo_grid (l,i,n  ) * w02(l) + &
                       mo_pseudo_grid (l,i,n+1) * w10(l)

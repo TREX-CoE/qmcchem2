@@ -136,7 +136,7 @@ END_SHELL
       enddo
       TOUCH elec_coord
       psi_value_save(i_walk) = psi_value
-      E_loc_save(:,i_walk) = E_loc
+      E_loc_save(:,i_walk) = E_loc + pseudo_stabilization
    endif
 
    double precision               :: p,q
@@ -153,17 +153,17 @@ END_SHELL
         (psi_value * psi_value_save(i_walk) >= 0.d0) ) then
 
       ! 2-step
-      delta = (E_loc+E_loc_save(1,i_walk))*0.5d0
+      delta = ((E_loc+pseudo_stabilization)+E_loc_save(1,i_walk))*0.5d0
 
 !     ! 3-step
-!     delta = (5.d0 * E_loc + 8.d0 * E_loc_save(1,i_walk) - E_loc_save(2,i_walk))/12.d0
+!     delta = (5.d0 * (E_loc+pseudo_stabilization) + 8.d0 * E_loc_save(1,i_walk) - E_loc_save(2,i_walk))/12.d0
 
 !     ! 4-step
-!     delta = (9.d0*E_loc+19.d0*E_loc_save(1,i_walk)- &
+!     delta = (9.d0*(E_loc+pseudo_stabilization)+19.d0*E_loc_save(1,i_walk)- &
 !            5.d0*E_loc_save(2,i_walk)+E_loc_save(3,i_walk))/24.d0
 
      ! 5-step
-!     delta = -((-251.d0*E_loc)-646.d0*E_loc_save(1,i_walk)+264.d0*E_loc_save(2,i_walk)-&
+!     delta = -((-251.d0*(E_loc+pseudo_stabilization))-646.d0*E_loc_save(1,i_walk)+264.d0*E_loc_save(2,i_walk)-&
 !          106.d0*E_loc_save(3,i_walk)+19.d0*E_loc_save(4,i_walk))/720.d0
 
 
@@ -182,7 +182,7 @@ END_SHELL
 !    endif
 
    elec_coord(elec_num+1,1) += p*time_step
-   elec_coord(elec_num+1,2)  = E_loc
+   elec_coord(elec_num+1,2)  = (E_loc+pseudo_stabilization)
    elec_coord(elec_num+1,3)  = srmc_weight(i_walk)
    do l=1,3
       do i=1,elec_num+1
@@ -200,7 +200,7 @@ END_SHELL
       E_loc_save(4,i_walk) = E_loc_save(3,i_walk)
       E_loc_save(3,i_walk) = E_loc_save(2,i_walk)
       E_loc_save(2,i_walk) = E_loc_save(1,i_walk)
-      E_loc_save(1,i_walk) = E_loc
+      E_loc_save(1,i_walk) = (E_loc+pseudo_stabilization)
 !  endif
 
 BEGIN_SHELL [ /usr/bin/env python3 ]
