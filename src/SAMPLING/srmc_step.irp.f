@@ -142,7 +142,7 @@ END_SHELL
    double precision               :: p,q
    real                           :: delta_x
    logical                        :: accepted
-   call brownian_step(p,q,accepted,delta_x)
+   call brownian_step_reg(p,q,accepted,delta_x)
    if (accepted) then
       trapped_walk(i_walk) = 0
    else

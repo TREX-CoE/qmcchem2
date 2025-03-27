@@ -67,6 +67,7 @@ BEGIN_PROVIDER  [ integer*8, seed, (5) ]
       clock(i) = i
     enddo
     call random_seed(put=clock)
+    pid8=1_8
 
   else
     read(current_PID,*) pid8
