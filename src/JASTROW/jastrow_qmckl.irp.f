@@ -1,6 +1,23 @@
 ! QMCkl Jastrow
 ! --------------
 
+BEGIN_PROVIDER [ integer, jast_qmckl_spin_independent ]
+ implicit none
+ BEGIN_DOC
+ ! Number of different nuclei types in QMCkl jastrow
+ END_DOC
+
+ logical :: tmp
+
+ call get_jastrow_jast_qmckl_spin_independent(tmp)
+ if (tmp) then
+    jast_qmckl_spin_independent = 1
+ else
+    jast_qmckl_spin_independent = 0
+ endif
+
+END_PROVIDER
+
 BEGIN_PROVIDER [ integer, jast_qmckl_type_nucl_num ]
  implicit none
  BEGIN_DOC

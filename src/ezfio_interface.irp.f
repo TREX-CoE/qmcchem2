@@ -48,6 +48,7 @@ data = [ \
 ("jastrow_jast_qmckl_b_vector"   , "double precision", "(jast_qmckl_bord_num+1)" ),
 ("jastrow_jast_qmckl_c_vector_size"   , "integer", "" ),
 ("jastrow_jast_qmckl_c_vector"   , "double precision", "(jast_qmckl_c_vector_size)" ),
+("jastrow_jast_qmckl_spin_independent"   , "logical", "" ),
 ("jastrow_jast_type"               , "character*(32)", ""                    ),
 ("jastrow_jpsi_type"               , "character*(32)", ""                    ),
 ("simulation_stop_time"            , "integer"       , ""                      ),

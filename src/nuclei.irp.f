@@ -141,7 +141,7 @@ BEGIN_PROVIDER [ real, nucl_fitcusp_radius, (nucl_num) ]
   real, parameter                :: b = 0.126057
 
   if (.not. do_nucl_fitcusp) then
-    nucl_fitcusp_radius = 0.d0
+    nucl_fitcusp_radius = 0.
     return
   endif
 
@@ -151,7 +151,7 @@ BEGIN_PROVIDER [ real, nucl_fitcusp_radius, (nucl_num) ]
 
   ! Avoid dummy atoms
   do k=1,nucl_num
-    if (nucl_charge(k) < 5.d-1) then
+    if (nucl_charge(k) < 5.e-1) then
       nucl_fitcusp_radius(k) = 0.
     endif
   enddo

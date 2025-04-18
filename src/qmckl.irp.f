@@ -51,7 +51,7 @@
     ! Jastrow parameters
     if (jast_type == t_Qmckl .or. jpsi_type == t_Qmckl) then
 
-       rc =  qmckl_set_jastrow_champ_spin_independent(qmckl_ctx, 1)
+       rc =  qmckl_set_jastrow_champ_spin_independent(qmckl_ctx, jast_qmckl_spin_independent)
        call check_qmckl(rc, irp_here, qmckl_ctx)
 
        rc =  qmckl_set_jastrow_champ_type_nucl_num(qmckl_ctx, 1_8*jast_qmckl_type_nucl_num)
