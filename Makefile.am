@@ -175,6 +175,7 @@ IRPSOURCES= \
   src/SAMPLING/reconfigure.irp.f \
   src/SAMPLING/srmc_step.irp.f \
   src/SAMPLING/vmc_step.irp.f \
+  src/SAMPLING/pseudo_stablization.irp.f \
   src/PROPERTIES/properties_tc.irp.f \
   src/PROPERTIES/properties_ci.irp.f \
   src/PROPERTIES/properties_eJast.irp.f \
