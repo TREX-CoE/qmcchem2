@@ -138,7 +138,7 @@ BEGIN_PROVIDER [ integer, jast_qmckl_c_vector_size ]
 END_PROVIDER
 
 
-BEGIN_PROVIDER [ double precision, jast_qmckl_a_vector, (jast_qmckl_type_nucl_num*(jast_qmckl_aord_num+1))]
+BEGIN_PROVIDER [ double precision, jast_qmckl_a_vector, (jast_qmckl_aord_num+1,jast_qmckl_type_nucl_num) ]
  implicit none
  BEGIN_DOC
  ! electron-nucleus parameters in QMCkl Jastrow
@@ -175,7 +175,7 @@ END_PROVIDER
 
 ! ---
 
-BEGIN_PROVIDER [ double precision , jast_elec_Qmckl_value, (elec_num_8)  ]
+BEGIN_PROVIDER [ double precision , jast_elec_Qmckl_value, (elec_num)  ]
  use qmckl
  implicit none
  BEGIN_DOC
@@ -184,39 +184,30 @@ BEGIN_PROVIDER [ double precision , jast_elec_Qmckl_value, (elec_num_8)  ]
 
  integer(qmckl_exit_code) :: rc
  integer :: i
- double precision :: v(1)
+ double precision :: v, jee(1), jen(1), jeen(1)
+
  PROVIDE elec_coord
 
- rc = qmckl_get_jastrow_champ_factor_ee(qmckl_ctx, v, 1_8)
+ rc = qmckl_get_jastrow_champ_factor_ee(qmckl_ctx, jee(1), 1_8)
  call check_qmckl(rc, irp_here, qmckl_ctx)
 
- v(1) = v(1)/dble(elec_num)
- do i=1,elec_num
-   jast_elec_Qmckl_value(i) = v(1)
- enddo
-
- rc = qmckl_get_jastrow_champ_factor_en(qmckl_ctx, v, 1_8)
+ rc = qmckl_get_jastrow_champ_factor_en(qmckl_ctx, jen(1), 1_8)
  call check_qmckl(rc, irp_here, qmckl_ctx)
 
- v(1) = v(1)/dble(elec_num)
- do i=1,elec_num
-   jast_elec_Qmckl_value(i) += v(1)
- enddo
-
- rc = qmckl_get_jastrow_champ_factor_een(qmckl_ctx, v, 1_8)
+ rc = qmckl_get_jastrow_champ_factor_een(qmckl_ctx, jeen(1), 1_8)
  call check_qmckl(rc, irp_here, qmckl_ctx)
 
- v(1) = v(1)/dble(elec_num)
+ v = (jee(1) + jen(1) + jeen(1))/dble(elec_num)
  do i=1,elec_num
-   jast_elec_Qmckl_value(i) += v(1)
+   jast_elec_Qmckl_value(i) = v
  enddo
 
 END_PROVIDER
 
- BEGIN_PROVIDER [ double precision , jast_elec_Qmckl_grad_x, (elec_num_8) ]
-&BEGIN_PROVIDER [ double precision , jast_elec_Qmckl_grad_y, (elec_num_8) ]
-&BEGIN_PROVIDER [ double precision , jast_elec_Qmckl_grad_z, (elec_num_8) ]
-&BEGIN_PROVIDER [ double precision , jast_elec_Qmckl_lapl  , (elec_num_8) ]
+ BEGIN_PROVIDER [ double precision , jast_elec_Qmckl_grad_x, (elec_num) ]
+&BEGIN_PROVIDER [ double precision , jast_elec_Qmckl_grad_y, (elec_num) ]
+&BEGIN_PROVIDER [ double precision , jast_elec_Qmckl_grad_z, (elec_num) ]
+&BEGIN_PROVIDER [ double precision , jast_elec_Qmckl_lapl  , (elec_num) ]
  use qmckl
  implicit none
  BEGIN_DOC
