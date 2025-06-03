@@ -27,7 +27,7 @@ END_PROVIDER
 
 
 
-BEGIN_PROVIDER [ double precision , jast_elec_Core_value, (elec_num_8)  ]
+BEGIN_PROVIDER [ double precision , jast_elec_Core_value, (elec_num)  ]
 implicit none
  BEGIN_DOC
 ! J(i) = \sum_j a.rij/(1+b^2.rij) - \sum_A (a.riA/(1+a.riA))^2
@@ -66,9 +66,9 @@ implicit none
  enddo
 END_PROVIDER
 
- BEGIN_PROVIDER [ double precision , jast_elec_Core_grad_x, (elec_num_8) ]
-&BEGIN_PROVIDER [ double precision , jast_elec_Core_grad_y, (elec_num_8) ]
-&BEGIN_PROVIDER [ double precision , jast_elec_Core_grad_z, (elec_num_8) ]
+ BEGIN_PROVIDER [ double precision , jast_elec_Core_grad_x, (elec_num) ]
+&BEGIN_PROVIDER [ double precision , jast_elec_Core_grad_y, (elec_num) ]
+&BEGIN_PROVIDER [ double precision , jast_elec_Core_grad_z, (elec_num) ]
  implicit none
  BEGIN_DOC
 ! Gradient of the Jastrow factor
@@ -115,7 +115,7 @@ END_PROVIDER
  enddo
 END_PROVIDER
 
-BEGIN_PROVIDER [ double precision , jast_elec_Core_lapl, (elec_num_8) ]
+BEGIN_PROVIDER [ double precision , jast_elec_Core_lapl, (elec_num) ]
  implicit none
  BEGIN_DOC
 ! Laplacian of the Jastrow factor

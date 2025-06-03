@@ -24,7 +24,7 @@ END_PROVIDER
 
 ! ---
 
-BEGIN_PROVIDER [ double precision , jast_elec_Mu_1b_value, (elec_num_8)  ]
+BEGIN_PROVIDER [ double precision , jast_elec_Mu_1b_value, (elec_num)  ]
 
   implicit none
   integer :: i
@@ -37,9 +37,9 @@ END_PROVIDER
 
 ! ---
 
- BEGIN_PROVIDER [ double precision , jast_elec_Mu_1b_grad_x, (elec_num_8) ]
-&BEGIN_PROVIDER [ double precision , jast_elec_Mu_1b_grad_y, (elec_num_8) ]
-&BEGIN_PROVIDER [ double precision , jast_elec_Mu_1b_grad_z, (elec_num_8) ]
+ BEGIN_PROVIDER [ double precision , jast_elec_Mu_1b_grad_x, (elec_num) ]
+&BEGIN_PROVIDER [ double precision , jast_elec_Mu_1b_grad_y, (elec_num) ]
+&BEGIN_PROVIDER [ double precision , jast_elec_Mu_1b_grad_z, (elec_num) ]
 
   implicit none
   integer :: i
@@ -54,7 +54,7 @@ END_PROVIDER
 
 ! ---
 
-BEGIN_PROVIDER [ double precision , jast_elec_Mu_1b_lapl, (elec_num_8) ]
+BEGIN_PROVIDER [ double precision , jast_elec_Mu_1b_lapl, (elec_num) ]
 
   implicit none
   integer :: i
@@ -67,7 +67,7 @@ END_PROVIDER
 
 ! ---
 
-BEGIN_PROVIDER [ double precision , jast_elec_Mu_1b_lapl_reg, (elec_num_8) ]
+BEGIN_PROVIDER [ double precision , jast_elec_Mu_1b_lapl_reg, (elec_num) ]
 
   implicit none
   integer :: i

@@ -2,8 +2,8 @@
 ! ---
 
  BEGIN_PROVIDER [ logical, use_lr ]
-&BEGIN_PROVIDER [ real,    coef_psi_right]
-&BEGIN_PROVIDER [ real,    coef_psi_left ]
+&BEGIN_PROVIDER [ double precision, coef_psi_right]
+&BEGIN_PROVIDER [ double precision, coef_psi_left ]
 
   BEGIN_DOC
   ! if true, Psi = alpha Phi_R e^J + beta Phi_L e^-J
@@ -18,8 +18,8 @@
     call get_bi_ortho_mos_coef_psi_right(coef_psi_right)
     call get_bi_ortho_mos_coef_psi_left (coef_psi_left )
   else
-    coef_psi_right = 0.
-    coef_psi_left  = 0.
+    coef_psi_right = 0.d0
+    coef_psi_left  = 0.d0
   endif
 
 END_PROVIDER

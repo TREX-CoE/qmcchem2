@@ -22,7 +22,7 @@ BEGIN_PROVIDER  [ real, nucl_charge, (nucl_num) ]
 ! Nuclear charge
   END_DOC
 
-  nucl_charge = -1.d0
+  nucl_charge = -1.0
   call get_nuclei_nucl_charge(nucl_charge)
 
   integer                        :: i

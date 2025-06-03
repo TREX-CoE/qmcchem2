@@ -1,6 +1,6 @@
 ! ---
 
-BEGIN_PROVIDER [ double precision, jast_1b_value, (elec_num_8)  ]
+BEGIN_PROVIDER [ double precision, jast_1b_value, (elec_num)  ]
 
   BEGIN_DOC  
   ! 1-body Jastrow
@@ -100,9 +100,9 @@ END_PROVIDER
 
 ! ---
 
- BEGIN_PROVIDER [ double precision, jast_1b_grad_x, (elec_num_8) ]
-&BEGIN_PROVIDER [ double precision, jast_1b_grad_y, (elec_num_8) ]
-&BEGIN_PROVIDER [ double precision, jast_1b_grad_z, (elec_num_8) ]
+ BEGIN_PROVIDER [ double precision, jast_1b_grad_x, (elec_num) ]
+&BEGIN_PROVIDER [ double precision, jast_1b_grad_y, (elec_num) ]
+&BEGIN_PROVIDER [ double precision, jast_1b_grad_z, (elec_num) ]
 
   BEGIN_DOC  
   ! Gradient of the Jastrow
@@ -219,7 +219,7 @@ END_PROVIDER
 
 ! ---
 
-BEGIN_PROVIDER [ double precision, jast_1b_lapl, (elec_num_8) ]
+BEGIN_PROVIDER [ double precision, jast_1b_lapl, (elec_num) ]
 
   BEGIN_DOC  
   ! Laplacian of the Jastrow factor
@@ -323,7 +323,7 @@ END_PROVIDER
 
 ! ---
 
-BEGIN_PROVIDER [ double precision, jast_1b_grad_sq, (elec_num_8) ]
+BEGIN_PROVIDER [ double precision, jast_1b_grad_sq, (elec_num) ]
 
   BEGIN_DOC  
   ! square of the gradient of the 1-body Jastrow

@@ -24,7 +24,7 @@ END_PROVIDER
 
 ! ---
 
-BEGIN_PROVIDER [double precision, jast_elec_Muenv_value, (elec_num_8)]
+BEGIN_PROVIDER [double precision, jast_elec_Muenv_value, (elec_num)]
 
   BEGIN_DOC  
   !
@@ -66,10 +66,10 @@ END_PROVIDER
 
 ! ---
 
- BEGIN_PROVIDER [double precision, jast_elec_Muenv_grad_x, (elec_num_8)]
-&BEGIN_PROVIDER [double precision, jast_elec_Muenv_grad_y, (elec_num_8)]
-&BEGIN_PROVIDER [double precision, jast_elec_Muenv_grad_z, (elec_num_8)]
-&BEGIN_PROVIDER [double precision, jast_elec_Muenv_lapl  , (elec_num_8)]
+ BEGIN_PROVIDER [double precision, jast_elec_Muenv_grad_x, (elec_num)]
+&BEGIN_PROVIDER [double precision, jast_elec_Muenv_grad_y, (elec_num)]
+&BEGIN_PROVIDER [double precision, jast_elec_Muenv_grad_z, (elec_num)]
+&BEGIN_PROVIDER [double precision, jast_elec_Muenv_lapl  , (elec_num)]
 
   include '../constants.F'
 
@@ -124,7 +124,7 @@ END_PROVIDER
 
 ! ---
 
-BEGIN_PROVIDER [double precision, vi_1b_env, (elec_num_8)]
+BEGIN_PROVIDER [double precision, vi_1b_env, (elec_num)]
 
   implicit none
   integer          :: i, iA
@@ -215,10 +215,10 @@ END_PROVIDER
 
 ! ---
 
- BEGIN_PROVIDER [double precision, deriv_vi_x_env, (elec_num_8)]
-&BEGIN_PROVIDER [double precision, deriv_vi_y_env, (elec_num_8)]
-&BEGIN_PROVIDER [double precision, deriv_vi_z_env, (elec_num_8)]
-&BEGIN_PROVIDER [double precision,    lapl_vi_env, (elec_num_8)]
+ BEGIN_PROVIDER [double precision, deriv_vi_x_env, (elec_num)]
+&BEGIN_PROVIDER [double precision, deriv_vi_y_env, (elec_num)]
+&BEGIN_PROVIDER [double precision, deriv_vi_z_env, (elec_num)]
+&BEGIN_PROVIDER [double precision,    lapl_vi_env, (elec_num)]
 
   implicit none
   integer          :: i, ii, iA, phase, b
@@ -360,10 +360,10 @@ END_PROVIDER
 
 ! ---
 
- BEGIN_PROVIDER [double precision, jast_elec_Muenv_grad_x_num, (elec_num_8)]
-&BEGIN_PROVIDER [double precision, jast_elec_Muenv_grad_y_num, (elec_num_8)]
-&BEGIN_PROVIDER [double precision, jast_elec_Muenv_grad_z_num, (elec_num_8)]
-&BEGIN_PROVIDER [double precision, jast_elec_Muenv_lapl_num  , (elec_num_8)]
+ BEGIN_PROVIDER [double precision, jast_elec_Muenv_grad_x_num, (elec_num)]
+&BEGIN_PROVIDER [double precision, jast_elec_Muenv_grad_y_num, (elec_num)]
+&BEGIN_PROVIDER [double precision, jast_elec_Muenv_grad_z_num, (elec_num)]
+&BEGIN_PROVIDER [double precision, jast_elec_Muenv_lapl_num  , (elec_num)]
 
   implicit none
   integer          :: i, j
