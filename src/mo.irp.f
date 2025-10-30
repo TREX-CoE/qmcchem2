@@ -310,7 +310,16 @@ BEGIN_PROVIDER [ real, mo_value, (elec_num_8,mo_num) ]
     !DIR$ VECTOR ALIGNED
     mo_value = 0.
   endif
-  call transpose(mo_value_transp(1,1),mo_num_8,mo_value,elec_num_8,mo_num,elec_num)
+!  call transpose(mo_value_transp(1,1),mo_num_8,mo_value,elec_num_8,mo_num,elec_num)
+  if (use_qmckl) then
+    do i=1,elec_num
+      mo_value(i,1:num_present_mos) = qmckl_mo_vgl(1:num_present_mos,1,i)
+    enddo
+  else
+    do i=1,elec_num
+      mo_value(i,1:num_present_mos) = mo_value_transp(1:num_present_mos,i)
+    enddo
+  endif
 
 END_PROVIDER
 
@@ -337,11 +346,19 @@ END_PROVIDER
     ifirst = 1
     PROVIDE primitives_reduced
   endif
-  ! Transpose x last for cache efficiency
-  call transpose_to_dp(mo_grad_transp_y(1,1),mo_num_8,mo_grad_y(1,1),elec_num_8,mo_num,elec_num)
-  call transpose_to_dp(mo_grad_transp_z(1,1),mo_num_8,mo_grad_z(1,1),elec_num_8,mo_num,elec_num)
-  call transpose_to_dp(mo_grad_transp_x(1,1),mo_num_8,mo_grad_x(1,1),elec_num_8,mo_num,elec_num)
-
+  if (use_qmckl) then
+    do i=1,elec_num
+      mo_grad_x(i,1:num_present_mos) = qmckl_mo_vgl(1:num_present_mos,2,i)
+      mo_grad_y(i,1:num_present_mos) = qmckl_mo_vgl(1:num_present_mos,3,i)
+      mo_grad_z(i,1:num_present_mos) = qmckl_mo_vgl(1:num_present_mos,4,i)
+    end do
+  else
+    do i=1,elec_num
+      mo_grad_x(i,1:num_present_mos) = mo_grad_transp_x(1:num_present_mos,i)
+      mo_grad_y(i,1:num_present_mos) = mo_grad_transp_y(1:num_present_mos,i)
+      mo_grad_z(i,1:num_present_mos) = mo_grad_transp_z(1:num_present_mos,i)
+    end do
+  endif
 
 END_PROVIDER
 
@@ -359,7 +376,16 @@ BEGIN_PROVIDER [ double precision, mo_lapl, (elec_num_8,mo_num) ]
     !DIR$ VECTOR ALIGNED
     mo_lapl = 0.d0
   endif
-  call transpose_to_dp(mo_lapl_transp(1,1),mo_num_8,mo_lapl,elec_num_8,mo_num,elec_num)
+  if (use_qmckl) then
+    do i=1,elec_num
+      mo_lapl  (i,1:num_present_mos) = qmckl_mo_vgl(1:num_present_mos,5,i)
+    end do
+  else
+!    call transpose_to_dp(mo_lapl_transp(1,1),mo_num_8,mo_lapl,elec_num_8,mo_num,elec_num)
+    do i=1,elec_num
+      mo_lapl(i,1:num_present_mos) = mo_lapl_transp(1:num_present_mos,i)
+    end do
+  endif
 
 END_PROVIDER
 
@@ -727,7 +753,7 @@ subroutine sparse_full_mv(A,LDA,                                     &
 !    call MM_PREFETCH (A(1,indices(4)),3)
 !  IRP_ENDIF
 
-  !OMP$ SIMD
+  !DIR$ VECTOR ALWAYS
   do j=1,LDC
     C1(j) = 0.
     C2(j) = 0.
@@ -773,7 +799,7 @@ subroutine sparse_full_mv(A,LDA,                                     &
 
     do k=0,LDA-1,$IRP_ALIGN/4
       !DIR$ VECTOR ALIGNED
-      !OMP$ SIMD FIRSTPRIVATE(d11,d21,d31,d41)
+      !DIR$ VECTOR ALWAYS
       do j=1,$IRP_ALIGN/4
 !        IRP_IF NO_PREFETCH
 !        IRP_ELSE
@@ -787,7 +813,7 @@ subroutine sparse_full_mv(A,LDA,                                     &
       enddo
 
       !DIR$ VECTOR ALIGNED
-      !OMP$ SIMD FIRSTPRIVATE(d12,d22,d32,d42,d13,d23,d33,d43)
+      !DIR$ VECTOR ALWAYS
       do j=1,$IRP_ALIGN/4
         C2(j+k) = C2(j+k) + A(j+k,k_vec(1))*d12 + A(j+k,k_vec(2))*d22&
             +   A(j+k,k_vec(3))*d32 + A(j+k,k_vec(4))*d42
@@ -796,7 +822,7 @@ subroutine sparse_full_mv(A,LDA,                                     &
       enddo
 
       !DIR$ VECTOR ALIGNED
-      !OMP$ SIMD FIRSTPRIVATE(d14,d24,d34,d44,d15,d25,d35,d45)
+      !DIR$ VECTOR ALWAYS
       do j=1,$IRP_ALIGN/4
         C4(j+k) = C4(j+k) + A(j+k,k_vec(1))*d14 + A(j+k,k_vec(2))*d24&
             +   A(j+k,k_vec(3))*d34 + A(j+k,k_vec(4))*d44
@@ -817,7 +843,7 @@ subroutine sparse_full_mv(A,LDA,                                     &
     !DIR$ VECTOR ALIGNED
     do k=0,LDA-1,$IRP_ALIGN/4
       !DIR$ VECTOR ALIGNED
-      !OMP$ SIMD FIRSTPRIVATE(d11,d12,d13,d14,d15)
+      !DIR$ VECTOR ALWAYS
       do j=1,$IRP_ALIGN/4
         C1(j+k) = C1(j+k) + A(j+k,k_vec(1))*d11
         C2(j+k) = C2(j+k) + A(j+k,k_vec(1))*d12

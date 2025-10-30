@@ -194,7 +194,7 @@ BEGIN_PROVIDER [ real, events_num ]
    BEGIN_DOC
    ! Number of Monte Carlo events to average
    END_DOC
-   events_num = real(walk_num)*real(step_num)
+   events_num = dble(walk_num)*dble(step_num)
 END_PROVIDER
 
  

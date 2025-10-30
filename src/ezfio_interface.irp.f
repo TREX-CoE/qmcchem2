@@ -87,7 +87,6 @@ data = [ \
 ]
 
 data_no_set = [\
-("nuclei_nucl_coord" , "real"    , "(nucl_num,3)" ),
 ("pseudo_ao_pseudo_grid"   , "double precision" , "(ao_num,pseudo_lmax+pseudo_lmax+1,pseudo_lmax-0+1,nucl_num,pseudo_grid_size)"),
 ("pseudo_mo_pseudo_grid"   , "double precision" , "(ao_num,pseudo_lmax+pseudo_lmax+1,pseudo_lmax-0+1,nucl_num,pseudo_grid_size)"),
 ("pseudo_pseudo_dz_k"      , "double precision" , "(nucl_num,pseudo_klocmax)"),
@@ -116,6 +115,7 @@ data_no_set = [\
 ]
 
 data_trexio = [\
+("nuclei_nucl_coord" , "real"    , "(nucl_num,3)", "nucleus_coord_32" ),
 ("mo_basis_mo_num"   , "integer" , ""                   , "mo_num_32"        ),
 ("mo_basis_mo_coef"  , "real"    , "(ao_num,mo_tot_num)", "mo_coefficient_32"),
 ("nuclei_nucl_num"   , "integer" , ""                   , "nucleus_num_32"   ),

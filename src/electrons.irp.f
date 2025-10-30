@@ -204,6 +204,7 @@ END_PROVIDER
           elec_dist_vec_y(ie1,ie2)*elec_dist_vec_y(ie1,ie2) +        &
           elec_dist_vec_z(ie1,ie2)*elec_dist_vec_z(ie1,ie2) )
     enddo
+    elec_dist(ie1,ie1) = tiny(1.)
   enddo
 
 END_PROVIDER
@@ -241,13 +242,14 @@ END_PROVIDER
     !DIR$ VECTOR ALIGNED
     !DIR$ LOOP COUNT (100)
     do j = 1,nucl_num
-      nucl_elec_dist(j,i) = (elec_coord(i,1) - nucl_coord(j,1))      &
+      nucl_elec_dist(j,i) = &
+            (elec_coord(i,1) - nucl_coord(j,1))                      &
           * (elec_coord(i,1) - nucl_coord(j,1))                      &
           + (elec_coord(i,2) - nucl_coord(j,2))                      &
           * (elec_coord(i,2) - nucl_coord(j,2))                      &
           + (elec_coord(i,3) - nucl_coord(j,3))                      &
           * (elec_coord(i,3) - nucl_coord(j,3))
-      nucl_elec_dist(j,i) = max(1.e-6,sqrt(nucl_elec_dist(j,i)))
+      nucl_elec_dist(j,i) = max(1.e-10,sqrt(nucl_elec_dist(j,i)))
     enddo
   enddo
 END_PROVIDER
@@ -297,7 +299,7 @@ BEGIN_PROVIDER [ real, elec_dist_inv, (elec_num_8,elec_num) ]
     !DIR$ VECTOR ALIGNED
     !DIR$ LOOP COUNT (200)
     do j=1,elec_num
-      elec_dist_inv(j,i) = 1./(elec_dist(j,i)+1.e-12)
+      elec_dist_inv(j,i) = 1./(elec_dist(j,i)+1.e-18)
     enddo
     elec_dist_inv(i,i) = 0.
   enddo

@@ -3,9 +3,9 @@ BEGIN_PROVIDER [ real, point, (3) ]
   BEGIN_DOC
   ! Coordinates of the current point
   END_DOC
-  point(1) = 0.
-  point(2) = 0.
-  point(3) = 0.
+  point(1) = 0.d0
+  point(2) = 0.d0
+  point(3) = 0.d0
 END_PROVIDER
 
 

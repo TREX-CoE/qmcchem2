@@ -166,6 +166,8 @@ IRPSOURCES= \
   src/MAIN/qmcchem_info.irp.f \
   src/MAIN/qmc_create_walkers.irp.f \
   src/MAIN/qmc.irp.f \
+  src/MAIN/debug.irp.f \
+  src/MAIN/debug2.irp.f \
   src/SAMPLING/block.irp.f \
   src/SAMPLING/brownian_step.irp.f \
   src/SAMPLING/dmc_step.irp.f \

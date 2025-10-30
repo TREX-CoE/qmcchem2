@@ -97,7 +97,7 @@ BEGIN_PROVIDER [ double precision, Eloc_Jpsi ]
 
   implicit none
 
-  Eloc_Jpsi = Eloc_noJ + deltaE_Jpsi
+  Eloc_Jpsi = Eloc_noJ + deltaE_Jpsi - E_nucl
 
   Eloc_Jpsi_min = min(Eloc_Jpsi_min, Eloc_Jpsi)
   Eloc_Jpsi_max = max(Eloc_Jpsi_max, Eloc_Jpsi)

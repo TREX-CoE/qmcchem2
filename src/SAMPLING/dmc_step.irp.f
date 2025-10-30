@@ -246,7 +246,7 @@ END_SHELL
   do k=1,walk_num_dmc
     sum_weight += dmc_weight(k)
   enddo
-  E0 = E_ref - log(sum_weight/real(walk_num)) * 0.1d0 /dtime_step
+  E0 = E_ref - log(sum_weight/dble(walk_num)) * 0.1d0 /dtime_step
 
 ! Branching
   integer                        :: walk_num_dmc_new

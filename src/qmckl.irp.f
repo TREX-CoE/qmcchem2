@@ -119,7 +119,7 @@ BEGIN_PROVIDER [ logical, use_qmckl ]
  BEGIN_DOC
  ! Is true, use TREXIO file
  END_DOC
- use_qmckl = .False.
+ use_qmckl = .True.
  call get_simulation_use_qmckl(use_qmckl)
 END_PROVIDER
 

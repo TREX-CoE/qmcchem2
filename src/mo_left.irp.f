@@ -13,7 +13,7 @@ BEGIN_PROVIDER [ real, mo_left_coef_input, (ao_num_8,mo_tot_num) ]
 
   allocate (buffer(ao_num,mo_tot_num))
 
-  buffer = 0.
+  buffer = 0.d0
   call get_bi_ortho_mos_mo_l_coef(buffer)
   do i = 1, mo_tot_num
     do j = 1, ao_num
@@ -21,7 +21,7 @@ BEGIN_PROVIDER [ real, mo_left_coef_input, (ao_num_8,mo_tot_num) ]
     enddo
     call set_order(mo_left_coef_input(1,i), ao_nucl_sort_idx, ao_num)
     do j = ao_num+1, ao_num_8
-      mo_left_coef_input(j,i) = 0.
+      mo_left_coef_input(j,i) = 0.d0
     enddo
   enddo
 
@@ -48,7 +48,7 @@ BEGIN_PROVIDER [ real, mo_left_coef, (ao_num_8,mo_num_8) ]
   do j = mo_num+1, mo_num_8
     !DIR$ VECTOR ALIGNED
     do i = 1, ao_num_8
-      mo_left_coef(i,j) = 0.
+      mo_left_coef(i,j) = 0.d0
     enddo
   enddo
 

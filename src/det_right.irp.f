@@ -246,7 +246,7 @@ END_PROVIDER
          end do
        end do
 
-       breakdown = 1d-3
+!       breakdown = 1d-3
 !       rc = qmckl_sherman_morrison_smw32s(qmckl_ctx,                 &
 !           int(elec_alpha_num_8, kind=8),                            &
 !           int(elec_alpha_num, kind=8),                              &
@@ -624,7 +624,7 @@ END_PROVIDER
          end do
        end do
 
-       breakdown = 1d-3
+!       breakdown = 1d-3
 !       rc = qmckl_sherman_morrison_smw32s(qmckl_ctx,                 &
 !           int(elec_beta_num_8, kind=8),                             &
 !           int(elec_beta_num, kind=8),                               &
@@ -901,14 +901,15 @@ BEGIN_PROVIDER  [ double precision, det_right_beta_pseudo_curr, (elec_alpha_num+
   integer          :: i, n, imo
   double precision :: c
 
-  if(elec_beta_num == 0) then
-    return
-  endif
-
   if (ifirst == 0) then
     ifirst = 1
     det_right_beta_pseudo_curr = 0.d0
   endif
+
+  if(elec_beta_num == 0) then
+    return
+  endif
+
 
   if (do_pseudo) then
     do i = elec_alpha_num+1, elec_num

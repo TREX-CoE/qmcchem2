@@ -327,7 +327,7 @@ BEGIN_PROVIDER [ double precision, E_pot ]
   implicit none
   integer :: i
 
-  E_pot = 0.d0
+  E_pot = E_nucl
   do i = 1, elec_num
     E_pot += E_pot_elec(i)
   enddo
@@ -348,7 +348,7 @@ BEGIN_PROVIDER [ double precision, E_pot_erf ]
   implicit none
   integer :: i
 
-  E_pot_erf = 0.d0
+  E_pot_erf = E_nucl
   do i = 1, elec_num
     E_pot_erf += E_pot_erf_elec(i)
   enddo
@@ -386,7 +386,7 @@ END_PROVIDER
 BEGIN_PROVIDER  [ double precision, E_loc ]
 
   BEGIN_DOC
-  ! Local energy : E_kin + E_pot + E_nucl
+  ! Local energy : E_kin + E_pot
   END_DOC
 
   include '../types.F'
@@ -421,7 +421,8 @@ BEGIN_PROVIDER [ double precision, E_loc_zv ]
  BEGIN_DOC
  ! Zero-variance parameter on E_loc
  END_DOC
-   E_loc_zv = E_loc
+!   E_loc_zv = E_loc
+   E_loc_zv = 0.d0
    E_loc_zv += (E_trial-E_loc) * dmc_zv_weight
 !   E_loc_zv += - time_step*(E_trial**2 + 1.44341217940434 - E_loc**2)*dmc_zv_weight
 !  E_loc_zv(3)  = dmc_zv_weight_half

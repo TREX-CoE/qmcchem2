@@ -47,11 +47,11 @@ subroutine rho_hf_val_der_lap(r, rho_val, rho_der, rho_lap)
     rho_lap       = rho_lap + 2.d0 * (mo_der_square + mo_val * mo_lap)
   enddo
 
-  rho_val    = 2.d0 * rho_val   
+  rho_val    = 2.d0 * rho_val
   rho_der(1) = 2.d0 * rho_der(1)
   rho_der(2) = 2.d0 * rho_der(2)
   rho_der(3) = 2.d0 * rho_der(3)
-  rho_lap    = 2.d0 * rho_lap   
+  rho_lap    = 2.d0 * rho_lap
 
   if(elec_alpha_num .gt. elec_beta_num) then
     do i = elec_beta_num+1, elec_alpha_num
@@ -101,11 +101,11 @@ subroutine get_mo_val_der_lap(i, r, mo_val, mo_der, mo_lap)
 
   PROVIDE mo_coef_aux
 
-  mo_val    = 0. 
-  mo_der(1) = 0. 
-  mo_der(2) = 0. 
-  mo_der(3) = 0. 
-  mo_lap    = 0. 
+  mo_val    = 0.
+  mo_der(1) = 0.
+  mo_der(2) = 0.
+  mo_der(3) = 0.
+  mo_lap    = 0.
 
   do mu = 1, ao_num
 
