@@ -131,6 +131,7 @@ END_SHELL
         psi_value = psi_value_save(i_walk)
         E_loc = E_loc_save(i_walk)
       enddo
+      call update_qmckl_coord()
       SOFT_TOUCH elec_coord psi_grad_psi_inv_x psi_grad_psi_inv_y psi_grad_psi_inv_z psi_value E_loc
     else
       do l=1,3
@@ -138,6 +139,7 @@ END_SHELL
           elec_coord(i,l) = elec_coord_full(i,l,i_walk)
         enddo
       enddo
+      call update_qmckl_coord()
       TOUCH elec_coord
       E_loc_save(i_walk) = E_loc
       psi_value_save(i_walk) = psi_value

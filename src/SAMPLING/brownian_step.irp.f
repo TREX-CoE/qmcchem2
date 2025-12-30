@@ -192,7 +192,7 @@ subroutine brownian_step(p,q,accepted,delta_x)
 end
 
 
- BEGIN_PROVIDER [ double precision, drift_renorm, (elec_num) ]
+BEGIN_PROVIDER [ double precision, drift_renorm, (elec_num) ]
  implicit none
  BEGIN_DOC
  ! Regularized drift, Eq(33) or Umrigar 93
@@ -200,6 +200,7 @@ end
  double precision :: tau_v2, f
  integer :: i
 
+! drift_renorm(:) = 1.d0
  do i=1,elec_num
    tau_v2 = time_step * (psi_grad_psi_inv_x(i)*psi_grad_psi_inv_x(i) + &
                          psi_grad_psi_inv_y(i)*psi_grad_psi_inv_y(i) + &

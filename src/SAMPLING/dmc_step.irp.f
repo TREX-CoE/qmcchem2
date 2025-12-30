@@ -9,7 +9,7 @@ t = """
 &BEGIN_PROVIDER [ $T, $X_2_dmc_block_walk $D1 ]
 &BEGIN_PROVIDER [ $T, $X_2_dmc_block_walk_kahan $D2 ]
  implicit none
- BEGIN_DOC  
+ BEGIN_DOC
 ! DMC averages of $X. Computed in E_loc_dmc_block_walk
  END_DOC
  $X_dmc_block_walk = 0.d0
@@ -129,6 +129,7 @@ END_SHELL
         psi_value = psi_value_save(i_walk)
         E_loc = E_loc_save(1,i_walk)
       enddo
+      call update_qmckl_coord
       SOFT_TOUCH elec_coord psi_grad_psi_inv_x psi_grad_psi_inv_y psi_grad_psi_inv_z psi_value E_loc
     else
       do l=1,3
@@ -136,6 +137,7 @@ END_SHELL
           elec_coord(i,l) = elec_coord_full_dmc(i,l,i_walk)
         enddo
       enddo
+      call update_qmckl_coord
       TOUCH elec_coord
       psi_value_save(i_walk) = psi_value
       E_loc_save(:,i_walk) = E_loc
@@ -210,19 +212,19 @@ t = """
    !  $X_dmc_block_walk    += $X * dmc_weight(i_walk)
    !  $X_2_dmc_block_walk  += $X_2 * dmc_weight(i_walk)
    ! see http://en.wikipedia.org/wiki/Kahan_summation_algorithm
-   
+
       $X_dmc_block_walk_kahan($D2 3) = $X * dmc_weight(i_walk) - $X_dmc_block_walk_kahan($D2 1)
       $X_dmc_block_walk_kahan($D2 2) = $X_dmc_block_walk $D1  + $X_dmc_block_walk_kahan($D2 3)
       $X_dmc_block_walk_kahan($D2 1) = ($X_dmc_block_walk_kahan($D2 2) - $X_dmc_block_walk $D1 ) &
           - $X_dmc_block_walk_kahan($D2 3)
-      $X_dmc_block_walk $D1  =  $X_dmc_block_walk_kahan($D2 2) 
-   
-   
+      $X_dmc_block_walk $D1  =  $X_dmc_block_walk_kahan($D2 2)
+
+
       $X_2_dmc_block_walk_kahan($D2 3) = $X_2 * dmc_weight(i_walk) - $X_2_dmc_block_walk_kahan($D2 1)
       $X_2_dmc_block_walk_kahan($D2 2) = $X_2_dmc_block_walk $D1 + $X_2_dmc_block_walk_kahan($D2 3)
       $X_2_dmc_block_walk_kahan($D2 1) = ($X_2_dmc_block_walk_kahan($D2 2) - $X_2_dmc_block_walk $D1 ) &
           - $X_2_dmc_block_walk_kahan($D2 3)
-      $X_2_dmc_block_walk $D1 =  $X_2_dmc_block_walk_kahan($D2 2) 
+      $X_2_dmc_block_walk $D1 =  $X_2_dmc_block_walk_kahan($D2 2)
      endif
 """
 for p in properties:
@@ -267,9 +269,9 @@ END_SHELL
     ipos(k) = k
   enddo
 
-! call reconfigure(ipos,dmc_weight)
+! call reconfigure(ipos,dmc_weight,walk_num)
 ! walk_num_dmc = walk_num
-  
+
   walk_num_dmc_new = walk_num_dmc
   double precision               :: r, u
   do k=1,walk_num_dmc
@@ -325,7 +327,8 @@ END_SHELL
     cpu2 = cpu1
   endif
 
-  SOFT_TOUCH elec_coord_full_dmc psi_value psi_grad_psi_inv_x psi_grad_psi_inv_y psi_grad_psi_inv_z elec_coord 
+  call update_qmckl_coord()
+  SOFT_TOUCH elec_coord_full_dmc psi_value psi_grad_psi_inv_x psi_grad_psi_inv_y psi_grad_psi_inv_z elec_coord
 
   first_loop = .False.
 
@@ -370,7 +373,7 @@ END_PROVIDER
 
 BEGIN_PROVIDER [ double precision, E_ref ]
   implicit none
-  BEGIN_DOC  
+  BEGIN_DOC
 !  Weight  of the DMC population
   END_DOC
   E_ref = 0.d0
@@ -380,7 +383,7 @@ END_PROVIDER
  BEGIN_PROVIDER [ integer, trapped_walk, (walk_num_dmc_max) ]
 &BEGIN_PROVIDER [ integer,  trapped_walk_max ]
  implicit none
- BEGIN_DOC  
+ BEGIN_DOC
 ! Number of steps when the walkers were trapped
  END_DOC
  trapped_walk = 0

@@ -1,20 +1,21 @@
-subroutine reconfigure_simple(ipos,w)
+subroutine reconfigure_simple(ipos,w, isize)
   implicit none
-  integer, intent(inout)         :: ipos(*)
-  double precision, intent(in)   :: w(*)
-  
+  integer, intent(in)            :: isize
+  integer, intent(inout)         :: ipos(isize)
+  double precision, intent(in)   :: w(isize)
+
   integer                        :: i, j, k, n
 
-  integer :: ipos_new(2*walk_num)
-  double precision :: r, u(2*walk_num)
+  integer :: ipos_new(2*isize)
+  double precision :: r, u(2*isize)
   double precision, external     :: qmc_ranf
 
-  n = walk_num
-  ipos_new(1:walk_num) = ipos(1:walk_num)
-  do k=1, walk_num
+  n = isize
+  ipos_new(1:isize) = ipos(1:isize)
+  do k=1,isize
     r = qmc_ranf()
     if (w(k) > 1.d0) then
-      if ( 1.d0+r < w(k) ) then
+      if ( r < w(k) - 1.d0 ) then
         n = n+1
         ipos_new(n) = k
       endif
@@ -26,8 +27,8 @@ subroutine reconfigure_simple(ipos,w)
     endif
   enddo
 
-  if (n == walk_num) then
-    ipos(1:walk_num) = ipos_new(1:walk_num)
+  if (n == isize) then
+    ipos(1:isize) = ipos_new(1:isize)
   else
     ! Randomly shuffle ipos_new
     call random_number(u(1:n))
@@ -38,35 +39,36 @@ subroutine reconfigure_simple(ipos,w)
      ipos_new(j) = i
     end do
 
-    if (n > walk_num) then
-      ipos(1:walk_num) = ipos_new(1:walk_num)
+    if (n > isize) then
+      ipos(1:isize) = ipos_new(1:isize)
     else
       ipos(1:n) = ipos_new(1:n)
-      ipos(n+1:walk_num) = ipos_new(1:walk_num-n)
+      ipos(n+1:isize) = ipos_new(1:isize-n)
     end if
   end if
 end
 
 
-subroutine reconfigure(ipos,w)
+subroutine reconfigure(ipos,w,isize)
   implicit none
-  integer, intent(inout)         :: ipos(*)
-  double precision, intent(in)   :: w(*)
-  
+  integer, intent(in)            :: isize
+  integer, intent(inout)         :: ipos(isize)
+  double precision, intent(in)   :: w(isize)
+
   integer                        :: i, j, k, n
 
   double precision, external     :: qmc_ranf
-  integer                        :: kptab(walk_num), kmtab(walk_num)
-  double precision               :: wp(walk_num), wm(walk_num)
+  integer                        :: kptab(isize), kmtab(isize)
+  double precision               :: wp(isize), wm(isize)
   double precision               :: tmp
-  
+
   double precision               :: dwalk_num
-  
+
   tmp = 0.d0
-  do k=1,walk_num
+  do k=1,isize
     tmp = tmp + w(k)
   enddo
-  dwalk_num = dble(walk_num)/tmp
+  dwalk_num = dble(isize)/tmp
 
   integer                        :: kp, km
   kp=0
@@ -76,7 +78,7 @@ subroutine reconfigure(ipos,w)
   accup = 0.d0
   accum = 0.d0
 
-  do k=1,walk_num
+  do k=1,isize
     tmp = dwalk_num*w(k)-1.d0
     if (tmp >= 0.d0) then
       kp = kp+1
@@ -95,18 +97,18 @@ subroutine reconfigure(ipos,w)
     print *,  accup, accum
     call abrt(irp_here,'pb in reconfiguration')
   endif
-  
+
   double precision               :: rand
-  double precision               :: rando(walk_num)
+  double precision               :: rando(isize)
   rand = qmc_ranf()
-  do k=1,walk_num
+  do k=1,isize
     rando(k) = dble(k-1)+rand
   enddo
-  
+
   double precision               :: averageconf, current
   integer                        :: kcp
   integer                        :: kadd, kremove
-  
+
   averageconf = accup
   kcp = 1
   rand = rando(kcp)
@@ -119,7 +121,7 @@ subroutine reconfigure(ipos,w)
       current = current + wm(k)
     enddo
     kremove = kmtab(k)
-    
+
     k=1
     current=wp(k)
     do while (rand > current)
@@ -132,6 +134,6 @@ subroutine reconfigure(ipos,w)
     kcp = kcp + 1
     rand = rando(kcp)
   enddo
-  
+
 end
 

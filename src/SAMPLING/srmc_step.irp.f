@@ -127,6 +127,7 @@ END_SHELL
         psi_value = psi_value_save(i_walk)
         E_loc = E_loc_save(1,i_walk)
       enddo
+      call update_qmckl_coord()
       SOFT_TOUCH elec_coord psi_grad_psi_inv_x psi_grad_psi_inv_y psi_grad_psi_inv_z psi_value E_loc
     else
       do l=1,3
@@ -134,6 +135,7 @@ END_SHELL
           elec_coord(i,l) = elec_coord_full(i,l,i_walk)
         enddo
       enddo
+      call update_qmckl_coord()
       TOUCH elec_coord
       psi_value_save(i_walk) = psi_value
       E_loc_save(:,i_walk) = E_loc + pseudo_stabilization
@@ -142,7 +144,8 @@ END_SHELL
    double precision               :: p,q
    real                           :: delta_x
    logical                        :: accepted
-   call brownian_step_reg(p,q,accepted,delta_x)
+   call brownian_step(p,q,accepted,delta_x)
+!   call brownian_step_reg(p,q,accepted,delta_x)
    if (accepted) then
       trapped_walk(i_walk) = 0
    else
@@ -266,13 +269,12 @@ END_SHELL
 
   ! Remove contribution of the old value of the weight at the new
   ! projection step
-   srmc_pop_weight_mult *= 1.d0/srmc_pop_weight(srmc_projection_step)
+  srmc_pop_weight_mult *= 1.d0/srmc_pop_weight(srmc_projection_step)
 
   srmc_pop_weight(srmc_projection_step) = sum_weight/dble(walk_num)
 
   ! Update the running population weight
   srmc_pop_weight_mult *= srmc_pop_weight(srmc_projection_step)
-
 
   if (do_print_dmc_data) then
     do k=1,walk_num
@@ -304,7 +306,7 @@ END_SHELL
     ipos(k) = k
   enddo
 
-  call reconfigure(ipos,srmc_weight)
+  call reconfigure(ipos,srmc_weight,walk_num)
 
   integer :: ipm
   do k=1,walk_num
@@ -334,7 +336,8 @@ END_SHELL
     cpu2 = cpu1
   endif
 
-  SOFT_TOUCH elec_coord_full srmc_pop_weight_mult psi_value psi_grad_psi_inv_x psi_grad_psi_inv_y psi_grad_psi_inv_z elec_coord E_ref
+  SOFT_TOUCH elec_coord_full srmc_pop_weight_mult psi_value psi_grad_psi_inv_x psi_grad_psi_inv_y psi_grad_psi_inv_z elec_coord
+!  E_ref
 
   first_loop = .False.
 
