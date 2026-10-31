@@ -43,11 +43,11 @@ BEGIN_PROVIDER [ real, nucl_coord,  (nucl_num_8,3) ]
   nucl_coord = 0.
   if (use_trexio) then
     real, allocatable              :: buffer2(:,:)
-    allocate (buffer2(3,nucl_num))
+    allocate (buffer2(nucl_num,3))
     call get_nuclei_nucl_coord(buffer2)
     do i=1,3
       do j=1,nucl_num
-        nucl_coord(j,i) = buffer2(i,j)
+        nucl_coord(j,i) = buffer2(j,i)
       enddo
     enddo
     deallocate(buffer2)

@@ -3,7 +3,7 @@ BEGIN_PROVIDER [ logical, use_trexio ]
  BEGIN_DOC
  ! Is true, use TREXIO file
  END_DOC
- use_trexio = .False.
+ use_trexio = .True.
  call get_simulation_use_trexio(use_trexio)
 END_PROVIDER
 
