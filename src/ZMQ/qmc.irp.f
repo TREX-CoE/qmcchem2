@@ -4,6 +4,16 @@ subroutine main_qmc
 
  is_worker = .True.
  SOFT_TOUCH is_worker 
+
+ ! BUILD-ORDER FIX (2026-11-02, ifort -O2 -finline -fma): the det/pseudo
+ ! chain (psidet_right_value & co.) MUST be built from this flat main
+ ! context before any E_loc/E_pot_elec build. If it builds lazily from
+ ! inside the bld_e_pot_elec context, it corrupts nucl_elec_dist_inv(1,2)
+ ! in memory (2^-126 stomp) and E_loc is biased by +sum_j q_j*dinv(j,2).
+ ! The PROVIDE is hoisted to the top of main_qmc, i.e. it runs before
+ ! start_main_qmc() -> equilibration() -> first E_loc_block_walk.
+ PROVIDE psidet_right_value
+
  call start_main_qmc()
 
 end
