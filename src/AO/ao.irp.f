@@ -91,7 +91,10 @@ END_PROVIDER
 ! ao_power_is_zero is true where ao_power(:,4) == 0
   END_DOC
   ao_power = 0
-  call get_ao_basis_ao_power(ao_power)
+  ! Pass a conformable (ao_num,3) section: the generated getter declares
+  ! its dummy as res(ao_num,3) while ao_power is (ao_num,4); passing the
+  ! whole array is a shape mismatch (UB) that ifort handles incorrectly.
+  call get_ao_basis_ao_power(ao_power(1:ao_num,1:3))
 
   character*(80)                 :: message
   integer                        :: i,j
@@ -260,6 +263,38 @@ END_PROVIDER
       norm = goverlap(ao_expo(i,j),ao_expo(i,j),pow)
       ao_coef(i,j) = ao_coef(i,j)/sqrt(norm)
     enddo
+  enddo
+
+! Per-AO normalization (fix: classical-form bases)
+! -------------------------------------------------
+! The per-primitive normalization above leaves each contracted AO with
+! norm^2 S_mm = 1 only if the basis file is in "normalized" form. For
+! "classical" basis forms (ECP soft H part, 3-21g, 6-311g, def2-qzvp...)
+! the contracted AO is not unit norm while the stored MO coefficients
+! assume unit-norm AOs -> the occupied subspace would be distorted.
+! Divide each AO by sqrt(S_mm). No-op for already-normalized AOs.
+  integer                        :: k
+  character*(32)                 :: ao_diag_env = ' '
+  call get_environment_variable('QMCCHEM_AO_DIAG', ao_diag_env)
+  do i=1,ao_num
+    pow(1) = ao_power_transp(1,i)
+    pow(2) = ao_power_transp(2,i)
+    pow(3) = ao_power_transp(3,i)
+    norm2 = 0.0
+    do j=1,ao_prim_num(i)
+      do k=1,ao_prim_num(i)
+        norm2 = norm2 + ao_coef(i,j)*ao_coef(i,k) * &
+                 goverlap(ao_expo(i,j),ao_expo(i,k),pow)
+      enddo
+    enddo
+    if (norm2 <= 0.0) then
+      write(message,'(A,I6,A,F12.6)') 'AO ',i,' has non-positive overlap ',norm2
+      call abrt(irp_here,message)
+    endif
+    ao_coef(i,1:ao_prim_num(i)) = ao_coef(i,1:ao_prim_num(i))/sqrt(norm2)
+    if (trim(ao_diag_env) == '1' .and. abs(norm2-1.0) > 1.0e-6) then
+      write(*,'(A,I5,A,F14.8)') 'AO_DIAG ao=',i,' S_mm=',norm2
+    endif
   enddo
 
 END_PROVIDER
