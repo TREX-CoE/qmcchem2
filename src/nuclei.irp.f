@@ -41,13 +41,25 @@ BEGIN_PROVIDER [ real, nucl_coord,  (nucl_num_8,3) ]
   END_DOC
 
   nucl_coord = 0.
-  if (use_trexio) then
+  ! The TREXIO (atom-major) layout only applies to non-worker processes.
+  ! get_nuclei_nucl_coord() ignores use_trexio when is_worker is true: the
+  ! dataserver sends the EZFIO layout (component-major, as stored in
+  ! nuclei/nucl_coord). Keying this branch on use_trexio alone therefore
+  ! scrambles the geometry of every worker as soon as use_trexio is true
+  ! (E_nucl = 7.6664 instead of 9.1950 for water; E_loc = +48 instead of -75.6).
+  if (use_trexio .and. (.not.is_worker)) then
     real, allocatable              :: buffer2(:,:)
-    allocate (buffer2(nucl_num,3))
+    ! TREXIO stores /nucleus/nucleus_coord as an HDF5 dataset of dims
+    ! (nucleus_num,3) read with a non-reversed memory dataspace
+    ! (src/templates_hdf5/helpers_hdf5.c: H5Screate_simple(rank,size_read)),
+    ! i.e. in C row-major order: x1,y1,z1,x2,y2,z2,...
+    ! A Fortran (3,nucl_num) view has exactly that memory layout, so for a
+    ! TREXIO read the buffer must be declared (3,nucl_num) and transposed.
+    allocate (buffer2(3,nucl_num))
     call get_nuclei_nucl_coord(buffer2)
     do i=1,3
       do j=1,nucl_num
-        nucl_coord(j,i) = buffer2(j,i)
+        nucl_coord(j,i) = buffer2(i,j)
       enddo
     enddo
     deallocate(buffer2)
