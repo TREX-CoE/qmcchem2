@@ -54,7 +54,8 @@ AC_DEFUN([AX_CHECK_NIC], [
     AC_CHECK_PROG([IP_PROG], [ip], [ip], [nocommand])
 
     if test "$IP_PROG.x" == "nocommand.x" ; then
-      AC_MSG_ERROR([Program ip not found: Unable to detect NIC])
+      AC_MSG_WARN([Program ip not found: unable to detect NIC, using hostname])
+      return 0
     fi
 
     INTERFACES=[`ip link show | grep -e '^[0-9]' | cut -d ':' -f 2`]

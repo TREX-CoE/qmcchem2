@@ -71,7 +71,16 @@ and qmc_create_walkers = lazy(
   Filename.concat (Lazy.force root) "bin/qmc_create_walkers"
 )
 
-let dev_shm = "/dev/shm/"
+(* Directory used for local IPC sockets and forwarder scratch.
+   /dev/shm (tmpfs) is preferred when it exists (Linux); otherwise
+   (e.g. macOS) fall back to a per-user directory in /tmp. The
+   trailing slash is part of the ipc:// endpoint strings. *)
+let dev_shm =
+  if Sys.file_exists "/dev/shm" then "/dev/shm/"
+  else
+    let dir = Printf.sprintf "/tmp/qmcchem-%d" (Unix.getuid ()) in
+    (try Unix.mkdir dir 0o755 with Unix.Unix_error (Unix.EEXIST, _, _) -> ());
+    dir ^ "/"
 
 (** Name of the host on which the data server runs *)
 let hostname = lazy (

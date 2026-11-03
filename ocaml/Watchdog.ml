@@ -27,7 +27,10 @@ let start () =
       in
 
       let pid_is_running pid =
-         Sys.file_exists ("/proc/"^(string_of_int pid)^"/stat")
+         try Unix.kill pid 0; true
+         with
+         | Unix.Unix_error (Unix.ESRCH, _, _) -> false
+         | Unix.Unix_error (Unix.EPERM, _, _) -> true
       in
 
       let f () =
