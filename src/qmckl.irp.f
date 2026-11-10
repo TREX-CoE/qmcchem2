@@ -23,6 +23,13 @@
 
     qmckl_ctx = qmckl_context_create()
 
+    ! Always run QMCkl single-threaded: qmcchem parallelises over
+    ! trajectories (workers), not inside the evaluation, and a single
+    ! thread keeps E_loc deterministic (no OpenMP reduction order
+    ! noise), which precision studies rely on.
+    rc = qmckl_context_set_num_threads(qmckl_ctx, 1)
+    call check_qmckl(rc, irp_here, qmckl_ctx)
+
     rc = qmckl_trexio_read(qmckl_ctx, trexio_filename, 1_8*len(trim(trexio_filename)))
     call check_qmckl(rc, irp_here, qmckl_ctx)
 
