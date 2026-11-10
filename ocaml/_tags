@@ -1,7 +1,8 @@
 true: package(zmq,str,sexplib,ppx_sexp_conv,ppx_deriving,getopt)
 true: thread
 false: profile
-<*byte>   : linkdep(c_bindings.o), custom
-<*.native>: linkdep(c_bindings.o)
+<*byte>   : linkdep(c_bindings.o), linkdep(ezfio_stubs.o), custom
+<*.native>: linkdep(c_bindings.o), linkdep(ezfio_stubs.o)
+true: cclib(-ldl)
 
 

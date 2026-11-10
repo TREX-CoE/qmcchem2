@@ -341,23 +341,25 @@ let input_lines filename =
 
 
 let create_ezfio_handler () =
-  let lines =
-    input_lines "ezfio.ml"
-    (* /!\ Change when ezfio.ml changes *)
-    |> List.mapi (fun i l -> if i > 441 then Some l else None)
-    |> List.filter (fun x -> x <> None)
-    |> List.map (fun x ->
-        match x with
-        | Some x -> x
-        | None -> assert false)
-  in
   let functions =
-    List.map (fun x ->
-      match String.split_on_char ' ' x with
-      | _ :: x :: "()" :: "=" :: f :: dir :: item :: _-> (x, f, dir, item)
-      | _ :: x ::         "=" :: f :: dir :: item :: _-> (x, f, dir, item)
-      | _ -> ("","","","")
-    ) lines
+    input_lines "ezfio.ml"
+    (* Three lines per symbol; ignore the preamble and any blank line instead
+       of slicing at a hard-coded line number. *)
+    |> List.filter_map (fun x ->
+        match String.split_on_char ' ' x with
+        | _ :: name :: "()" :: "=" :: f :: dir :: item :: _
+          when String.length name > 4
+            && (String.starts_with ~prefix:"get_" name
+                || String.starts_with ~prefix:"has_" name
+                || String.starts_with ~prefix:"set_" name) ->
+          Some (name, f, dir, item)
+        | _ :: name :: "=" :: f :: dir :: item :: _
+          when String.length name > 4
+            && (String.starts_with ~prefix:"get_" name
+                || String.starts_with ~prefix:"has_" name
+                || String.starts_with ~prefix:"set_" name) ->
+          Some (name, f, dir, item)
+        | _ -> None)
   in
   let has_functions =
     List.filter (fun (x,_,_,_) -> String.sub x 0 4 = "has_") functions

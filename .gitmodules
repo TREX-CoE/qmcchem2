@@ -3,4 +3,4 @@
 	url = https://gitlab.com/scemama/irpf90.git
 [submodule "external/ezfio"]
 	path = external/ezfio
-	url = https://gitlab.com/scemama/ezfio.git
+	url = https://gitlab.com/scemama/ezfio-rs.git

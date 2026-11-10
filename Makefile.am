@@ -14,6 +14,7 @@ CLEANFILES = \
  src/MAIN/qmc \
  ocaml/Property.ml \
  ocaml/ezfio.ml \
+ ocaml/ezfio_stubs.c \
  ocaml/qmcchem \
  ezfio_config/properties.config 
  
@@ -26,7 +27,7 @@ IRPF90=$(abs_srcdir)/external/irpf90/bin/irpf90
 QMCCHEM_PATH=$(abs_srcdir)
 ARCHIVE=$(AR) crs
 
-AM_LIBS=$(EZFIO_DIR)/lib/libezfio_irp.a
+AM_LIBS=$(EZFIO_DIR)/lib/libezfio_irp.a -lpthread -ldl -lm
 LIB=$(AM_LIBS) $(LIBS)
 
 
@@ -54,6 +55,7 @@ src/MAIN/vmc_test: $(EZFIO_DIR)/lib/libezfio_irp.a src/irpf90.make
 
 ocaml/ezfio.ml: $(EZFIO_DIR)/Ocaml/ezfio.ml
 	cp $(EZFIO_DIR)/Ocaml/ezfio.ml ocaml/ezfio.ml
+	cp $(EZFIO_DIR)/Ocaml/ezfio_stubs.c ocaml/ezfio_stubs.c
 
 ocaml/Property.ml: src/PROPERTIES/properties_general.irp.f \
                    src/PROPERTIES/properties.irp.f  \
@@ -62,7 +64,7 @@ ocaml/Property.ml: src/PROPERTIES/properties_general.irp.f \
 	bash -c "source $(srcdir)/qmcchemrc ;\
          $(srcdir)/scripts/create_properties_python.py"
 
-ocaml/qmcchem: ocaml/Property.ml ocaml/ezfio.ml $(OCAMLSOURCES)
+ocaml/qmcchem: ocaml/Property.ml ocaml/ezfio.ml ocaml/ezfio_stubs.c $(OCAMLSOURCES)
 	cd ocaml ; $(MAKE)
 
 ezfio_config/properties.config: src/irpf90.make
